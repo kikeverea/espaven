@@ -1,0 +1,127 @@
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.searchbarContainer {
+  position: relative;
+}
+
+.searchbar {
+  width: 250px;
+  border-radius: 6px;
+  border: 1px solid rgb(234, 234, 234);
+  padding: 10px 13px 10px 40px;
+  font-size: 1rem;
+}
+
+.searchbar::placeholder {
+  color: rgb(177, 177, 177);
+}
+
+.searchbar:focus {
+  outline: none;
+  border: 1px solid rgb(220, 220, 220);
+}
+
+.searchbarIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  stroke: rgb(177, 177, 177);
+}
+
+.filterContainer {
+  position: relative;
+}
+
+.filter {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 80vw;
+  animation: elevateUp 0.3s ease-out both;
+}
+
+.filterButton {
+  background-color: #E9F3FF;
+  border: none;
+  padding: 10px 10px;
+  border-radius: 6px;
+  color: #1B84FF;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.1s ease-in;
+}
+
+.filterButton:hover {
+  background-color: #1B84FF;
+  color: white;
+}
+
+.filterButton:hover > .filterButtonLabel {
+  color: white;
+}
+
+.filterButtonLabel {
+  display: none;
+  color: #1B84FF;
+}
+
+.filterButtonIcon {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  transition: all 0.1s ease-in;
+}
+
+.filterButtonIcon path:first-child {
+  fill: #76b5ff;
+}
+
+.filterButtonIcon path:last-child {
+  fill: #1B84FF;
+}
+
+.filterButton:hover .filterButtonIcon path:last-child {
+  fill: currentColor;
+}
+
+@keyframes elevateUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 600px) {
+  .filterButtonLabel {
+    display: inline;
+  }
+
+  .filterButton {
+    padding: 0.72rem 1.4rem;
+    margin-left: 4px;
+  }
+
+  .filter {
+    width: 0;
+    min-width: 400px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .filter {
+    min-width: 500px;
+  }
+}
+
+
