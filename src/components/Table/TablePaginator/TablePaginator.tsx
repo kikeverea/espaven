@@ -1,6 +1,6 @@
-import {Entity} from '../types.ts'
-import {Dispatch} from 'react'
-import {Pagination} from './types.ts'
+import type { Pagination } from '@/components/Table/TablePaginator/types.ts'
+import type { Dispatch } from 'react'
+import type { Entity } from '@/types.ts'
 
 type TablePaginatorProps<T> = {
   pagination: Pagination,

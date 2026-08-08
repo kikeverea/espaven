@@ -1,15 +1,17 @@
-import type { ReactNode } from 'react'
-import {isValidElement, useMemo} from 'react'
-import {mapToData, filterData} from './processors/dataProcessor'
+import { type ReactNode, useMemo, useState } from 'react'
+import { mapToData, filterData } from './processors/dataProcessor'
 import useSort from './hooks/useSort'
 import usePagination from './hooks/usePagination'
 import TablePaginator from '@/components/Table/TablePaginator/TablePaginator'
-import {sortAndPaginateData} from './processors/dataSortAndPaginate'
+import { sortAndPaginateData } from './processors/dataSortAndPaginate'
 import SortingHeader from '@/components/Table/SortingHeader/SortingHeader'
-import {normalized} from '@/lib/strings'
+import { normalized } from '@/lib/strings'
 import type { Entity } from '@/types.ts'
-import type { TableData, TableProps } from '@/components/Table/types.ts'
+import type { RowData, TableColumn, TableData, TableProps } from '@/components/Table/types.ts'
 import { Table as ShdcnTable, TableBody, TableRow, TableCell } from '@/components/ui/table'
+import { cellPadding } from '@/components/Table/util.tsx'
+import { Checkbox } from '@/components/ui/checkbox.tsx'
+import { TableActions } from '@/components/Table/TableActions/TableActions.tsx'
 
 const Table = <T extends Entity>(
 {
@@ -21,6 +23,9 @@ const Table = <T extends Entity>(
   paginate,
   page: currentPage,
   noEntriesMessage,
+  selectable=false,
+  onSelectionChange,
+  actions
 }: TableProps<T>) => {
 
   const tableData = useMemo<TableData>(
@@ -36,7 +41,28 @@ const Table = <T extends Entity>(
   const [sort, setSortColumn] = useSort(sortBy)
   const [pagination, setItemsPerPage, setPage] = usePagination(paginate, currentPage || 0)
 
+  const [selected, setSelected] = useState<T['id'][]>([])
+
+  const selectItem = (item: RowData, select: boolean) => {
+
+    const newSelection = select ?
+      [...selected, item.id] :
+      selected.filter(selectedId => selectedId !== item.id)
+
+    setSelected(newSelection)
+    onSelectionChange?.(newSelection)
+  }
+
+  const selectAll = (select: boolean) => {
+    const newSelection = select ?
+      (collection || []).map(item => item.id) :
+      []
+
+    setSelected(newSelection)
+    onSelectionChange?.(newSelection)
+  }
   const rows = sortAndPaginateData(filteredData, { pagination, sort })
+
 
   return (
     <>
@@ -45,25 +71,39 @@ const Table = <T extends Entity>(
           columns={ columns }
           sort={ sort }
           setSortColumn={ setSortColumn }
+          selectable={ selectable }
+          onSelectedChange={ selectAll }
         />
         <TableBody>
           { rows?.length
-            ? rows.map(item =>
+            ?
+            rows.map(item =>
               <TableRow key={ item.id }>
-                { columns.map(column => {
-
-                  const data = item.data[normalized(column.name)]
-                  const displayValue = data.presenter ? data.presenter(data.value) : String(data.value ?? '-')
-                  const valueSize = determineValueSize(displayValue)
-
-                  return (
-                    <TableCell key={`${item.id}-${column.name}`}>
-                      <div className={ valueSize }>
-                        { displayValue }
-                      </div>
-                    </TableCell>
-                  )
-                })}
+                { selectable &&
+                  <TableCell
+                    key={`${item.id}-select`}
+                    className={`ps-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25`}
+                  >
+                    <Checkbox
+                      onCheckedChange={(checked) => selectItem(item, checked)}
+                      checked={ selected.includes(item.id)}
+                      className='data-checked:bg-blue-500 data-checked:border-blue-500'
+                    />
+                  </TableCell>
+                }
+                { columns.map(column =>
+                  <TableCell
+                    key={`${item.id}-${column.name || column.key}`}
+                    className={`${cellPadding()} text-gray-800`}
+                  >
+                    { cellValue(column, item) }
+                  </TableCell>
+                )}
+                { actions &&
+                  <TableCell className={`pe-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25`}>
+                    <TableActions actions={ actions } item={ item } />
+                  </TableCell>
+                }
               </TableRow>
             )
             : <TableRow key='empty-message'>
@@ -85,33 +125,13 @@ const Table = <T extends Entity>(
   )
 }
 
-const extractValue = (node: ReactNode): string => {
-  if (typeof node === 'string' || typeof node === 'number')
-    return String(node)
+const cellValue = <T extends Entity> (column: TableColumn<T>, item: RowData): ReactNode => {
+  if (column.component)
+    return column.component()
 
-  if (Array.isArray(node))
-    return node.map(extractValue).join('')
 
-  if (isValidElement<{ children?: ReactNode }>(node))
-    return extractValue(node.props.children)
-
-  return ''
-}
-
-const determineValueSize = (node: ReactNode) => {
-  const value: string = extractValue(node)
-  const valueLength = value.length
-
-  if (valueLength < 3)
-    return "min-w-15"
-
-  if (valueLength < 11)
-    return "min-w-30"
-
-  if (valueLength < 21)
-    return "min-w-45"
-
-  return "min-w-75"
+  const data = item.data[normalized(column.name)]
+  return column.presenter ? column.presenter(data.value) : String(data.value ?? '-')
 }
 
 export default Table

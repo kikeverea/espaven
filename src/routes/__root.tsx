@@ -1,5 +1,5 @@
 import {  createRootRouteWithContext, Outlet } from '@tanstack/react-router'
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar.tsx"
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
@@ -15,11 +15,13 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       <QueryClientProvider client={queryClient}>
         <SidebarProvider>
           <AppSidebar />
-          <main>
+          <SidebarInset>
             <SidebarTrigger />
-            <Outlet />
+            <div className='p-6'>
+              <Outlet />
+            </div>
             <TanStackRouterDevtools />
-          </main>
+          </SidebarInset>
         </SidebarProvider>
       </QueryClientProvider>
     )

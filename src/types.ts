@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 
-export type Entity = { id: number | string }
+export type Entity = { id: number }
 export type Primitive = string | number
-export type DataPresenter = (value: Primitive | Primitive[]) => ReactNode
+export type DataPresenter = (value: any) => ReactNode
 
 export type Dictionary<T> = { [key: string]: T}
 

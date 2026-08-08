@@ -7,25 +7,55 @@ import {
 import type { Entity } from '@/types.ts'
 import type { TableColumn, TableSort } from '@/components/Table/types.ts'
 import { normalized } from '@/lib/strings.ts'
+import { cellPadding } from '@/components/Table/util.tsx'
+import { Checkbox } from '@/components/ui/checkbox.tsx'
+import { useState } from 'react'
 
 type SortingHeaderProps<T extends Entity> = {
   sort?: TableSort,
   columns: TableColumn<T>[],
   setSortColumn: (name: string)=> void,
+  selectable?: boolean
+  onSelectedChange?: (selected: boolean) => void
 }
 
-const SortingHeader = <T extends Entity>({ sort, columns, setSortColumn }: SortingHeaderProps<T>) => {
+const SortingHeader = <T extends Entity>({
+  sort,
+  columns,
+  setSortColumn,
+  selectable,
+  onSelectedChange
+}: SortingHeaderProps<T>) => {
 
   const column = sort?.column
   const direction = sort?.direction || 'asc'
+  const [selected, setSelected] = useState(false)
+
+  const selectionChange = (selected: boolean): void => {
+    setSelected(selected)
+    onSelectedChange?.(selected)
+  }
 
   return (
     <TableHeader>
-      <TableRow>
+      <TableRow className='bg-gray-50'>
+        { selectable &&
+          <TableHead key='select' className={`ps-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25`}>
+            <Checkbox
+              onCheckedChange={ selectionChange }
+              checked={ selected }
+              className='data-checked:bg-blue-500 data-checked:border-blue-500'
+            />
+          </TableHead>
+        }
         { columns.map(col =>
-          <TableHead key={ col.name } className="w-25" onClick={ () => setSortColumn(normalized(col.name)) }>
+          <TableHead
+            key={ col.name || col.key }
+            className={`w-25 text-gray-500 ${cellPadding()}`}
+            onClick={ () => setSortColumn(normalized(col.name)) }
+          >
             <div className="flex items-center gap-1">
-              {col.name}
+              {('name' in col) ? col.name : col.header()}
 
               {column === col.name && (
                 direction === "asc"

@@ -1,5 +1,5 @@
 import {screen, within} from '@testing-library/react'
-import type { Dictionary, Primitive } from '@/types.ts'
+import type { Dictionary } from '@/types.ts'
 import type { TableData } from '@/components/Table/types.ts'
 import { normalized } from '@/lib/strings.ts'
 import type { FilterColumns } from '@/components/Table/TableToolbar/types.ts'
@@ -17,7 +17,7 @@ export type TestData = {
 
 export type UpdateFilterArgs = Dictionary<string[] | { min?: number | string, max?: number | string, parser?: any }>
 
-export const formatDate = (dateMillis: Primitive | Primitive[]): string => {
+export const formatDate = (dateMillis: number): string => {
   const date = new Date(dateMillis as number)
   return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`
 }

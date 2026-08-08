@@ -12,15 +12,16 @@ import {
   parseDate,
   getTestData, newFilter
 } from '@/lib/testUtils.ts'
+import { expect } from 'vitest'
 
 describe('Table', () => {
 
   const columns: TableColumn<TestData>[] = [
-    { name: 'Name', data: item => item.name },
-    { name: 'Family', data: item => item.family },
-    { name: 'Type', data: item => item.type },
-    { name: 'Age', data: item => item.age },
-    { name: 'Birth', data: item => parseDate(item.birth), presenter: formatDate }
+    { name: 'Name', accessor: 'name' },
+    { name: 'Family', accessor: item => item.family },
+    { name: 'Type', accessor: 'type' },
+    { name: 'Age', accessor: item => item.age },
+    { name: 'Birth', accessor: item => parseDate(item.birth), presenter: formatDate }
   ]
 
   const collection: TestData[] = [
@@ -83,6 +84,63 @@ describe('Table', () => {
           expect(cell.textContent).toBe(getTestData({ collection, row: rowIndex, col: colIndex }))
         })
       })
+    })
+
+    test('renders checkboxes if selectable', () => {
+      render(<Table collection={ collection } columns={ columns } selectable={ true }/>)
+
+      const [header, body] = screen.getAllByRole('rowgroup')
+
+      const headerCheckbox = within(header).getByRole('checkbox')
+      const rowCheckboxes = within(body).getAllByRole('checkbox')
+
+      expect(headerCheckbox).toBeInTheDocument()
+      expect(rowCheckboxes).toHaveLength(collection.length)
+    })
+
+    test('calls selection change', async () => {
+      const mock = vi.fn()
+      render(<Table collection={ collection } columns={ columns } selectable={ true } onSelectionChange={ mock }/>)
+
+      const [header, body] = screen.getAllByRole('rowgroup')
+
+      const headerCheckbox = within(header).getByRole('checkbox')
+      const rowCheckboxes = within(body).getAllByRole('checkbox')
+      const rowCheckbox = rowCheckboxes[Math.round(Math.random() * rowCheckboxes.length)]
+
+      await userEvent.click(headerCheckbox)
+      await userEvent.click(rowCheckbox)
+
+      expect(mock).toHaveBeenCalledTimes(2)
+    })
+
+    test('renders actions button', () => {
+      render(<Table collection={ collection } columns={ columns } selectable={ true } actions={[
+        { label: 'Delete', path: () => '' },
+        { label: 'Delete', path: () => '', destructive: true },
+      ]}/>)
+
+      const buttons = screen.getAllByRole('button')
+
+      expect(buttons).toHaveLength(collection.length)
+    })
+
+    test('renders custom columns', () => {
+      const testColumns = [
+        ...columns,
+        { header: () => <span data-testid='test-header'></span>,
+          component: () => <span data-testid='test-cell'></span>,
+          key: 'custom'
+        }
+      ]
+
+      render(<Table collection={ collection } columns={ testColumns }/>)
+
+      const header = screen.getByTestId('test-header')
+      const components = screen.getAllByTestId('test-cell')
+
+      expect(header).toBeInTheDocument()
+      expect(components).toHaveLength(collection.length)
     })
 
     describe('Search', () => {

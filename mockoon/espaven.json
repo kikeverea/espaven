@@ -1,0 +1,102 @@
+{
+  "uuid": "62e25fc1-922f-4fad-b641-61d48ce55743",
+  "lastMigration": 33,
+  "name": "Espaven",
+  "endpointPrefix": "api",
+  "latency": 0,
+  "port": 3001,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "5aabef7f-2f34-444c-be84-b016ce7f6ba8",
+      "type": "crud",
+      "documentation": "",
+      "method": "",
+      "endpoint": "inquiries",
+      "responses": [
+        {
+          "uuid": "b0c1c40a-06eb-432a-bbb0-cbd5ab9a6a0d",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "DATABUCKET",
+          "filePath": "",
+          "databucketID": "wvvr",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "5aabef7f-2f34-444c-be84-b016ce7f6ba8"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [
+    {
+      "uuid": "55733cd9-ffd2-434c-a6dd-0aea75aa2883",
+      "id": "wvvr",
+      "name": "Inquiries",
+      "documentation": "",
+      "value": "[\n  {\n    \"id\": 1,\n    \"status\": \"new\",\n    \"accessed\": false,\n    \"contact\": {\n      \"name\": \"Lucía\",\n      \"lastName\": \"Martínez\",\n      \"emails\": [\"lucia.martinez@example.com\"],\n      \"phoneNumbers\": [\"+34 612 345 678\"],\n      \"address\": \"Calle de Alcalá 42, Madrid\"\n    },\n    \"service\": \"Residency consultation\",\n    \"lastActivity\": \"2026-08-09T00:48:00+02:00\",\n    \"created\": \"2026-08-08T16:20:00+02:00\"\n  },\n  {\n    \"id\": 2,\n    \"status\": \"contacted\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Daniel\",\n      \"lastName\": \"Romero\",\n      \"emails\": [\n        \"daniel.romero@example.com\",\n        \"d.romero@company.es\"\n      ],\n      \"phoneNumbers\": [\"+34 622 918 441\"],\n      \"address\": \"Carrer de València 118, Barcelona\"\n    },\n    \"service\": \"Work permit\",\n    \"lastActivity\": \"2026-08-08T22:15:00+02:00\",\n    \"created\": \"2026-08-06T10:05:00+02:00\"\n  },\n  {\n    \"id\": 3,\n    \"status\": \"secondContact\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Sofia\",\n      \"lastName\": \"Andersson\",\n      \"emails\": [\"sofia.andersson@example.se\"],\n      \"phoneNumbers\": [\n        \"+46 70 123 45 67\",\n        \"+34 633 201 991\"\n      ],\n      \"address\": \"Paseo de Gracia 84, Barcelona\"\n    },\n    \"service\": \"Digital nomad visa\",\n    \"lastActivity\": \"2026-08-07T14:32:00+02:00\",\n    \"created\": \"2026-08-03T09:45:00+02:00\"\n  },\n  {\n    \"id\": 4,\n    \"status\": \"contacted\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Marco\",\n      \"lastName\": \"Bianchi\",\n      \"emails\": [\"marco.bianchi@example.it\"],\n      \"phoneNumbers\": [\"+39 347 555 0192\"],\n      \"address\": \"Calle Colón 21, Valencia\"\n    },\n    \"service\": \"Company incorporation\",\n    \"lastActivity\": \"2026-08-05T11:10:00+02:00\",\n    \"created\": \"2026-07-28T13:22:00+02:00\"\n  },\n  {\n    \"id\": 5,\n    \"status\": \"new\",\n    \"accessed\": false,\n    \"contact\": {\n      \"name\": \"Emma\",\n      \"lastName\": \"Johnson\",\n      \"emails\": [\"emma.johnson@example.com\"],\n      \"phoneNumbers\": [\"+44 7700 900123\"],\n      \"address\": \"Calle Larios 9, Málaga\"\n    },\n    \"service\": \"Property purchase assistance\",\n    \"lastActivity\": \"2026-08-09T01:58:00+02:00\",\n    \"created\": \"2026-08-09T01:55:00+02:00\"\n  },\n  {\n    \"id\": 6,\n    \"status\": \"secondContact\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Carlos\",\n      \"lastName\": \"Mendoza\",\n      \"emails\": [\"carlos.mendoza@example.mx\"],\n      \"phoneNumbers\": [\"+52 55 1234 8899\"],\n      \"address\": \"Avenida Constitución 17, Sevilla\"\n    },\n    \"service\": \"Spanish citizenship\",\n    \"lastActivity\": \"2026-07-21T17:40:00+02:00\",\n    \"created\": \"2026-06-30T12:15:00+02:00\"\n  }\n]"
+    }
+  ],
+  "callbacks": []
+}

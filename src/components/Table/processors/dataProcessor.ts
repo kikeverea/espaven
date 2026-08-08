@@ -19,7 +19,8 @@ export const mapToData = <T extends Entity>(collection: T[] = [], columns: Table
 
     const data = columns.reduce((data, column) => {
       const columnName = normalized(column.name)
-      data[columnName] = { value: column.data(item), presenter: column.presenter }
+      const columnData = typeof column.accessor === 'function' ? column.accessor(item) : String(item[column.accessor])
+      data[columnName] = { value: columnData, presenter: column.presenter }
 
       return data
     }, {} as ItemData)
