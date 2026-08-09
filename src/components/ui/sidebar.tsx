@@ -266,7 +266,7 @@ function SidebarTrigger({
       size="icon-sm"
       className={cn(className)}
       onClick={(event) => {
-        onClick?.(event)
+        onClick!(event)
         toggleSidebar()
       }}
       {...props}

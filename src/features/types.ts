@@ -14,7 +14,7 @@ export type Lead = Contact & {
 export type NewLead = Omit<Lead, 'id'>
 
 export type Inquiry = Entity & {
-  status: string
+  status: InquiryStatus
   accessed: boolean
   contact: Contact
   service: string
@@ -22,3 +22,8 @@ export type Inquiry = Entity & {
   created: string
 }
 export type NewInquiry = Omit<Inquiry, 'id'>
+
+export type InquiryStatus =
+  | 'new'
+  | 'contacted'
+  | 'secondContact'

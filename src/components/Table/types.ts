@@ -6,6 +6,7 @@ type StandardTableColumn<T extends Entity> = {
   name: string
   accessor: keyof T | ((item: T) => Primitive | Primitive[])
   presenter?: DataPresenter
+  onClick?: (id: number) => void
 
   key?: never
   header?: never
@@ -21,6 +22,8 @@ type CustomTableColumn = {
   accessor?: never
   presenter?: never
 }
+
+export const isCustomCol = (col: TableColumn<any>): col is CustomTableColumn => !!col.component
 
 export type TableColumn<T extends Entity> =
   | StandardTableColumn<T>

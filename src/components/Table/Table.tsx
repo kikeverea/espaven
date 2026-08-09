@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useState } from 'react'
+import { type ReactNode, useEffect, useMemo, useReducer, useRef } from 'react'
 import { mapToData, filterData } from './processors/dataProcessor'
 import useSort from './hooks/useSort'
 import usePagination from './hooks/usePagination'
@@ -7,11 +7,19 @@ import { sortAndPaginateData } from './processors/dataSortAndPaginate'
 import SortingHeader from '@/components/Table/SortingHeader/SortingHeader'
 import { normalized } from '@/lib/strings'
 import type { Entity } from '@/types.ts'
-import type { RowData, TableColumn, TableData, TableProps } from '@/components/Table/types.ts'
+import {
+  isCustomCol,
+  type RowData,
+  type TableColumn,
+  type TableData,
+  type TableProps
+} from '@/components/Table/types.ts'
 import { Table as ShdcnTable, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { cellPadding } from '@/components/Table/util.tsx'
 import { Checkbox } from '@/components/ui/checkbox.tsx'
 import { TableActions } from '@/components/Table/TableActions/TableActions.tsx'
+import { SquareArrowOutUpRight } from 'lucide-react'
+import selectionReducer from '@/components/Table/reducers/selectionReducer'
 
 const Table = <T extends Entity>(
 {
@@ -41,32 +49,33 @@ const Table = <T extends Entity>(
   const [sort, setSortColumn] = useSort(sortBy)
   const [pagination, setItemsPerPage, setPage] = usePagination(paginate, currentPage || 0)
 
-  const [selected, setSelected] = useState<T['id'][]>([])
+  const [selected, dispatchSelection] = useReducer(selectionReducer<T>, [] as T['id'][])
+  const isFirstRender = useRef(true)
 
-  const selectItem = (item: RowData, select: boolean) => {
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
 
-    const newSelection = select ?
-      [...selected, item.id] :
-      selected.filter(selectedId => selectedId !== item.id)
+    onSelectionChange!(selected)
+  }, [selected])
 
-    setSelected(newSelection)
-    onSelectionChange?.(newSelection)
-  }
+  const selectItem = (item: RowData, select: boolean) =>
+    dispatchSelection({ type: 'SELECT_ITEM', payload: { id: item.id, selected: select } })
 
-  const selectAll = (select: boolean) => {
-    const newSelection = select ?
-      (collection || []).map(item => item.id) :
-      []
+  const selectAll = (select: boolean) =>
+    dispatchSelection({
+      type: 'SELECT_ALL',
+      payload: { ids: (collection || []).map(item => item.id), selected: select }
+    })
 
-    setSelected(newSelection)
-    onSelectionChange?.(newSelection)
-  }
   const rows = sortAndPaginateData(filteredData, { pagination, sort })
 
 
   return (
-    <>
-      <ShdcnTable>
+    <div className='rounded-lg border overflow-hidden bg-background'>
+      <ShdcnTable className='text-[13px]'>
         <SortingHeader
           columns={ columns }
           sort={ sort }
@@ -94,9 +103,16 @@ const Table = <T extends Entity>(
                 { columns.map(column =>
                   <TableCell
                     key={`${item.id}-${column.name || column.key}`}
-                    className={`${cellPadding()} text-gray-800`}
+                    className={`${cellPadding()} text-gray-800 ${!isCustomCol(column) && column.onClick && 'cursor-pointer group'}`}
+                    onClick={ () => isCustomCol(column) ? null : column.onClick!(item.id) }
                   >
-                    { cellValue(column, item) }
+                    { !isCustomCol(column) && column.onClick
+                      ? <div className='flex items-center gap-2 w-full text-blue-500'>
+                          { cellValue(column, item) }
+                          <SquareArrowOutUpRight className='invisible size-3.5 group-hover:visible'/>
+                        </div>
+                      : cellValue(column, item)
+                    }
                   </TableCell>
                 )}
                 { actions &&
@@ -121,14 +137,13 @@ const Table = <T extends Entity>(
           collection={ collection }
         />
       }
-    </>
+    </div>
   )
 }
 
 const cellValue = <T extends Entity> (column: TableColumn<T>, item: RowData): ReactNode => {
   if (column.component)
     return column.component()
-
 
   const data = item.data[normalized(column.name)]
   return column.presenter ? column.presenter(data.value) : String(data.value ?? '-')

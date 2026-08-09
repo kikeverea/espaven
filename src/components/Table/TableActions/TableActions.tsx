@@ -36,18 +36,18 @@ export function TableActions({ actions = [], item }: TableActionsProps): JSX.Ele
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         { regular.map(action =>
-          <DropdownMenuItem>
-            { action.icon }
-            <Link to={ action.path(item) }>
+          <DropdownMenuItem className='p-0'>
+            <Link to={ action.path(item) } className='flex gap-2 px-2 py-2 w-full'>
+              { action.icon }
               <span className='text-xs'>{ action.label }</span>
             </Link>
           </DropdownMenuItem>
         )}
         { !!destructive.length && <DropdownMenuSeparator /> }
         { destructive.map(action =>
-          <DropdownMenuItem variant='destructive'>
-            { action.icon }
-            <Link to={ action.path(item) }>
+          <DropdownMenuItem variant='destructive' className='p-0'>
+            <Link to={ action.path(item) } className='flex gap-2 px-2 py-2 w-full'>
+              { action.icon }
               <span className='text-xs'>{ action.label }</span>
             </Link>
           </DropdownMenuItem>

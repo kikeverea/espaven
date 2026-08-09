@@ -143,6 +143,26 @@ describe('Table', () => {
       expect(components).toHaveLength(collection.length)
     })
 
+    test('calls on column click', async () => {
+      const mock = vi.fn()
+      const testColumns = [
+        { name: 'Clickable', accessor: () => 'Clickable', onClick: mock },
+        ...columns,
+      ]
+
+      render(<Table collection={ collection } columns={ testColumns }/>)
+
+      const rowInd = 0
+      const row = screen.getAllByRole('row').splice(1)[rowInd]
+      const clickableCell = within(row).getAllByRole('cell')[0]
+
+      const content = within(clickableCell).getByText('Clickable')
+      await userEvent.click(content)
+
+      expect(mock).toHaveBeenCalledTimes(1)
+      expect(mock).toHaveBeenCalledWith(collection[rowInd].id)
+    })
+
     describe('Search', () => {
       test('renders rows that pass the search', () => {
         render(<Table collection={ collection } columns={ columns } search='dog' />)

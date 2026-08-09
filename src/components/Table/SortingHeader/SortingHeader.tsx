@@ -1,9 +1,6 @@
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table.tsx'
 
-import {
-  ChevronUp,
-  ChevronDown
-} from 'lucide-react'
+import { ChevronUp } from 'lucide-react'
 import type { Entity } from '@/types.ts'
 import type { TableColumn, TableSort } from '@/components/Table/types.ts'
 import { normalized } from '@/lib/strings.ts'
@@ -33,8 +30,11 @@ const SortingHeader = <T extends Entity>({
 
   const selectionChange = (selected: boolean): void => {
     setSelected(selected)
-    onSelectedChange?.(selected)
+    onSelectedChange!(selected)
   }
+
+  console.log('columns', columns)
+  console.log('column', column)
 
   return (
     <TableHeader>
@@ -51,16 +51,21 @@ const SortingHeader = <T extends Entity>({
         { columns.map(col =>
           <TableHead
             key={ col.name || col.key }
-            className={`w-25 text-gray-500 ${cellPadding()}`}
+            className={`w-25 text-gray-500 cursor-pointer ${cellPadding()}`}
             onClick={ () => setSortColumn(normalized(col.name)) }
           >
             <div className="flex items-center gap-1">
               {('name' in col) ? col.name : col.header()}
 
-              {column === col.name && (
-                direction === "asc"
-                  ? <ChevronUp className="size-4" />
-                  : <ChevronDown className="size-4" />
+              {column?.toLowerCase() === col.name?.toLowerCase() && (
+                <ChevronUp
+                  className={`
+                    size-4
+                    transition-transform
+                    duration-200
+                    ${direction === 'desc' ? 'rotate-180' : 'rotate-0'}
+                  `}
+                />
               )}
             </div>
           </TableHead>

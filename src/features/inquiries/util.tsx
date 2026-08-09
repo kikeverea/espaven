@@ -1,7 +1,5 @@
-export type InquiryStatus =
-  | 'new'
-  | 'contacted'
-  | 'secondContact'
+import { Badge } from '@/components/ui/badge.tsx'
+import type { InquiryStatus } from '@/features/types.ts'
 
 type StatusStyle = {
   label: string
@@ -28,4 +26,14 @@ export const inquiryStatusStyle = (
   }
 
   return styles[status] || { label: "???", className: 'bg-gray-50 text-gray-700 border-gray-200' }
+}
+
+export const statusBadge = (status: InquiryStatus) => {
+  const { label, className } = inquiryStatusStyle(status)
+
+  return (
+    <Badge variant="outline" className={className}>
+      {label}
+    </Badge>
+  )
 }
