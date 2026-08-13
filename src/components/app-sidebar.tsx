@@ -11,14 +11,13 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem, SidebarTrigger,
+  SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
 export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <SidebarTrigger className="cursor-pointer" />
       </SidebarHeader>
 
       <SidebarContent>

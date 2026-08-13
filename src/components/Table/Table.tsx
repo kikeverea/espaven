@@ -33,6 +33,7 @@ const Table = <T extends Entity>(
   noEntriesMessage,
   selectable=false,
   onSelectionChange,
+  selectedId,
   actions
 }: TableProps<T>) => {
 
@@ -58,7 +59,9 @@ const Table = <T extends Entity>(
       return
     }
 
-    onSelectionChange!(selected)
+    console.log('onSelectionChange', onSelectionChange)
+
+    onSelectionChange?.(selected)
   }, [selected])
 
   const selectItem = (item: RowData, select: boolean) =>
@@ -91,7 +94,7 @@ const Table = <T extends Entity>(
                 { selectable &&
                   <TableCell
                     key={`${item.id}-select`}
-                    className={`ps-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25`}
+                    className={`ps-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${item.id === selectedId ? 'bg-slate-100' : ''}`}
                   >
                     <Checkbox
                       onCheckedChange={(checked) => selectItem(item, checked)}
@@ -103,7 +106,7 @@ const Table = <T extends Entity>(
                 { columns.map(column =>
                   <TableCell
                     key={`${item.id}-${column.name || column.key}`}
-                    className={`${cellPadding()} text-gray-800 ${!isCustomCol(column) && column.onClick && 'cursor-pointer group'}`}
+                    className={`${cellPadding()} ${item.id === selectedId ? 'bg-slate-100' : ''} text-gray-800 ${!isCustomCol(column) && column.onClick && 'cursor-pointer group'}`}
                     onClick={ () => isCustomCol(column) ? null : column.onClick!(item.id) }
                   >
                     { !isCustomCol(column) && column.onClick
@@ -116,7 +119,7 @@ const Table = <T extends Entity>(
                   </TableCell>
                 )}
                 { actions &&
-                  <TableCell className={`pe-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25`}>
+                  <TableCell className={`pe-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${item.id === selectedId ? 'bg-slate-100' : ''}`}>
                     <TableActions actions={ actions } item={ item } />
                   </TableCell>
                 }

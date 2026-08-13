@@ -55,7 +55,8 @@ export type TableProps<T extends Entity> = {
   page?: number,
   selectable?: boolean,
   onSelectionChange?: (selection: T['id'][]) => void,
-  actions?: TableAction[]
+  actions?: TableAction[],
+  selectedId?: Entity['id']
 }
 
 export type TableSort = { column: string, direction?: 'asc' | 'desc' }

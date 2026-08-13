@@ -33,9 +33,6 @@ const SortingHeader = <T extends Entity>({
     onSelectedChange!(selected)
   }
 
-  console.log('columns', columns)
-  console.log('column', column)
-
   return (
     <TableHeader>
       <TableRow className='bg-gray-50'>
