@@ -17,7 +17,13 @@ const NavBar = ({ label, action, actions }: NavBarProps) => {
       <h1 className='text-xl font-semibold mt-2 flex-1'>
         { label }
       </h1>
-      { barActions.map(action => action) }
+      { barActions
+        .filter(action => !!action)
+        .map(action =>
+          <div key={ barActions.length > 1 ? action.key : 'single-action'}>
+            { action }
+          </div>
+        )}
     </nav>
   )
 }

@@ -58,9 +58,7 @@ const Table = <T extends Entity>(
       isFirstRender.current = false
       return
     }
-
-    console.log('onSelectionChange', onSelectionChange)
-
+    
     onSelectionChange?.(selected)
   }, [selected])
 

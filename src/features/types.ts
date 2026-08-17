@@ -5,23 +5,18 @@ export type Contact = {
   lastName: string
   emails: string[]
   phoneNumbers: string[]
-  address: string
 }
-
-export type Lead = Contact & {
-  inquiries?: Inquiry[]
-}
-export type NewLead = Omit<Lead, 'id'>
 
 export type Inquiry = Entity & {
   status: InquiryStatus
-  accessed: boolean
   contact: Contact
   service: string
-  lastActivity: string
-  created: string
+  lastActivityAt: string
+  createdAt: string
+  accessed: boolean
 }
-export type NewInquiry = Omit<Inquiry, 'id'>
+
+export type NewInquiry = Partial<Omit<Inquiry, 'id'>>
 
 export type InquiryStatus =
   | 'new'

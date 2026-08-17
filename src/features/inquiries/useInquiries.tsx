@@ -1,70 +1,100 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { type MutationStatus, useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type NewInquiry, type Inquiry } from '../types'
 import api from './inquiry.service'
 
 type QueryActions<T> = {
-  fetching: boolean,
   creating: T | null,
   deleting: T | null,
   any: boolean,
 }
 
-type PendingActions = {
-  current: (inquiry: Inquiry) => Inquiry | null
-}
-
-type ErrorAction = { error: (inquiry: Inquiry) => string }
+type PendingActions = { current: (inquiry: Inquiry) => Inquiry | null }
+type ErrorAction = { error: (inquiry: Inquiry) => boolean }
 
 type InquiryMutationStatus = {
   pending: QueryActions<Inquiry | NewInquiry> & PendingActions,
   errors: QueryActions<Inquiry | NewInquiry> & ErrorAction,
 }
 
-const useInquiries = () => {
+const inquiryKeys = {
+  all: ['inquiries'] as const,
+  create: ['inquiries', 'create'] as const,
+  update: ['inquiries', 'update'] as const,
+  delete: ['inquiries', 'delete'] as const,
+}
 
+const useInquiryMutationStatus = <T extends NewInquiry | Inquiry>(
+  targetMutation: Exclude<keyof typeof inquiryKeys, 'all'>,
+  mutationStatus: MutationStatus
+): T | null => {
+  return useMutationState<T>({
+    filters: {
+      mutationKey: inquiryKeys[targetMutation],
+      status: mutationStatus,
+    },
+    select: mutation => mutation.state.variables as T,
+  }).at(-1) ?? null
+}
+
+export const useInquiryMutations = () => {
   const client = useQueryClient()
 
-  const { data: inquiries, isPending, isError } = useQuery({ queryKey: [ 'inquiries' ], queryFn: api.getInquiries })
+  const invalidate = () => client.invalidateQueries({ queryKey: inquiryKeys.all })
 
-  const createMutation = useMutation({
-    mutationFn: (inquiry: NewInquiry) => api.createInquiry(inquiry),
-    onSettled: () => client.invalidateQueries({ queryKey: ['inquiries'] })
+  const create = useMutation({
+    mutationKey: inquiryKeys.create,
+    mutationFn: api.createInquiry,
+    onSettled: invalidate,
   })
 
-  const deleteMutation = useMutation({
+  const update = useMutation({
+    mutationKey: inquiryKeys.update,
+    mutationFn: api.updateInquiry,
+    onSettled: invalidate,
+  })
+
+  const remove = useMutation({
+    mutationKey: inquiryKeys.delete,
     mutationFn: api.deleteInquiry,
-    onSettled: () => client.invalidateQueries({ queryKey: ['inquiries'] })
+    onSettled: invalidate,
   })
 
-  const create = (inquiry: NewInquiry) => createMutation.mutate(inquiry)
-  const remove = (inquiry: Inquiry) => deleteMutation.mutate(inquiry)
+  const creating = useInquiryMutationStatus<NewInquiry>('create', 'pending')
+  const deleting = useInquiryMutationStatus<Inquiry>('delete', 'pending')
+
+  const createError = useInquiryMutationStatus<NewInquiry>('create', 'error')
+  const deleteError = useInquiryMutationStatus<Inquiry>('delete', 'error')
 
   const status: InquiryMutationStatus = {
     pending: {
-      fetching: isPending,
-      creating: createMutation.isPending ? createMutation.variables : null,
-      deleting: deleteMutation.isPending ? deleteMutation.variables : null,
-      any: createMutation.isPending || deleteMutation.isPending,
+      creating,
+      deleting,
+      any: !!creating || !!deleting,
       current: (inquiry) => (
-        (createMutation.isPending && createMutation.variables as Inquiry) ||
-        (deleteMutation.isPending && deleteMutation.variables.id === inquiry.id && deleteMutation.variables) ||
+        (creating && creating as Inquiry) ||
+        (deleting?.id === inquiry.id && deleting) ||
         null
       )
     },
     errors: {
-      fetching: isError,
-      creating: createMutation.isError ? createMutation.variables : null,
-      deleting: deleteMutation.isError ? deleteMutation.variables : null,
-      any: createMutation.isError || deleteMutation.isError,
-      error: (todo) => (
-        (createMutation.isError && 'Could not create') ||
-        (deleteMutation.isError && deleteMutation.variables.id === todo.id && 'Could not delete') ||
-        ''
+      creating: createError,
+      deleting: deleteError,
+      any: !!createError || !!deleteError,
+      error: (inquiry?: Inquiry) => (
+        deleteError?.id === inquiry?.id || !!createError
       )
     }
   }
 
-  return { inquiries, create, remove, status }
+  return {
+    create: create.mutate,
+    update: update.mutate,
+    remove: remove.mutate,
+    status
+  }
 }
 
-export default useInquiries
+export const useInquiries = () => {
+  const { data: inquiries, isPending, isError } = useQuery({ queryKey: inquiryKeys.all, queryFn: api.getInquiries })
+  return { inquiries, isPending, isError }
+}

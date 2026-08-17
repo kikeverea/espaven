@@ -14,7 +14,8 @@ const DetailsTray = ({ inquiry, closeTray }: DetailsTrayProps) => {
   return (
     <div className={`
       ${inquiry ? 'w-[415px] px-4 py-5 border shadow-xl' : 'w-0 p-0 border-0'}
-      h-screen bg-background
+      h-full bg-background
+      border border-blue-400
       absolute top-0 bottom-0 inset-e-0
       lg:static lg:inset-auto
       transition-[width] duration-200 ease-in-out`}

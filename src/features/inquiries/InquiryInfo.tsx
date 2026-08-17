@@ -20,7 +20,7 @@ const InquiryInfo = ({ inquiry }: { inquiry: Inquiry }) => {
         <TableRow className='border-b-0'>
           <TableCell className='ps-1 pe-2 px-4 text-muted-foreground'>Registrado</TableCell>
           <TableCell className='ps-2 px-4'>
-            { timeString(inquiry.created) }
+            { timeString(inquiry.createdAt) }
           </TableCell>
         </TableRow>
       </TableBody>

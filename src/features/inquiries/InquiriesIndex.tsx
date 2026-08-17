@@ -1,6 +1,6 @@
-import useInquiries from '@/features/inquiries/useInquiries'
+import { useInquiries } from '@/features/inquiries/useInquiries'
 import type { TableColumn } from '@/components/Table/types'
-import type { Inquiry } from '@/features/types'
+import type { Inquiry, NewInquiry } from '@/features/types'
 import { timeString } from '@/lib/strings'
 import Table from '@/components/Table/Table'
 import { statusBadge } from '@/features/inquiries/util'
@@ -17,7 +17,7 @@ const InquiriesIndex = () => {
 
   const { inquiries = [] } = useInquiries()
 
-  const [formInquiry, setFormInquiry] = useState<Partial<Inquiry>|null>(null)
+  const [formInquiry, setFormInquiry] = useState<NewInquiry | Inquiry | null>(null)
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry|null>(null)
 
   const columns: TableColumn<Inquiry>[] = [
@@ -26,14 +26,14 @@ const InquiriesIndex = () => {
       onClick: id => setSelectedInquiry(inquiries.find(inquiry => id === inquiry.id) || null),
     },
     { name: 'Servicio', accessor: 'service' },
-    { name: 'Estado', accessor: 'status', presenter: statusBadge},
-    { name: 'Última actividad', accessor: 'lastActivity', presenter: timeString },
-    { name: 'Registrado', accessor: 'created', presenter: timeString },
+    { name: 'Estado', accessor: 'status', presenter: statusBadge },
+    { name: 'Última actividad', accessor: 'lastActivityAt', presenter: timeString },
+    { name: 'Registrado', accessor: 'createdAt', presenter: timeString },
   ]
 
   return (
     <>
-      <div className='flex w-full'>
+      <div className='flex w-full h-full pb-10'>
         <div className='min-w-0 flex-1 px-5'>
           <NavBar
             label='Solicitudes'
