@@ -10,7 +10,6 @@ const getInquiry = async (id: Inquiry['id']): Promise<Inquiry> => {
 }
 
 const createInquiry = async (payload: NewInquiry): Promise<Inquiry> => {
-  console.log('WILL create inquiry')
   return await apiFetch<Inquiry>(`/inquiries`, {
     method: 'POST',
     body: JSON.stringify(payload),

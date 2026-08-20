@@ -20,6 +20,8 @@ const InquiriesIndex = () => {
   const [formInquiry, setFormInquiry] = useState<NewInquiry | Inquiry | null>(null)
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry|null>(null)
 
+  console.log('inquiries', inquiries)
+
   const columns: TableColumn<Inquiry>[] = [
     { name: 'Nombre',
       accessor: inquiry => `${inquiry.contact.name} ${inquiry.contact.lastName}`,
@@ -33,8 +35,8 @@ const InquiriesIndex = () => {
 
   return (
     <>
-      <div className='flex w-full h-full pb-10'>
-        <div className='min-w-0 flex-1 px-5'>
+      <div className='flex w-full h-full'>
+        <div className='min-w-0 flex-1 px-5 pb-8'>
           <NavBar
             label='Solicitudes'
             action={!formInquiry

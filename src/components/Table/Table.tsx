@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useReducer, useRef } from 'react'
+import { type ReactNode, useMemo, useReducer } from 'react'
 import { mapToData, filterData } from './processors/dataProcessor'
 import useSort from './hooks/useSort'
 import usePagination from './hooks/usePagination'
@@ -19,11 +19,11 @@ import { cellPadding } from '@/components/Table/util.tsx'
 import { Checkbox } from '@/components/ui/checkbox.tsx'
 import { TableActions } from '@/components/Table/TableActions/TableActions.tsx'
 import { SquareArrowOutUpRight } from 'lucide-react'
-import selectionReducer from '@/components/Table/reducers/selectionReducer'
+import selectionReducer, { type SelectionTypes } from '@/components/Table/reducers/selectionReducer'
 
 const Table = <T extends Entity>(
 {
-  collection,
+  collection=[],
   columns,
   search,
   filter,
@@ -49,30 +49,18 @@ const Table = <T extends Entity>(
 
   const [sort, setSortColumn] = useSort(sortBy)
   const [pagination, setItemsPerPage, setPage] = usePagination(paginate, currentPage || 0)
-
   const [selected, dispatchSelection] = useReducer(selectionReducer<T>, [] as T['id'][])
-  const isFirstRender = useRef(true)
 
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
-    
-    onSelectionChange?.(selected)
-  }, [selected])
+  const applySelection = (type: SelectionTypes, isSelected: boolean, item?: RowData) => {
+    const action = type === 'SELECT_ALL'
+      ? { type, payload: { ids: collection.map(item => item.id), isSelected} }
+      : { type, payload: { id: item?.id || 0, isSelected} }
 
-  const selectItem = (item: RowData, select: boolean) =>
-    dispatchSelection({ type: 'SELECT_ITEM', payload: { id: item.id, selected: select } })
-
-  const selectAll = (select: boolean) =>
-    dispatchSelection({
-      type: 'SELECT_ALL',
-      payload: { ids: (collection || []).map(item => item.id), selected: select }
-    })
+    dispatchSelection(action)
+    onSelectionChange?.(selectionReducer(selected, action))
+  }
 
   const rows = sortAndPaginateData(filteredData, { pagination, sort })
-
 
   return (
     <div className='rounded-lg border overflow-hidden bg-background'>
@@ -82,7 +70,7 @@ const Table = <T extends Entity>(
           sort={ sort }
           setSortColumn={ setSortColumn }
           selectable={ selectable }
-          onSelectedChange={ selectAll }
+          onSelectedChange={ isSelected => applySelection('SELECT_ALL', isSelected) }
         />
         <TableBody>
           { rows?.length
@@ -95,9 +83,9 @@ const Table = <T extends Entity>(
                     className={`ps-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${item.id === selectedId ? 'bg-slate-100' : ''}`}
                   >
                     <Checkbox
-                      onCheckedChange={(checked) => selectItem(item, checked)}
+                      onCheckedChange={(checked) => applySelection('SELECT_ITEM', checked, item)}
                       checked={ selected.includes(item.id)}
-                      className='data-checked:bg-blue-500 data-checked:border-blue-500'
+                      className='data-checked:bg-blue-500 data-checked:border-blue-500 cursor-pointer'
                     />
                   </TableCell>
                 }
@@ -124,7 +112,9 @@ const Table = <T extends Entity>(
               </TableRow>
             )
             : <TableRow key='empty-message'>
-                <td>{ noEntriesMessage || 'No data available' }</td>
+                <td className='text-center py-4 text-muted-foreground italic' colSpan={ columns.length + 1 }>
+                  { noEntriesMessage || 'No hay entradas' }
+                </td>
               </TableRow>
           }
         </TableBody>
@@ -147,7 +137,10 @@ const cellValue = <T extends Entity> (column: TableColumn<T>, item: RowData): Re
     return column.component()
 
   const data = item.data[normalized(column.name)]
-  return column.presenter ? column.presenter(data.value) : String(data.value ?? '-')
+
+  return column.presenter
+    ? column.presenter(data.value)
+    : String(data.value ?? '-')
 }
 
 export default Table

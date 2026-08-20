@@ -11,7 +11,7 @@ export const inquiryStatusStyle = (
 ): StatusStyle =>
 {
   const styles: Record<InquiryStatus, StatusStyle> = {
-    new: {
+    pending: {
       label: 'Nuevo',
       className: 'rounded-md py-3 bg-blue-50 text-blue-700 border-blue-200',
     },

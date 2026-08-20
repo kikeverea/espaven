@@ -1,5 +1,7 @@
 import type { Primitive } from '@/types.ts'
 
+export const stringify = (data: unknown): string => data == null ? '' : String(data)
+
 export const normalized = (s?: string) => s?.toLowerCase().trim() || ''
 
 export const titleize = (s: string): string => {
@@ -9,6 +11,10 @@ export const titleize = (s: string): string => {
   .join(' ')
 }
 
+export const camelize = (s: string): string =>
+  s.replace(/[-_\s]+(.)?/g, (_, char) => char ? char.toUpperCase() : '')
+
+
 export const normalizedValue = (val: Primitive | Primitive[]) => {
   const value = Array.isArray(val) ? val.join(' ') : val
 
@@ -17,7 +23,10 @@ export const normalizedValue = (val: Primitive | Primitive[]) => {
     : normalized(value !== undefined && value !== null ? String(value) : '')
 }
 
-export const timeString = (timestamp: string): string => {
+export const timeString = (timestamp: string | null): string => {
+  if (!timestamp)
+    return '-'
+
   const date = new Date(timestamp)
   const now = new Date()
 
@@ -28,7 +37,7 @@ export const timeString = (timestamp: string): string => {
   const days = Math.floor(diffMs / 86_400_000)
 
   if (minutes < 1)
-    return 'Just now'
+    return 'Ahora'
 
   if (minutes < 60)
     return `${minutes} minutos`
@@ -41,6 +50,11 @@ export const timeString = (timestamp: string): string => {
 
   if (days < 7)
     return `${days} días`
+
+  console.log('will use this for time', timestamp, date.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'short',
+  }))
 
   return date.toLocaleDateString('es-ES', {
     day: 'numeric',

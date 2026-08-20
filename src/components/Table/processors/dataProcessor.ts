@@ -6,7 +6,7 @@ import {
   type TableFilter
 } from '@/components/Table/TableFilter/types'
 import { type Entity, isBoolean, isString, type Primitive } from '@/types.ts'
-import { normalized, normalizedValue } from '@/lib/strings.ts'
+import { normalized, normalizedValue, stringify } from '@/lib/strings.ts'
 
 type FilterDataArgs = {
   search?: string,
@@ -16,10 +16,12 @@ type FilterDataArgs = {
 export const mapToData = <T extends Entity>(collection: T[] = [], columns: TableColumn<T>[]): TableData => {
 
   return collection.map(item => {
-
     const data = columns.reduce((data, column) => {
       const columnName = normalized(column.name)
-      const columnData = typeof column.accessor === 'function' ? column.accessor(item) : String(item[column.accessor])
+      const columnData = typeof column.accessor === 'function'
+        ? column.accessor(item)
+        : stringify(item[column.accessor as keyof T])
+
       data[columnName] = { value: columnData, presenter: column.presenter }
 
       return data

@@ -1,7 +1,14 @@
 import type { Entity } from '@/types.ts'
 
-export type SelectItemPayload<T extends Entity> = { id: T['id'], selected: boolean }
-export type SelectAllPayload<T extends Entity> = { ids: T['id'][], selected: boolean }
+export type SelectItemPayload<T extends Entity> = { id: T['id'], isSelected: boolean }
+export type SelectAllPayload<T extends Entity> = { ids: T['id'][], isSelected: boolean }
+export type SelectPayload<T extends Entity> =
+  | SelectItemPayload<T>
+  | SelectAllPayload<T>
+
+export type SelectionTypes =
+  | 'SELECT_ITEM'
+  | 'SELECT_ALL'
 
 export type SelectionAction<T extends Entity> =
   | { type: 'SELECT_ITEM', payload: SelectItemPayload<T> }
@@ -20,17 +27,21 @@ const selectionReducer = <T extends Entity>(selected: T['id'][], action: Selecti
   }
 }
 
-const selectItem = <T extends Entity>(selected: T['id'][], payload: SelectItemPayload<T>): T['id'][] => {
-  const { id, selected: select } = payload
+const selectItem = <T extends Entity>(
+  selected: T['id'][],
+  payload: SelectItemPayload<T>
+): T['id'][] => {
 
-  return select
+  const { id, isSelected } = payload
+
+  return isSelected
     ? [...selected, id]
     : selected.filter(selectedId => selectedId !== id)
 }
 
 const selectAll = <T extends Entity>(payload: SelectAllPayload<T>): T['id'][] => {
-  const { ids, selected } = payload
-  return selected ? ids : []
+  const { ids, isSelected } = payload
+  return isSelected ? ids : []
 }
 
 export default selectionReducer

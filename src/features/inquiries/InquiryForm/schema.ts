@@ -39,7 +39,7 @@ export const applyData = (inquiry: NewInquiry | Inquiry, formData: z.infer<typeo
   return {
     ...inquiry,
     ...rest,
-    status: 'id' in inquiry ? inquiry.status : 'new',
+    status: 'id' in inquiry ? inquiry.status : 'pending',
     contact: {
       ...(inquiry.contact || {}),
       name,

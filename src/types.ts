@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
-export type Entity = { id: number }
+export type Record = { createdAt: string }
+export type Entity = Record & { id: number }
 export type Primitive = string | number
 export type DataPresenter = (value: any) => ReactNode
 

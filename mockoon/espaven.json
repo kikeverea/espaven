@@ -4,7 +4,7 @@
   "name": "Espaven",
   "endpointPrefix": "api",
   "latency": 0,
-  "port": 3001,
+  "port": 3000,
   "hostname": "",
   "folders": [],
   "routes": [
@@ -38,12 +38,1103 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "84a3bef1-adf6-456d-8c4c-f0567ce21093",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "inquiries/:id/comments",
+      "responses": [
+        {
+          "uuid": "ee2bdb83-d1d4-409b-996f-076d95addb98",
+          "body": "{{setVar 'created'\n  (object\n    id=(faker 'number.int')\n    inquiry_id=(urlParam 'id')\n    body=(body 'body')\n  )\n}}\n\n{{setData 'push' 'me94' null (getVar 'created')}}\n\n{{json (getVar 'created')}}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "564b3ece-7df6-4f2f-a2d6-52a676f1145e",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "inquiries/:id/comments",
+      "responses": [
+        {
+          "uuid": "03051458-fae6-4727-82bc-5d5938ea88e3",
+          "body": "{{data 'Comments' '$[?(@.inquiryId == {{urlParam \"id\"}})]'}}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "403aafb3-5f7c-44db-a0cd-806e40a7e933",
+      "type": "http",
+      "documentation": "",
+      "method": "options",
+      "endpoint": "inquiries",
+      "responses": [
+        {
+          "uuid": "e490b847-f594-41ba-bf51-3157a40f46b9",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "d96f78b4-251e-4dfc-85c8-824367119d8f",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "inquiries",
+      "responses": [
+        {
+          "uuid": "6c4c2334-2699-4586-86a5-d4ff3fc7e765",
+          "body": "[\n  {\n    \"id\": 1,\n    \"status\": \"new\",\n    \"accessed\": false,\n    \"contact\": {\n      \"name\": \"Lucía\",\n      \"lastName\": \"Martínez\",\n      \"emails\": [\n        \"lucia.martinez@example.com\"\n      ],\n      \"phoneNumbers\": [\n        \"+34 612 345 678\"\n      ],\n      \"address\": \"Calle de Alcalá 42, Madrid\"\n    },\n    \"service\": \"Residency consultation\",\n    \"lastActivity\": \"2026-08-09T00:48:00+02:00\",\n    \"created\": \"2026-08-08T16:20:00+02:00\"\n  },\n  {\n    \"id\": 2,\n    \"status\": \"contacted\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Daniel\",\n      \"lastName\": \"Romero\",\n      \"emails\": [\n        \"daniel.romero@example.com\",\n        \"d.romero@company.es\"\n      ],\n      \"phoneNumbers\": [\n        \"+34 622 918 441\"\n      ],\n      \"address\": \"Carrer de València 118, Barcelona\"\n    },\n    \"service\": \"Work permit\",\n    \"lastActivity\": \"2026-08-08T22:15:00+02:00\",\n    \"created\": \"2026-08-06T10:05:00+02:00\"\n  },\n  {\n    \"id\": 3,\n    \"status\": \"secondContact\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Sofia\",\n      \"lastName\": \"Andersson\",\n      \"emails\": [\n        \"sofia.andersson@example.se\"\n      ],\n      \"phoneNumbers\": [\n        \"+46 70 123 45 67\",\n        \"+34 633 201 991\"\n      ],\n      \"address\": \"Paseo de Gracia 84, Barcelona\"\n    },\n    \"service\": \"Digital nomad visa\",\n    \"lastActivity\": \"2026-08-07T14:32:00+02:00\",\n    \"created\": \"2026-08-03T09:45:00+02:00\"\n  },\n  {\n    \"id\": 4,\n    \"status\": \"contacted\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Marco\",\n      \"lastName\": \"Bianchi\",\n      \"emails\": [\n        \"marco.bianchi@example.it\"\n      ],\n      \"phoneNumbers\": [\n        \"+39 347 555 0192\"\n      ],\n      \"address\": \"Calle Colón 21, Valencia\"\n    },\n    \"service\": \"Company incorporation\",\n    \"lastActivity\": \"2026-08-05T11:10:00+02:00\",\n    \"created\": \"2026-07-28T13:22:00+02:00\"\n  },\n  {\n    \"id\": 5,\n    \"status\": \"new\",\n    \"accessed\": false,\n    \"contact\": {\n      \"name\": \"Emma\",\n      \"lastName\": \"Johnson\",\n      \"emails\": [\n        \"emma.johnson@example.com\"\n      ],\n      \"phoneNumbers\": [\n        \"+44 7700 900123\"\n      ],\n      \"address\": \"Calle Larios 9, Málaga\"\n    },\n    \"service\": \"Property purchase assistance\",\n    \"lastActivity\": \"2026-08-09T01:58:00+02:00\",\n    \"created\": \"2026-08-09T01:55:00+02:00\"\n  },\n  {\n    \"id\": 6,\n    \"status\": \"secondContact\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Carlos\",\n      \"lastName\": \"Mendoza\",\n      \"emails\": [\n        \"carlos.mendoza@example.mx\"\n      ],\n      \"phoneNumbers\": [\n        \"+52 55 1234 8899\"\n      ],\n      \"address\": \"Avenida Constitución 17, Sevilla\"\n    },\n    \"service\": \"Spanish citizenship\",\n    \"lastActivity\": \"2026-07-21T17:40:00+02:00\",\n    \"created\": \"2026-06-30T12:15:00+02:00\"\n  }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "x-filtered-count",
+              "value": "6"
+            },
+            {
+              "key": "x-total-count",
+              "value": "6"
+            },
+            {
+              "key": "content-length",
+              "value": "2749"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "8129de09-d719-4fef-a31e-0c172dfc56b8",
+      "type": "http",
+      "documentation": "",
+      "method": "options",
+      "endpoint": "inquiries/1/comments",
+      "responses": [
+        {
+          "uuid": "2512a29a-35b7-4fbd-bfc0-09d340ca4975",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "48975e2a-5328-4ee7-914c-8d331daddf52",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "inquiries/1/comments",
+      "responses": [
+        {
+          "uuid": "c03c4712-1ade-4742-8b44-5ad38c5535c5",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "content-length",
+              "value": "2"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "42bb97db-02e9-45f8-9cdb-c109d4d524c3",
+      "type": "http",
+      "documentation": "",
+      "method": "options",
+      "endpoint": "inquiries/2/comments",
+      "responses": [
+        {
+          "uuid": "e5a00950-9513-46e7-b8cd-82e4676c4fe9",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "0feae035-f4e2-4699-a888-e20d7af4a6e2",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "inquiries/2/comments",
+      "responses": [
+        {
+          "uuid": "e9058022-6a0e-4339-8ab7-f4fca8c984ae",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "content-length",
+              "value": "2"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "ff8a50d4-340b-48ae-ba68-468c35b011c2",
+      "type": "http",
+      "documentation": "",
+      "method": "options",
+      "endpoint": "inquiries/3/comments",
+      "responses": [
+        {
+          "uuid": "c88030e5-5442-4c73-95ca-fbb7f505f578",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "3737b44f-d43a-40a5-8bd3-f41dd677d4b1",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "inquiries/3/comments",
+      "responses": [
+        {
+          "uuid": "41fcd2df-c66a-4132-9211-b46ce960852e",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "content-length",
+              "value": "2"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "ac447f85-e719-46ca-8ca3-42874b07c995",
+      "type": "http",
+      "documentation": "",
+      "method": "options",
+      "endpoint": "inquiries/4/comments",
+      "responses": [
+        {
+          "uuid": "3cbf01bc-effd-4511-8358-e0506ab27797",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "591cb9bf-8b1d-41e4-aa27-36869eef6340",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "inquiries/4/comments",
+      "responses": [
+        {
+          "uuid": "50454e79-3952-4b58-a446-8e55a57b9e83",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "content-length",
+              "value": "2"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "7f24c6d2-9d7d-4b78-840d-d10a67f0c6e4",
+      "type": "http",
+      "documentation": "",
+      "method": "options",
+      "endpoint": "inquiries/6/comments",
+      "responses": [
+        {
+          "uuid": "cae6c8e1-f2bb-415b-b14f-77b4ec9f86c9",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "b03777f4-a919-45c8-a272-0c27b128424f",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "inquiries/6/comments",
+      "responses": [
+        {
+          "uuid": "6a62514a-7fae-4502-a677-18d622204ece",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "content-length",
+              "value": "2"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "464e7482-5f3a-4cf8-8c98-80b732d48602",
+      "type": "http",
+      "documentation": "",
+      "method": "options",
+      "endpoint": "inquiries/5/comments",
+      "responses": [
+        {
+          "uuid": "45889053-ed98-485e-a10b-a01321f793f2",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "b639e120-9f33-4354-89e7-b7a48148f340",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "inquiries/5/comments",
+      "responses": [
+        {
+          "uuid": "b432e6f8-c9b4-472a-b35f-44e2b0cf542d",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "content-length",
+              "value": "2"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "7fb334a5-0e98-413a-9b6f-c0b8daea706d",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "inquiries/2/comments",
+      "responses": [
+        {
+          "uuid": "8582ed65-f3e0-4101-bd01-b0e98767134b",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "1e861cbd-2576-4c20-8648-98a16217eb94",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "inquiries/1/comments",
+      "responses": [
+        {
+          "uuid": "6aa02d6c-e6a6-4fe2-957d-8f2508c718a2",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "539f7753-ad34-4a32-9244-672d6ca07f94",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "inquiries/4/comments",
+      "responses": [
+        {
+          "uuid": "cef3d766-8aac-4ee1-a828-0ea223193639",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "129dc1b0-d3d7-48df-88ed-33decfdc952a",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "inquiries/3/comments",
+      "responses": [
+        {
+          "uuid": "55026174-87d1-471e-b774-219e5d439fd6",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "080b5487-8f58-479a-a57d-3d0fe0d93e99",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "inquiries/5/comments",
+      "responses": [
+        {
+          "uuid": "b0f8314e-7463-4ccd-b7b6-8b7c1c59384e",
+          "body": "{\n  \"success\": true\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [
+            {
+              "key": "access-control-allow-headers",
+              "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+            },
+            {
+              "key": "access-control-allow-methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "content-length",
+              "value": "21"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
     {
       "type": "route",
       "uuid": "5aabef7f-2f34-444c-be84-b016ce7f6ba8"
+    },
+    {
+      "type": "route",
+      "uuid": "84a3bef1-adf6-456d-8c4c-f0567ce21093"
+    },
+    {
+      "type": "route",
+      "uuid": "564b3ece-7df6-4f2f-a2d6-52a676f1145e"
+    },
+    {
+      "type": "route",
+      "uuid": "403aafb3-5f7c-44db-a0cd-806e40a7e933"
+    },
+    {
+      "type": "route",
+      "uuid": "d96f78b4-251e-4dfc-85c8-824367119d8f"
+    },
+    {
+      "type": "route",
+      "uuid": "8129de09-d719-4fef-a31e-0c172dfc56b8"
+    },
+    {
+      "type": "route",
+      "uuid": "48975e2a-5328-4ee7-914c-8d331daddf52"
+    },
+    {
+      "type": "route",
+      "uuid": "42bb97db-02e9-45f8-9cdb-c109d4d524c3"
+    },
+    {
+      "type": "route",
+      "uuid": "0feae035-f4e2-4699-a888-e20d7af4a6e2"
+    },
+    {
+      "type": "route",
+      "uuid": "ff8a50d4-340b-48ae-ba68-468c35b011c2"
+    },
+    {
+      "type": "route",
+      "uuid": "3737b44f-d43a-40a5-8bd3-f41dd677d4b1"
+    },
+    {
+      "type": "route",
+      "uuid": "ac447f85-e719-46ca-8ca3-42874b07c995"
+    },
+    {
+      "type": "route",
+      "uuid": "591cb9bf-8b1d-41e4-aa27-36869eef6340"
+    },
+    {
+      "type": "route",
+      "uuid": "7f24c6d2-9d7d-4b78-840d-d10a67f0c6e4"
+    },
+    {
+      "type": "route",
+      "uuid": "b03777f4-a919-45c8-a272-0c27b128424f"
+    },
+    {
+      "type": "route",
+      "uuid": "464e7482-5f3a-4cf8-8c98-80b732d48602"
+    },
+    {
+      "type": "route",
+      "uuid": "b639e120-9f33-4354-89e7-b7a48148f340"
+    },
+    {
+      "type": "route",
+      "uuid": "7fb334a5-0e98-413a-9b6f-c0b8daea706d"
+    },
+    {
+      "type": "route",
+      "uuid": "1e861cbd-2576-4c20-8648-98a16217eb94"
+    },
+    {
+      "type": "route",
+      "uuid": "539f7753-ad34-4a32-9244-672d6ca07f94"
+    },
+    {
+      "type": "route",
+      "uuid": "129dc1b0-d3d7-48df-88ed-33decfdc952a"
+    },
+    {
+      "type": "route",
+      "uuid": "080b5487-8f58-479a-a57d-3d0fe0d93e99"
     }
   ],
   "proxyMode": false,
@@ -96,6 +1187,13 @@
       "name": "Inquiries",
       "documentation": "",
       "value": "[\n  {\n    \"id\": 1,\n    \"status\": \"new\",\n    \"accessed\": false,\n    \"contact\": {\n      \"name\": \"Lucía\",\n      \"lastName\": \"Martínez\",\n      \"emails\": [\"lucia.martinez@example.com\"],\n      \"phoneNumbers\": [\"+34 612 345 678\"],\n      \"address\": \"Calle de Alcalá 42, Madrid\"\n    },\n    \"service\": \"Residency consultation\",\n    \"lastActivity\": \"2026-08-09T00:48:00+02:00\",\n    \"created\": \"2026-08-08T16:20:00+02:00\"\n  },\n  {\n    \"id\": 2,\n    \"status\": \"contacted\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Daniel\",\n      \"lastName\": \"Romero\",\n      \"emails\": [\n        \"daniel.romero@example.com\",\n        \"d.romero@company.es\"\n      ],\n      \"phoneNumbers\": [\"+34 622 918 441\"],\n      \"address\": \"Carrer de València 118, Barcelona\"\n    },\n    \"service\": \"Work permit\",\n    \"lastActivity\": \"2026-08-08T22:15:00+02:00\",\n    \"created\": \"2026-08-06T10:05:00+02:00\"\n  },\n  {\n    \"id\": 3,\n    \"status\": \"secondContact\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Sofia\",\n      \"lastName\": \"Andersson\",\n      \"emails\": [\"sofia.andersson@example.se\"],\n      \"phoneNumbers\": [\n        \"+46 70 123 45 67\",\n        \"+34 633 201 991\"\n      ],\n      \"address\": \"Paseo de Gracia 84, Barcelona\"\n    },\n    \"service\": \"Digital nomad visa\",\n    \"lastActivity\": \"2026-08-07T14:32:00+02:00\",\n    \"created\": \"2026-08-03T09:45:00+02:00\"\n  },\n  {\n    \"id\": 4,\n    \"status\": \"contacted\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Marco\",\n      \"lastName\": \"Bianchi\",\n      \"emails\": [\"marco.bianchi@example.it\"],\n      \"phoneNumbers\": [\"+39 347 555 0192\"],\n      \"address\": \"Calle Colón 21, Valencia\"\n    },\n    \"service\": \"Company incorporation\",\n    \"lastActivity\": \"2026-08-05T11:10:00+02:00\",\n    \"created\": \"2026-07-28T13:22:00+02:00\"\n  },\n  {\n    \"id\": 5,\n    \"status\": \"new\",\n    \"accessed\": false,\n    \"contact\": {\n      \"name\": \"Emma\",\n      \"lastName\": \"Johnson\",\n      \"emails\": [\"emma.johnson@example.com\"],\n      \"phoneNumbers\": [\"+44 7700 900123\"],\n      \"address\": \"Calle Larios 9, Málaga\"\n    },\n    \"service\": \"Property purchase assistance\",\n    \"lastActivity\": \"2026-08-09T01:58:00+02:00\",\n    \"created\": \"2026-08-09T01:55:00+02:00\"\n  },\n  {\n    \"id\": 6,\n    \"status\": \"secondContact\",\n    \"accessed\": true,\n    \"contact\": {\n      \"name\": \"Carlos\",\n      \"lastName\": \"Mendoza\",\n      \"emails\": [\"carlos.mendoza@example.mx\"],\n      \"phoneNumbers\": [\"+52 55 1234 8899\"],\n      \"address\": \"Avenida Constitución 17, Sevilla\"\n    },\n    \"service\": \"Spanish citizenship\",\n    \"lastActivity\": \"2026-07-21T17:40:00+02:00\",\n    \"created\": \"2026-06-30T12:15:00+02:00\"\n  }\n]"
+    },
+    {
+      "uuid": "79c52c51-59cb-41d2-9e90-6c11df8c2bfb",
+      "id": "me94",
+      "name": "Comments",
+      "documentation": "",
+      "value": "[]"
     }
   ],
   "callbacks": []

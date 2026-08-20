@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import type { Inquiry, NewInquiry } from '@/features/types'
-import FormInput from '@/components/Form/FormInput/FormInput'
-import FormMultiInput from '@/components/Form/MultiInput/FormMultiInput'
+import FormInput from '@/components/Form/FormInput.tsx'
+import FormMultiInput from '@/components/Form/FormMultiInput.tsx'
 import { formSchema, applyData } from '@/features/inquiries/InquiryForm/schema'
 import { useInquiryMutations } from '@/features/inquiries/useInquiries'
 import { toast } from "@/components/ui/toast"
@@ -21,6 +21,9 @@ type InquiryFormProps = {
 
 const InquiryForm = ({ inquiry, onCancel }: InquiryFormProps) => {
   const { create, update, status } = useInquiryMutations()
+
+  if (status.errors.creating)
+    toast.add({ title: status.errors.creating.error?.message, type: 'error' })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,7 +40,7 @@ const InquiryForm = ({ inquiry, onCancel }: InquiryFormProps) => {
     const submitInquiry = applyData(inquiry, formData)
 
     const onSuccess = () => {
-      toast.add({ title: "Solicitud guardada" })
+      toast.add({ title: 'Solicitud guardada' })
       form.reset()
     }
 

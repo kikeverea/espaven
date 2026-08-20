@@ -31,7 +31,7 @@ export type TableColumn<T extends Entity> =
 
 export type TableData = RowData[]
 
-export type RowData = Entity & { data: ItemData }
+export type RowData = { id: Entity['id'], data: ItemData }
 
 export type ItemData = {
   [column: string]: { value: Primitive | Primitive[], presenter?: DataPresenter }

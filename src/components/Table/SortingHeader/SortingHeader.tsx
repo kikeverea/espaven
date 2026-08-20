@@ -41,7 +41,7 @@ const SortingHeader = <T extends Entity>({
             <Checkbox
               onCheckedChange={ selectionChange }
               checked={ selected }
-              className='data-checked:bg-blue-500 data-checked:border-blue-500'
+              className='data-checked:bg-blue-500 data-checked:border-blue-500 cursor-pointer'
             />
           </TableHead>
         }
