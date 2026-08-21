@@ -7,25 +7,21 @@ import {
   type FieldArray,
   type FieldArrayPath,
   type FieldValues,
-  type Path,
-  type UseFieldArrayReturn,
+  type Path, useFieldArray,
 } from 'react-hook-form'
 import type { FormFieldProps } from '@/components/Form/types.ts'
 
-type MultiInputProps<T extends FieldValues> = FormFieldProps<T, FieldArrayPath<T>> & {
-  values: UseFieldArrayReturn<T>
-  addMessage: string
-}
+type MultiInputProps<T extends FieldValues> = FormFieldProps<T, FieldArrayPath<T>> & { addMessage?: string }
 
 const FormMultiInput = <T extends FieldValues>({
   form,
-  values,
   name,
   label,
   addMessage
 }: MultiInputProps<T>) => {
 
   const { error, invalid } = form.getFieldState(name as Path<T>, form.formState)
+  const values = useFieldArray({ control: form.control, name: name })
 
   return (
     <Field className='py-2'>
@@ -59,7 +55,7 @@ const FormMultiInput = <T extends FieldValues>({
         onClick={() => values.append({ value: "" } as FieldArray<T>)}
       >
         <Plus />
-        { addMessage }
+        { addMessage || 'Añadir nuevo' }
       </Button>
 
       { invalid && <FieldError errors={[error]} /> }

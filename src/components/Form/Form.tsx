@@ -8,50 +8,80 @@ import FormInput from '@/components/Form/FormInput.tsx'
 import FormMultiInput from '@/components/Form/FormMultiInput.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { Spinner } from '@/components/ui/spinner.tsx'
-import { type JSX } from 'react'
+import { type ComponentProps, type ComponentType, type PropsWithChildren } from 'react'
 import FormTextarea from '@/components/Form/FormTextarea.tsx'
+import { getFieldInfo } from '@/components/Form/util.ts'
+import FormSelect from '@/components/Form/FormSelect.tsx'
+import FormCheckbox from '@/components/Form/FormCheckbox.tsx'
+import FormDatePicker from '@/components/Form/FormDatePicker.tsx'
+import { Input } from '@base-ui/react'
+
+type ContainerProps = PropsWithChildren
+
+export type InferFormData<T extends Record<string, { schema: z.ZodType }>> = {
+  [K in keyof T]: z.infer<T[K]['schema']>
+}
+
+export type FieldVariation =
+  | 'email'
+  | 'textarea'
+  | 'options'
 
 type FormField = {
-  type: string,
-  schema: z.ZodString
-  label?: string,
-  required?: boolean,
+  schema: z.ZodType
+  variation?: FieldVariation
+  type?: ComponentProps<typeof Input>['type']
+  label?: string
+  placeholder?: string
+}
+
+export type FormConfig = {
+  fields: Record<string, FormField>
+  refine?: {
+    fn: (data: { [x: string]: any }) => boolean
+    args?: Parameters<z.ZodType['refine']>[1]
+  }
 }
 
 type FormProps<T extends Entity, NT extends Omit<Partial<Entity>, 'id'>> = {
   name: string
-  fields: Record<string, FormField>
+  config: FormConfig
   mutations: Mutations<T, NT>
   item: T | NT
-  applyData?: (item: T | NT ) => T | NT
+  applyData?: (item: T | NT, formData: any) => T | NT
   onCancel?: () => void
-  FormContainer?: JSX.Element
-  ButtonsContainer?: JSX.Element
+  FormContainer?: ComponentType<ContainerProps>
+  ButtonsContainer?: ComponentType<ContainerProps>
+}
+
+export const extractSchema = (config: FormConfig) => {
+  const schema = z.object(
+    Object.fromEntries(
+      Object.entries(config.fields).map(([key, field]) => [key, field.schema]),
+    )
+  )
+
+  return config.refine
+    ? schema.refine(config.refine.fn, config.refine?.args || {})
+    : schema
 }
 
 const Form = <T extends Entity, NT extends Omit<Partial<Entity>,'id'>>({
   name,
-  fields,
+  config,
   mutations,
   item,
   applyData,
   onCancel,
-  FormContainer = <></>,
-  ButtonsContainer = <></>,
+  FormContainer = ({ children }: ContainerProps) => <>{children}</>,
+  ButtonsContainer = ({ children }: ContainerProps) => <>{children}</>,
 }: FormProps<T,NT>) => {
 
   const { create, update, status } = mutations
 
   const formName = `${name}-form`
 
-  if (status.errors.creating)
-    toast.add({ title: status.errors.creating.error?.message, type: 'error' })
-
-  const schema = z.object(
-    Object.fromEntries(
-      Object.entries(fields).map(([key, field]) => [key, field.schema]),
-    )
-  )
+  const schema = extractSchema(config)
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -61,12 +91,12 @@ const Form = <T extends Entity, NT extends Omit<Partial<Entity>,'id'>>({
   const handleSubmit = (formData: z.infer<typeof schema>) => {
     if (item === null) return
 
-    const submitItem = applyData(item, formData)
-
     const onSuccess = () => {
       toast.add({ title: 'Solicitud guardada' })
       form.reset()
     }
+
+    const submitItem = applyData ? applyData(item, formData) : { ...item, ...formData }
 
     if ('id' in submitItem)
       update(submitItem, { onSuccess })
@@ -78,35 +108,39 @@ const Form = <T extends Entity, NT extends Omit<Partial<Entity>,'id'>>({
     form.reset()
     onCancel?.()
   }
-
   return (
     <>
       <FormContainer>
         <form id={ formName } onSubmit={form.handleSubmit(handleSubmit)} >
-          { Object.entries(fields).map(([ name, field ]) => {
+          { Object.entries(config.fields).map(([ name, field ]) => {
 
-            switch (field.type) {
-              case 'input':
-                return (
-                  <FormInput form={ form } name={ name } label={ field.label } required={ field.required } />
-                )
-              case 'textarea':
-                return (
-                  <FormTextarea form={ form } name={ name } label={ field.label } required={ field.required } />
-                )
+            const fieldInfo = getFieldInfo(field.schema)
+            const props = { form, name, label: field.label, required: fieldInfo.required }
+
+            switch (fieldInfo.kind) {
+              case 'string':
+                return field.variation === 'textarea' ?
+                  <FormTextarea {...props} key={ name } /> :
+                  <FormInput {...props} key={ name } type={ field.type || 'text' } />
+              case 'number':
+                return <FormInput {...props} key={ name } type='number'/>
+              case 'boolean':
+                return <FormCheckbox {...props} key={ name } />
+              case 'enum':
+                return <FormSelect{...props} key={ name } items={ fieldInfo.options }/>
+              case 'date':
+                return <FormDatePicker {...props} key={ name } />
               case 'array':
-                return (
-                  <FormMultiInput form={ form } values={ emails } name='emails' label="Emails" addMessage='Añadir email' />
-                )
+                return <FormMultiInput{...props} key={ name } addMessage={ field.placeholder }/>
               default:
-                throw new Error(`Invalid field type: ${field.type}`)
+                throw new Error(`Invalid field info: ${fieldInfo}`)
             }
           })}
         </form>
       </FormContainer>
 
       <ButtonsContainer>
-        <div className='px-4 flex gap-2'>
+        <div className='pt-4 flex gap-2'>
           <Button type='button' variant='outline' onClick={ handleCancel } disabled={ status.pending.any }>
             Cancelar
           </Button>

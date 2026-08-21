@@ -6,11 +6,12 @@ import {
   useQueryClient
 } from '@tanstack/react-query'
 import type { Entity } from '@/types.ts'
+import { toast } from '@/components/ui/toast.tsx'
 
 export type Mutations<T extends Entity, NT extends Partial<Omit<Entity, 'id'>>> = {
-  create: UseMutateFunction<T, Error, NT>
-  update: UseMutateFunction<T, Error, T>
-  remove: UseMutateFunction<T, Error, T>
+  create: UseMutateFunction<T, Error | null, NT>
+  update: UseMutateFunction<T, Error | null, T>
+  remove: UseMutateFunction<T, Error | null, T>
   status: MutationStatusTypes<T, NT>
 }
 
@@ -73,22 +74,31 @@ export const useMutations = <T extends Entity, NT extends Partial<Omit<Entity, '
   const client = useQueryClient()
 
   const invalidate = () => client.invalidateQueries({ queryKey: mutationKeys.all })
+  const showError = (error: Error | null) => {
+    toast.add({
+      title: error?.message,
+      type: 'error',
+    })
+  }
 
   const create = useMutation({
     mutationKey: mutationKeys.create,
     mutationFn: mutationApi.create,
+    onError: showError,
     onSettled: invalidate,
   })
 
   const update = useMutation({
     mutationKey: mutationKeys.update,
     mutationFn: mutationApi.update,
+    onError: showError,
     onSettled: invalidate,
   })
 
   const remove = useMutation({
     mutationKey: mutationKeys.delete,
     mutationFn: mutationApi.delete,
+    onError: showError,
     onSettled: invalidate,
   })
 

@@ -1,60 +1,63 @@
-'use client'
-
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useFieldArray, useForm } from 'react-hook-form'
 import * as z from 'zod'
-
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Spinner } from '@/components/ui/spinner'
 import type { Inquiry, NewInquiry } from '@/features/types'
-import FormInput from '@/components/Form/FormInput.tsx'
-import FormMultiInput from '@/components/Form/FormMultiInput.tsx'
-import { formSchema, applyData } from '@/features/inquiries/InquiryForm/schema'
 import { useInquiryMutations } from '@/features/inquiries/useInquiries'
-import { toast } from "@/components/ui/toast"
+import Form, { type FormConfig, type InferFormData } from '@/components/Form/Form.tsx'
 
 type InquiryFormProps = {
   inquiry: NewInquiry | Inquiry | null
   onCancel: () => void
 }
 
-const InquiryForm = ({ inquiry, onCancel }: InquiryFormProps) => {
-  const { create, update, status } = useInquiryMutations()
+export const config = {
+  fields: {
+    name: {
+      label: 'Nombre',
+      schema: z.string().min(2, 'Mínimo 2 caracteres').max(48, 'Máximo 48 caracteres'),
+    },
 
-  if (status.errors.creating)
-    toast.add({ title: status.errors.creating.error?.message, type: 'error' })
+    lastName: {
+      label: 'Apellido',
+      schema: z
+      .string()
+      .max(48, 'Máximo 48 caracteres')
+      .refine(value => value === '' || value.length >= 2, 'Mínimo 2 caracteres')
+      .optional()
+    },
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { name: '', lastName: '' },
-    disabled: status.pending.any
-  })
+    service: {
+      label: 'Servicio',
+      schema: z.string().min(2, 'Mínimo 2 caracteres').max(250, 'Máximo 250 caracteres'),
+    },
 
-  const emails = useFieldArray({ control: form.control, name: 'emails' })
-  const phoneNumbers = useFieldArray({ control: form.control, name: 'phoneNumbers' })
+    emails: { label: 'Emails', schema: z.array(z.object({ value: z.string().email() })) },
+    phoneNumbers: { label: 'Teléfonos', schema: z.array(z.object({ value: z.string() })) },
 
-  const handleSubmit = (formData: z.infer<typeof formSchema>) => {
-    if (inquiry === null) return
+  },
+  refine: {
+    fn: (data: { [x: string]: any }) => data.emails.length > 0 || data.phoneNumbers.length > 0,
+    args: { message: 'Añade al menos un email o teléfono', path: ['emails'] }
+  }
+} satisfies FormConfig
 
-    const submitInquiry = applyData(inquiry, formData)
+export const applyData = (inquiry: Inquiry | NewInquiry, formData: InferFormData<typeof config.fields>): Inquiry | NewInquiry => {
+  const { emails, phoneNumbers, name, lastName = '', ...rest } = formData
 
-    const onSuccess = () => {
-      toast.add({ title: 'Solicitud guardada' })
-      form.reset()
+  return {
+    ...inquiry,
+    ...rest,
+    status: 'id' in inquiry ? inquiry.status : 'pending',
+    contact: {
+      ...(inquiry.contact),
+      name,
+      lastName,
+      emails: emails.map(email => email.value),
+      phoneNumbers: phoneNumbers.map(phoneNumber => phoneNumber.value),
     }
-
-    if ('id' in submitInquiry)
-      update(submitInquiry, { onSuccess })
-    else
-      create(submitInquiry, { onSuccess })
   }
+}
 
-  const handleCancel = () => {
-    form.reset()
-    onCancel()
-  }
-
+const InquiryForm = ({ inquiry, onCancel }: InquiryFormProps) => {
   return (
     <div className={
       `grid justify-items-center
@@ -69,24 +72,15 @@ const InquiryForm = ({ inquiry, onCancel }: InquiryFormProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form id='inquiry-form' onSubmit={form.handleSubmit(handleSubmit)} >
-            <FormInput form={ form } name='name' label='Nombre' required />
-            <FormInput form={ form } name='lastName' label='Apellidos' />
-            <FormMultiInput form={ form } values={ emails } name='emails' label="Emails" addMessage='Añadir email' />
-            <FormMultiInput form={ form } values={ phoneNumbers } name='phoneNumbers' label="Telefonos" addMessage='Añadir email' />
-            <FormInput form={ form } name='service' label='Servicio solicitado' required />
-          </form>
+          <Form
+            name='inquiry'
+            config={ config }
+            item={inquiry || {} as NewInquiry}
+            mutations={useInquiryMutations()}
+            applyData={applyData}
+            onCancel={onCancel}
+          />
         </CardContent>
-
-        <div className='px-4 flex gap-2'>
-          <Button type='button' variant='outline' onClick={ handleCancel } disabled={ status.pending.any }>
-            Cancelar
-          </Button>
-          <Button type='submit' form='inquiry-form' disabled={ status.pending.any }>
-            Guardar
-            { status.pending.any && <Spinner />}
-          </Button>
-        </div>
       </Card>
     </div>
   )

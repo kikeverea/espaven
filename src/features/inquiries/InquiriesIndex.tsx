@@ -20,8 +20,6 @@ const InquiriesIndex = () => {
   const [formInquiry, setFormInquiry] = useState<NewInquiry | Inquiry | null>(null)
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry|null>(null)
 
-  console.log('inquiries', inquiries)
-
   const columns: TableColumn<Inquiry>[] = [
     { name: 'Nombre',
       accessor: inquiry => `${inquiry.contact.name} ${inquiry.contact.lastName}`,
@@ -43,7 +41,7 @@ const InquiriesIndex = () => {
               ? <Button
                   variant='primary'
                   className='me-2 px-4 py-4'
-                  onClick={() => setFormInquiry({})}
+                  onClick={() => setFormInquiry({} as NewInquiry)}
                 >
                   <Plus className='size-4' /> Nueva solicitud
                 </Button>
@@ -53,7 +51,7 @@ const InquiriesIndex = () => {
             }
           />
 
-          { <InquiryForm inquiry={ formInquiry } onCancel={ () => setFormInquiry(null)}/> }
+          <InquiryForm inquiry={ formInquiry } onCancel={ () => setFormInquiry(null)}/>
           <div className='py-3 flex-1'>
             <Table
               collection={ inquiries }

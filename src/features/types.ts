@@ -6,6 +6,7 @@ export type Contact = Entity & {
   emails?: string[]
   phoneNumbers?: string[]
 }
+export type NewContact = Partial<Omit<Contact, 'id'>>
 
 export type Inquiry = Entity & {
   status: InquiryStatus
@@ -15,7 +16,7 @@ export type Inquiry = Entity & {
   accessed?: boolean
   comments?: Comment[]
 }
-export type NewInquiry = Partial<Omit<Inquiry, 'id'>>
+export type NewInquiry = Partial<Omit<Inquiry, 'id'>> & { contact: NewContact }
 
 export type InquiryStatus =
   | 'pending'

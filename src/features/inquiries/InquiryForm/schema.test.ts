@@ -1,8 +1,10 @@
 import * as z from 'zod'
-import { formSchema } from '@/features/inquiries/InquiryForm/schema.ts'
+import { config } from '@/features/inquiries/InquiryForm/InquiryForm'
+import { extractSchema } from '@/components/Form/Form.tsx'
+const formSchema = extractSchema(config)
 
 describe('inquiryFormSchema', () => {
-  
+
   test('accepts a valid inquiry', () => {
     const result = formSchema.safeParse(inquiry())
     expect(result.success).toBe(true)

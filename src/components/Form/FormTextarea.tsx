@@ -1,9 +1,10 @@
-import { Field, FieldError, FieldLabel } from '@/components/ui/field'
+import { Field, FieldError } from '@/components/ui/field'
 import { Textarea } from '@/components/ui/textarea'
 
 import type { ComponentProps } from 'react'
 import type { FieldValues, Path } from 'react-hook-form'
 import type { FormFieldProps } from '@/components/Form/types'
+import FormLabel from '@/components/Form/FormLabel.tsx'
 
 type FormTextareaProps<T extends FieldValues> =
   FormFieldProps<T, Path<T>> &
@@ -29,12 +30,7 @@ const FormTextarea = <T extends FieldValues>({
 
   return (
     <Field data-invalid={invalid} className='py-2'>
-      {label && (
-        <FieldLabel htmlFor={id}>
-          {label}
-          {required && <span className='text-destructive'>*</span>}
-        </FieldLabel>
-      )}
+      <FormLabel label={ label } required={ required } htmlFor={ id }/>
 
       <Textarea
         {...form.register(name)}
