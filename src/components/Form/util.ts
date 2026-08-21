@@ -1,4 +1,21 @@
 import * as z from 'zod'
+import type { FormConfig, FormFields } from '@/components/Form/types.ts'
+
+export const defineFormConfig = <T extends FormFields>(
+  config: FormConfig<T>
+) => config
+
+export const extractSchema = (config: FormConfig<FormFields>) => {
+  const schema = z.object(
+    Object.fromEntries(
+      Object.entries(config.fields).map(([key, field]) => [key, field.schema]),
+    )
+  )
+
+  return config.refine
+    ? schema.refine(config.refine.fn, config.refine?.args || {})
+    : schema
+}
 
 export const getFieldInfo = (baseSchema: z.ZodType) => {
   const info = {

@@ -1,5 +1,4 @@
 import * as z from 'zod'
-import type { Mutations } from '@/lib/mutations.tsx'
 import type { Entity } from '@/types.ts'
 import { toast } from '@/components/ui/toast.tsx'
 import { useForm } from 'react-hook-form'
@@ -8,44 +7,25 @@ import FormInput from '@/components/Form/FormInput.tsx'
 import FormMultiInput from '@/components/Form/FormMultiInput.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { Spinner } from '@/components/ui/spinner.tsx'
-import { type ComponentProps, type ComponentType, type PropsWithChildren } from 'react'
 import FormTextarea from '@/components/Form/FormTextarea.tsx'
-import { getFieldInfo } from '@/components/Form/util.ts'
+import { extractSchema, getFieldInfo } from '@/components/Form/util.ts'
 import FormSelect from '@/components/Form/FormSelect.tsx'
 import FormCheckbox from '@/components/Form/FormCheckbox.tsx'
 import FormDatePicker from '@/components/Form/FormDatePicker.tsx'
-import { Input } from '@base-ui/react'
+import type { ComponentType, PropsWithChildren } from 'react'
+import type { Mutations } from '@/lib/mutations.tsx'
+import type { FormConfig, FormFields } from '@/components/Form/types.ts'
 
 type ContainerProps = PropsWithChildren
+type AnyFormConfig = FormConfig<FormFields>
 
-export type InferFormData<T extends Record<string, { schema: z.ZodType }>> = {
-  [K in keyof T]: z.infer<T[K]['schema']>
-}
-
-export type FieldVariation =
-  | 'email'
-  | 'textarea'
-  | 'options'
-
-type FormField = {
-  schema: z.ZodType
-  variation?: FieldVariation
-  type?: ComponentProps<typeof Input>['type']
-  label?: string
-  placeholder?: string
-}
-
-export type FormConfig = {
-  fields: Record<string, FormField>
-  refine?: {
-    fn: (data: { [x: string]: any }) => boolean
-    args?: Parameters<z.ZodType['refine']>[1]
-  }
-}
-
-type FormProps<T extends Entity, NT extends Omit<Partial<Entity>, 'id'>> = {
+type FormProps<
+  T extends Entity,
+  NT extends Omit<Partial<Entity>, 'id'>,
+  C extends AnyFormConfig
+> = {
   name: string
-  config: FormConfig
+  config: C
   mutations: Mutations<T, NT>
   item: T | NT
   applyData?: (item: T | NT, formData: any) => T | NT
@@ -54,21 +34,13 @@ type FormProps<T extends Entity, NT extends Omit<Partial<Entity>, 'id'>> = {
   ButtonsContainer?: ComponentType<ContainerProps>
 }
 
-export const extractSchema = (config: FormConfig) => {
-  const schema = z.object(
-    Object.fromEntries(
-      Object.entries(config.fields).map(([key, field]) => [key, field.schema]),
-    )
-  )
-
-  return config.refine
-    ? schema.refine(config.refine.fn, config.refine?.args || {})
-    : schema
-}
-
 const FallbackContainer = ({ children }: ContainerProps) => <>{ children }</>
 
-const Form = <T extends Entity, NT extends Omit<Partial<Entity>,'id'>>({
+const Form = <
+  T extends Entity,
+  NT extends Omit<Partial<Entity>,'id'>,
+  C extends AnyFormConfig
+>({
   name,
   config,
   mutations,
@@ -77,12 +49,11 @@ const Form = <T extends Entity, NT extends Omit<Partial<Entity>,'id'>>({
   onCancel,
   FormContainer = FallbackContainer,
   ButtonsContainer = FallbackContainer,
-}: FormProps<T,NT>) => {
+}: FormProps<T,NT,C>) => {
 
   const { create, update, status } = mutations
 
   const formName = `${name}-form`
-
   const schema = extractSchema(config)
 
   const form = useForm<z.infer<typeof schema>>({

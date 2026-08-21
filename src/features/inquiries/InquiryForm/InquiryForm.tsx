@@ -2,14 +2,16 @@ import * as z from 'zod'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Inquiry, NewInquiry } from '@/features/types'
 import { useInquiryMutations } from '@/features/inquiries/useInquiries'
-import Form, { type FormConfig, type InferFormData } from '@/components/Form/Form.tsx'
+import Form from '@/components/Form/Form.tsx'
+import type { InferSchema } from '@/components/Form/types.ts'
+import { defineFormConfig } from '@/components/Form/util.ts'
 
 type InquiryFormProps = {
   inquiry: NewInquiry | Inquiry | null
   onCancel: () => void
 }
 
-export const config = {
+export const config = defineFormConfig({
   fields: {
     name: {
       label: 'Nombre',
@@ -32,15 +34,22 @@ export const config = {
 
     emails: { label: 'Emails', schema: z.array(z.object({ value: z.string().email() })) },
     phoneNumbers: { label: 'Teléfonos', schema: z.array(z.object({ value: z.string() })) },
-
+  },
+  defaultValues: {
+    emails: [],
+    phoneNumbers: []
   },
   refine: {
     fn: (data: { [x: string]: any }) => data.emails.length > 0 || data.phoneNumbers.length > 0,
     args: { message: 'Añade al menos un email o teléfono', path: ['emails'] }
   }
-} satisfies FormConfig
+})
 
-export const applyData = (inquiry: Inquiry | NewInquiry, formData: InferFormData<typeof config.fields>): Inquiry | NewInquiry => {
+export const applyData = (
+  inquiry: Inquiry | NewInquiry,
+  formData: InferSchema<typeof config.fields>
+): Inquiry | NewInquiry => {
+
   const { emails, phoneNumbers, name, lastName = '', ...rest } = formData
 
   return {
@@ -51,7 +60,7 @@ export const applyData = (inquiry: Inquiry | NewInquiry, formData: InferFormData
       ...(inquiry.contact),
       name,
       lastName,
-      emails: emails.map(email => email.value),
+      emails: emails.map((email) => email.value),
       phoneNumbers: phoneNumbers.map(phoneNumber => phoneNumber.value),
     }
   }

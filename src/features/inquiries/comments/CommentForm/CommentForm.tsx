@@ -2,7 +2,7 @@ import * as z from 'zod'
 
 import type { Inquiry, InquiryComment, NewInquiryComment } from '@/features/types.ts'
 import { useInquiryCommentsMutations } from '@/features/inquiries/comments/useInquiryComments'
-import Form, { type InferFormData } from '@/components/Form/Form.tsx'
+import Form, { type InferSchema } from '@/components/Form/Form.tsx'
 
 type CommentFormProps = {
   inquiry: Inquiry
@@ -20,7 +20,7 @@ export const config = {
 
 export const applyData = (
   comment: NewInquiryComment | InquiryComment,
-  formData: InferFormData<typeof config.fields>
+  formData: InferSchema<typeof config.fields>
 ): InquiryComment | NewInquiryComment => {
 
   return { inquiry: comment.inquiry, ...comment, ...formData }
