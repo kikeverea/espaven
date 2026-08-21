@@ -66,6 +66,8 @@ export const extractSchema = (config: FormConfig) => {
     : schema
 }
 
+const FallbackContainer = ({ children }: ContainerProps) => <>{ children }</>
+
 const Form = <T extends Entity, NT extends Omit<Partial<Entity>,'id'>>({
   name,
   config,
@@ -73,8 +75,8 @@ const Form = <T extends Entity, NT extends Omit<Partial<Entity>,'id'>>({
   item,
   applyData,
   onCancel,
-  FormContainer = ({ children }: ContainerProps) => <>{children}</>,
-  ButtonsContainer = ({ children }: ContainerProps) => <>{children}</>,
+  FormContainer = FallbackContainer,
+  ButtonsContainer = FallbackContainer,
 }: FormProps<T,NT>) => {
 
   const { create, update, status } = mutations

@@ -51,11 +51,6 @@ export const timeString = (timestamp: string | null): string => {
   if (days < 7)
     return `${days} días`
 
-  console.log('will use this for time', timestamp, date.toLocaleDateString('es-ES', {
-    day: 'numeric',
-    month: 'short',
-  }))
-
   return date.toLocaleDateString('es-ES', {
     day: 'numeric',
     month: 'short',
