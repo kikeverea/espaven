@@ -14,6 +14,12 @@ export const titleize = (s: string): string => {
 export const camelize = (s: string): string =>
   s.replace(/[-_\s]+(.)?/g, (_, char) => char ? char.toUpperCase() : '')
 
+export const snakeCase = (s: string): string =>
+  s
+  .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+  .replace(/[-\s]+/g, '_')
+  .toLowerCase()
+
 
 export const normalizedValue = (val: Primitive | Primitive[]) => {
   const value = Array.isArray(val) ? val.join(' ') : val

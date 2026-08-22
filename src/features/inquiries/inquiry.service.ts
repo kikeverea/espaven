@@ -1,5 +1,7 @@
 import type { Inquiry, NewInquiry } from '../types.ts'
-import { apiFetch } from '@/api/apiClient.ts'
+import { api } from '@/api/apiClient.ts'
+
+const apiFetch = api()
 
 const getInquiries = async (): Promise<Inquiry[]> => {
   return await apiFetch<Inquiry[]>(`/inquiries`)
@@ -12,14 +14,14 @@ const getInquiry = async (id: Inquiry['id']): Promise<Inquiry> => {
 const createInquiry = async (payload: NewInquiry): Promise<Inquiry> => {
   return await apiFetch<Inquiry>(`/inquiries`, {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: payload,
   })
 }
 
 const updateInquiry = async (inquiry: Inquiry): Promise<Inquiry> => {
   return await apiFetch<Inquiry>(`/inquiries/${inquiry.id}`, {
     method: 'PUT',
-    body: JSON.stringify(inquiry),
+    body: inquiry,
   })
 }
 
