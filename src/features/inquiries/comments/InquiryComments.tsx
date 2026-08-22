@@ -1,8 +1,8 @@
 import { CirclePlus } from 'lucide-react'
 import { useInquiryComments } from '@/features/inquiries/comments/useInquiryComments.tsx'
-import type { Inquiry, InquiryComment, NewInquiryComment } from '@/features/types.ts'
+import type { Inquiry, InquiryComment, FormInquiryComment } from '@/features/inquiries/types.ts'
 import { useState } from 'react'
-import CommentForm from '@/features/inquiries/comments/CommentForm/CommentForm.tsx'
+import CommentForm from '@/features/inquiries/comments/CommentForm.tsx'
 import CommentList from '@/features/comments/CommentList.tsx'
 
 type InquiryCommentsProps = {
@@ -12,7 +12,9 @@ type InquiryCommentsProps = {
 const InquiryComments = ({ inquiry }: InquiryCommentsProps) => {
 
   const { comments } = useInquiryComments(inquiry)
-  const [ formComment, setFormComment ] = useState<NewInquiryComment | InquiryComment | null>(null)
+  const [ formComment, setFormComment ] = useState<FormInquiryComment | InquiryComment | null>(null)
+
+  console.log('comments', comments)
 
   return (
     <div className='px-4'>

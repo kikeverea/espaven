@@ -1,7 +1,7 @@
-import api from './inquiry.comments.service'
+import api from '@/features/inquiries/comments/data/inquiry.comments.service.ts'
 import { useMutations } from '@/lib/mutations.tsx'
 import { useQuery } from '@tanstack/react-query'
-import type { Inquiry, InquiryComment, NewInquiryComment } from '@/features/types.ts'
+import type { Inquiry, InquiryComment, FormInquiryComment } from '@/features/inquiries/types.ts'
 
 export const useInquiryCommentsMutations = (inquiry: Inquiry) => {
   const commentKeys = {
@@ -17,7 +17,7 @@ export const useInquiryCommentsMutations = (inquiry: Inquiry) => {
     delete: api.deleteComment,
   }
 
-  return useMutations<InquiryComment, NewInquiryComment>(commentKeys, inquiriesApi)
+  return useMutations<InquiryComment, FormInquiryComment>(commentKeys, inquiriesApi)
 }
 
 export const useInquiryComments = (inquiry: Inquiry) => {

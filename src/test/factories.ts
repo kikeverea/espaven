@@ -1,4 +1,4 @@
-import type { Contact, Comment, Inquiry, User } from '@/features/types.ts'
+import type { Contact, Comment, Inquiry, User } from '@/features/inquiries/types.ts'
 
 export const createFactories = () => {
   const ids = {

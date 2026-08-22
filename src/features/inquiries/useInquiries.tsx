@@ -1,5 +1,5 @@
-import { type NewInquiry, type Inquiry } from '../types'
-import api from './inquiry.service'
+import { type Inquiry, type FormInquiry } from './types.ts'
+import api from '@/features/inquiries/data/inquiry.service.ts'
 import { useMutations } from '@/lib/mutations.tsx'
 import { useQuery } from '@tanstack/react-query'
 
@@ -17,7 +17,7 @@ const inquiriesApi = {
 }
 
 export const useInquiryMutations = () => {
-  return useMutations<Inquiry, NewInquiry>(inquiryKeys, inquiriesApi)
+  return useMutations<Inquiry, FormInquiry>(inquiryKeys, inquiriesApi)
 }
 
 export const useInquiries = () => {

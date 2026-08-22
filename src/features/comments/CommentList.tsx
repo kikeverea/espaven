@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card.tsx'
-import { type Comment } from '@/features/types.ts'
+import { type Comment } from '@/features/inquiries/types.ts'
 
 type CommentListProps = {
   comments: Comment[],

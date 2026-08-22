@@ -1,4 +1,4 @@
-import type { Inquiry } from '@/features/types'
+import type { Inquiry } from '@/features/inquiries/types.ts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import ContactInfo from '@/features/inquiries/ContactInfo'
 import InquiryInfo from '@/features/inquiries/InquiryInfo'

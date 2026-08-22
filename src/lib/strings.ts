@@ -4,11 +4,11 @@ export const stringify = (data: unknown): string => data == null ? '' : String(d
 
 export const normalized = (s?: string) => s?.toLowerCase().trim() || ''
 
+export const capitalize = (s: string): string =>
+  `${s.charAt(0).toUpperCase()}${s.substring(1)}`
+
 export const titleize = (s: string): string => {
-  return s
-  .split(' ')
-  .map(p => `${p.charAt(0).toUpperCase()}${p.substring(1)}`)
-  .join(' ')
+  return s.split(' ').map(capitalize).join(' ')
 }
 
 export const camelize = (s: string): string =>

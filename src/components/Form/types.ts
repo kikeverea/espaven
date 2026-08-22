@@ -9,7 +9,7 @@ export type InferSchema<T extends FormFields> = {
 
 export type FormConfig<T extends FormFields> = {
   fields: T
-  defaultValues: DefaultValues<InferSchema<T>>
+  defaultValues?: DefaultValues<InferSchema<T>>
   refine?: {
     fn: (data: { [x: string]: any }) => boolean
     args?: Parameters<z.ZodType['refine']>[1]

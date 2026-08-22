@@ -5,14 +5,14 @@ import {
   useMutationState,
   useQueryClient
 } from '@tanstack/react-query'
+import { toast } from '@/components/ui/toast'
 import type { Entity } from '@/types.ts'
-import { toast } from '@/components/ui/toast.tsx'
 
-export type Mutations<T extends Entity, NT extends Partial<Omit<Entity, 'id'>>> = {
-  create: UseMutateFunction<T, Error | null, NT>
-  update: UseMutateFunction<T, Error | null, T>
+export type Mutations<T extends object, TWrite extends object = T> = {
+  create: UseMutateFunction<T, Error | null, TWrite>
+  update: UseMutateFunction<T, Error | null, UpdateParams<TWrite>>
   remove: UseMutateFunction<T, Error | null, T>
-  status: MutationStatusTypes<T, NT>
+  status: MutationStatusTypes<T>
 }
 
 type QueryActions<T> = {
@@ -21,16 +21,17 @@ type QueryActions<T> = {
   any: boolean,
 }
 
-type PendingActions<T extends Entity> = { current: (item: T) => T | null }
-type ErrorAction<T extends Entity> = { error: (item: T) => Error | null }
+type PendingActions<T> = { current: (item: T) => T | null }
+type ErrorAction<T> = { error: (item: T) => Error | null }
 
-type MutationStatusTypes<T extends Entity, NT extends Partial<Omit<Entity, 'id'>>> = {
-  pending: QueryActions<T | NT> & PendingActions<T>
-  errors: QueryActions<MutationError<T | NT>> & ErrorAction<T>
+type MutationStatusTypes<T> = {
+  pending: QueryActions<T> & PendingActions<T>
+  errors: QueryActions<MutationError<T>> & ErrorAction<T>
 }
 
-type MutationError<T extends Object> = { item: T, error: Error | null}
+type MutationError<T> = { item: T, error: Error | null}
 type MutationKey = string | number
+type UpdateParams<TWrite> = { id: Entity['id'], payload: TWrite }
 
 export type MutationKeys = {
   all: readonly MutationKey[]
@@ -39,9 +40,9 @@ export type MutationKeys = {
   delete: readonly [...MutationKey[], 'delete']
 }
 
-export type MutationApi<T extends Entity, NT extends Partial<Omit<Entity, 'id'>>> = {
-  create: (payload: NT) => Promise<T>
-  update: (payload: T) => Promise<T>
+export type MutationApi<T extends object, TWrite extends object = T> = {
+  create: (payload: TWrite) => Promise<T>
+  update: (id: Entity['id'], payload: TWrite) => Promise<T>
   delete: (payload: T) => Promise<T>
 }
 
@@ -67,10 +68,10 @@ export function useMutationStatus<T extends Object>(
   }).at(-1) ?? null
 }
 
-export const useMutations = <T extends Entity, NT extends Partial<Omit<Entity, 'id'>>>(
+export const useMutations = <T extends Entity, TWrite extends object = T>(
   mutationKeys: MutationKeys,
-  mutationApi: MutationApi<T, NT>
-): Mutations<T, NT> => {
+  mutationApi: MutationApi<T, TWrite>
+): Mutations<T, TWrite> => {
   const client = useQueryClient()
 
   const invalidate = () => client.invalidateQueries({ queryKey: mutationKeys.all })
@@ -90,7 +91,7 @@ export const useMutations = <T extends Entity, NT extends Partial<Omit<Entity, '
 
   const update = useMutation({
     mutationKey: mutationKeys.update,
-    mutationFn: mutationApi.update,
+    mutationFn: ({ id, payload }: UpdateParams<TWrite>) => mutationApi.update(id, payload),
     onError: showError,
     onSettled: invalidate,
   })
@@ -102,13 +103,13 @@ export const useMutations = <T extends Entity, NT extends Partial<Omit<Entity, '
     onSettled: invalidate,
   })
 
-  const creating = useMutationStatus<NT>(mutationKeys.create, 'pending')
+  const creating = useMutationStatus<T>(mutationKeys.create, 'pending')
   const deleting = useMutationStatus<T>(mutationKeys.delete, 'pending')
 
-  const createError = useMutationStatus<NT>(mutationKeys.create, 'error')
+  const createError = useMutationStatus<T>(mutationKeys.create, 'error')
   const deleteError = useMutationStatus<T>(mutationKeys.delete, 'error')
 
-  const status: MutationStatusTypes<T, NT> = {
+  const status: MutationStatusTypes<T> = {
     pending: {
       creating,
       deleting,

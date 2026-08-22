@@ -1,6 +1,6 @@
 import { useInquiries } from '@/features/inquiries/useInquiries'
 import type { TableColumn } from '@/components/Table/types'
-import type { Inquiry, NewInquiry } from '@/features/types'
+import type { Inquiry, NewInquiry } from '@/features/inquiries/types.ts'
 import { timeString } from '@/lib/strings'
 import Table from '@/components/Table/Table'
 import { statusBadge } from '@/features/inquiries/util'
@@ -9,7 +9,7 @@ import { useState } from 'react'
 import DetailsTray from '@/features/inquiries/DetailsTray.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { Plus, X } from 'lucide-react'
-import InquiryForm from '@/features/inquiries/InquiryForm/InquiryForm.tsx'
+import InquiryForm from '@/features/inquiries/InquiryForm.tsx'
 import NavBar from '@/components/NavBar/NavBar.tsx'
 
 

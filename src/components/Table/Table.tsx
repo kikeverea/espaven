@@ -20,6 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox.tsx'
 import { TableActions } from '@/components/Table/TableActions/TableActions.tsx'
 import { SquareArrowOutUpRight } from 'lucide-react'
 import selectionReducer, { type SelectionTypes } from '@/components/Table/reducers/selectionReducer'
+import TableSkeleton from '@/components/Table/TableSkeleton.tsx'
 
 const Table = <T extends Entity>(
 {
@@ -36,6 +37,9 @@ const Table = <T extends Entity>(
   selectedId,
   actions
 }: TableProps<T>) => {
+
+  if (!collection)
+    return <TableSkeleton colCount={ columns.length }/>
 
   const tableData = useMemo<TableData>(
     () => mapToData(collection, columns),

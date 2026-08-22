@@ -1,15 +1,7 @@
 import * as z from 'zod'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { Inquiry, NewInquiry } from '@/features/types'
-import { useInquiryMutations } from '@/features/inquiries/useInquiries'
-import Form from '@/components/Form/Form.tsx'
+import type { FormInquiry } from '@/features/inquiries/types.ts'
 import type { InferSchema } from '@/components/Form/types.ts'
 import { defineFormConfig } from '@/components/Form/util.ts'
-
-type InquiryFormProps = {
-  inquiry: NewInquiry | Inquiry | null
-  onCancel: () => void
-}
 
 export const config = defineFormConfig({
   fields: {
@@ -46,9 +38,9 @@ export const config = defineFormConfig({
 })
 
 export const applyData = (
-  inquiry: Inquiry | NewInquiry,
+  inquiry: FormInquiry,
   formData: InferSchema<typeof config.fields>
-): Inquiry | NewInquiry => {
+): FormInquiry => {
 
   const { emails, phoneNumbers, name, lastName = '', ...rest } = formData
 
@@ -65,34 +57,3 @@ export const applyData = (
     }
   }
 }
-
-const InquiryForm = ({ inquiry, onCancel }: InquiryFormProps) => {
-  return (
-    <div className={
-      `grid justify-items-center
-      transition-[grid-template-rows] duration-300
-      ${inquiry ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`
-    }>
-      <Card className={`my-4 w-full xl:w-1/2 pt-0 min-h-0 transition-[padding,box-shadow] duration-300
-        ${inquiry ? '' : 'py-0 ring-0'}`}>
-        <CardHeader className='bg-primary/85 py-2 text-white'>
-          <CardTitle className='text-center text-2xl font-semibold'>
-            { (inquiry && 'id' in inquiry) ? 'Editar' : 'Nueva'} Solicitud
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form
-            name='inquiry'
-            config={ config }
-            item={inquiry || {} as NewInquiry}
-            mutations={useInquiryMutations()}
-            applyData={applyData}
-            onCancel={onCancel}
-          />
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-export default InquiryForm

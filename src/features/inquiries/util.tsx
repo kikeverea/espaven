@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge.tsx'
-import type { InquiryStatus } from '@/features/types.ts'
+import type { InquiryStatus } from '@/features/inquiries/types.ts'
 
 type StatusStyle = {
   label: string

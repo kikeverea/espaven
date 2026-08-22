@@ -1,5 +1,5 @@
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table.tsx'
-import type { Inquiry } from '@/features/types.ts'
+import type { Inquiry } from '@/features/inquiries/types.ts'
 
 const ContactInfo = ({ inquiry }: { inquiry: Inquiry }) => {
 
@@ -15,7 +15,7 @@ const ContactInfo = ({ inquiry }: { inquiry: Inquiry }) => {
         <TableRow className='border-b-0'>
           <TableCell className='w-36 ps-1 pe-2 px-4 text-muted-foreground'>Teléfonos</TableCell>
           <TableCell className='ps-2 px-4'>
-            { contact.phoneNumbers.map((number, ind) =>
+            { contact.phoneNumbers?.map((number, ind) =>
               <div key={`${number}-${ind}`} className='py-1'>{ number }</div>)
             }
           </TableCell>
@@ -23,7 +23,7 @@ const ContactInfo = ({ inquiry }: { inquiry: Inquiry }) => {
         <TableRow className='border-b-0'>
           <TableCell className='w-36 ps-1 pe-2 px-4 text-muted-foreground'>Emails</TableCell>
           <TableCell className='ps-2 px-4'>
-            { contact.emails.map((email, ind) =>
+            { contact.emails?.map((email, ind) =>
               <div key={`${email}-${ind}`} className='py-1'>{ email }</div>)
             }
           </TableCell>

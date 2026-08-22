@@ -1,5 +1,5 @@
 import * as z from 'zod'
-import { config } from '@/features/inquiries/InquiryForm/InquiryForm'
+import { config } from '@/features/inquiries/data/inquiry.form.ts'
 import { extractSchema } from '@/components/Form/Form.tsx'
 const formSchema = extractSchema(config)
 

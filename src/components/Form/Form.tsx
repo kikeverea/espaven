@@ -1,5 +1,4 @@
 import * as z from 'zod'
-import type { Entity } from '@/types.ts'
 import { toast } from '@/components/ui/toast.tsx'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -15,20 +14,21 @@ import FormDatePicker from '@/components/Form/FormDatePicker.tsx'
 import type { ComponentType, PropsWithChildren } from 'react'
 import type { Mutations } from '@/lib/mutations.tsx'
 import type { FormConfig, FormFields } from '@/components/Form/types.ts'
+import type { Entity } from '@/types.ts'
 
 type ContainerProps = PropsWithChildren
 type AnyFormConfig = FormConfig<FormFields>
 
 type FormProps<
   T extends Entity,
-  NT extends Omit<Partial<Entity>, 'id'>,
+  TWrite extends object,
   C extends AnyFormConfig
 > = {
   name: string
   config: C
-  mutations: Mutations<T, NT>
-  item: T | NT
-  applyData?: (item: T | NT, formData: any) => T | NT
+  mutations: Mutations<T, TWrite>
+  item: T | TWrite
+  applyData?: (item: T | TWrite, formData: any) => TWrite
   onCancel?: () => void
   FormContainer?: ComponentType<ContainerProps>
   ButtonsContainer?: ComponentType<ContainerProps>
@@ -36,10 +36,7 @@ type FormProps<
 
 const FallbackContainer = ({ children }: ContainerProps) => <>{ children }</>
 
-const Form = <
-  T extends Entity,
-  NT extends Omit<Partial<Entity>,'id'>,
-  C extends AnyFormConfig
+const Form = <T extends Entity, TWrite extends object, C extends AnyFormConfig
 >({
   name,
   config,
@@ -49,7 +46,7 @@ const Form = <
   onCancel,
   FormContainer = FallbackContainer,
   ButtonsContainer = FallbackContainer,
-}: FormProps<T,NT,C>) => {
+}: FormProps<T, TWrite, C>) => {
 
   const { create, update, status } = mutations
 
@@ -69,10 +66,10 @@ const Form = <
       form.reset()
     }
 
-    const submitItem = applyData ? applyData(item, formData) : { ...item, ...formData }
+    const submitItem = applyData ? applyData(item, formData) : { ...item, ...formData } as TWrite
 
-    if ('id' in submitItem)
-      update(submitItem, { onSuccess })
+    if ('id' in item)
+      update({ id: item.id, payload: submitItem }, { onSuccess })
     else
       create(submitItem, { onSuccess })
   }

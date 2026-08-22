@@ -1,7 +1,8 @@
-import type { Inquiry, NewInquiry } from '../types.ts'
+import type { FormInquiry, Inquiry } from '../types.ts'
 import { api } from '@/api/apiClient.ts'
+import { mapperFactory } from './inquiry.mapper.ts'
 
-const apiFetch = api()
+const apiFetch = api(mapperFactory())
 
 const getInquiries = async (): Promise<Inquiry[]> => {
   return await apiFetch<Inquiry[]>(`/inquiries`)
@@ -11,15 +12,15 @@ const getInquiry = async (id: Inquiry['id']): Promise<Inquiry> => {
   return await apiFetch<Inquiry>(`/inquiries/${id}`)
 }
 
-const createInquiry = async (payload: NewInquiry): Promise<Inquiry> => {
+const createInquiry = async (payload: FormInquiry): Promise<Inquiry> => {
   return await apiFetch<Inquiry>(`/inquiries`, {
     method: 'POST',
-    body: payload,
+    body: payload
   })
 }
 
-const updateInquiry = async (inquiry: Inquiry): Promise<Inquiry> => {
-  return await apiFetch<Inquiry>(`/inquiries/${inquiry.id}`, {
+const updateInquiry = async (id: Inquiry['id'], inquiry: FormInquiry): Promise<Inquiry> => {
+  return await apiFetch<Inquiry>(`/inquiries/${id}`, {
     method: 'PUT',
     body: inquiry,
   })
