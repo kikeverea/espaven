@@ -15,6 +15,7 @@ import type { ComponentType, PropsWithChildren } from 'react'
 import type { Mutations } from '@/lib/mutations.tsx'
 import type { FormConfig, FormFields } from '@/components/Form/types.ts'
 import type { Entity } from '@/types.ts'
+import { capitalize } from '@/lib/strings.ts'
 
 type ContainerProps = PropsWithChildren
 type AnyFormConfig = FormConfig<FormFields>
@@ -25,6 +26,7 @@ type FormProps<
   C extends AnyFormConfig
 > = {
   name: string
+  itemName: string | readonly [string, 'm'|'f']
   config: C
   mutations: Mutations<T, TWrite>
   item: T | TWrite
@@ -39,6 +41,7 @@ const FallbackContainer = ({ children }: ContainerProps) => <>{ children }</>
 const Form = <T extends Entity, TWrite extends object, C extends AnyFormConfig
 >({
   name,
+  itemName,
   config,
   mutations,
   item,
@@ -62,7 +65,9 @@ const Form = <T extends Entity, TWrite extends object, C extends AnyFormConfig
     if (item === null) return
 
     const onSuccess = () => {
-      toast.add({ title: 'Solicitud guardada' })
+      const [ name, gender = 'm' ] = Array.isArray(itemName) ? itemName : [itemName]
+
+      toast.add({ title: `${capitalize(name)} ${gender === 'm' ? 'guardado' : 'guardada'}` })
       form.reset()
     }
 

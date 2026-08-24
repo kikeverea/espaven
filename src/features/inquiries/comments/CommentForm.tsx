@@ -14,6 +14,7 @@ const CommentForm = ({ inquiry, comment, onCancel }: CommentFormProps) => {
   return (
     <Form
       name='inquiry-comment'
+      itemName='comentario'
       config={ config }
       item={{ ...comment, inquiry }}
       mutations={useInquiryCommentsMutations(inquiry)}

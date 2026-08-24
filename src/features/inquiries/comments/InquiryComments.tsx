@@ -14,8 +14,6 @@ const InquiryComments = ({ inquiry }: InquiryCommentsProps) => {
   const { comments } = useInquiryComments(inquiry)
   const [ formComment, setFormComment ] = useState<FormInquiryComment | InquiryComment | null>(null)
 
-  console.log('comments', comments)
-
   return (
     <div className='px-4'>
       <div className='flex justify-between items-center'>

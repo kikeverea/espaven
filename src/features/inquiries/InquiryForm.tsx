@@ -26,6 +26,7 @@ const InquiryForm = <T extends Inquiry | FormInquiry>({ inquiry, onCancel }: Inq
         <CardContent>
           <Form
             name='inquiry'
+            itemName={['solicitud', 'f']}
             config={ config }
             item={inquiry || {} as T}
             mutations={useInquiryMutations()}
