@@ -9,26 +9,26 @@ const getComments = async (inquiry: Inquiry): Promise<InquiryComment[]> => {
 }
 
 const createComment = async (comment: FormInquiryComment): Promise<InquiryComment> => {
-  const { inquiry, ...payload } = comment
+  const { inquiry } = comment
 
   if (!inquiry)
     throw Error('comment must include an inquiry in this call')
 
   return await apiFetch<InquiryComment>(`/inquiries/${inquiry.id}/comments`, {
     method: 'POST',
-    body: payload,
+    body: comment,
   })
 }
 
 const updateComment = async (id: InquiryComment['id'], comment: FormInquiryComment): Promise<InquiryComment> => {
-  const { inquiry, ...payload } = comment
+  const { inquiry } = comment
 
   if (!inquiry)
     throw Error('comment must include inquiry')
 
   return await apiFetch<InquiryComment>(`/inquiries/${inquiry.id}/comments/${id}`, {
     method: 'PUT',
-    body: payload,
+    body: comment,
   })
 }
 

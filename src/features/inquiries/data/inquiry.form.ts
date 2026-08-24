@@ -25,7 +25,7 @@ export const config = defineFormConfig({
     },
 
     emails: { label: 'Emails', schema: z.array(z.object({ value: z.string().email() })) },
-    phoneNumbers: { label: 'Teléfonos', schema: z.array(z.object({ value: z.string() })) },
+    phoneNumbers: { label: 'Teléfonos', schema: z.array(z.object({ value: z.string() })).optional() },
   },
   defaultValues: {
     emails: [],
@@ -53,7 +53,7 @@ export const applyData = (
       name,
       lastName,
       emails: emails.map((email) => email.value),
-      phoneNumbers: phoneNumbers.map(phoneNumber => phoneNumber.value),
+      phoneNumbers: phoneNumbers?.map(phoneNumber => phoneNumber.value),
     }
   }
 }
