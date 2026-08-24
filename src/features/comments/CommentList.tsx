@@ -11,10 +11,12 @@ const CommentList = ({ comments, showEmptyMessage=true }: CommentListProps) => {
     ? comments.map(comment =>
       <Card
         key={ comment.id }
-        className={`my-4 w-full xl:w-1/2 pt-0 min-h-0 transition-[padding,box-shadow] duration-300`}
+        className={`my-4 w-full min-h-0 transition-[padding,box-shadow] duration-300`}
       >
-        <CardContent>
-          { comment.body }
+        <CardContent className='text-[13px] '>
+          <div className=''>
+            { comment.body }
+          </div>
         </CardContent>
       </Card>
     )
