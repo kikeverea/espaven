@@ -18,7 +18,7 @@ import { Table as ShdcnTable, TableBody, TableRow, TableCell } from '@/component
 import { cellPadding } from '@/components/Table/util.tsx'
 import { Checkbox } from '@/components/ui/checkbox.tsx'
 import { TableActions } from '@/components/Table/TableActions/TableActions.tsx'
-import { SquareArrowOutUpRight } from 'lucide-react'
+import { SquareArrowOutUpRight, X } from 'lucide-react'
 import selectionReducer, { type SelectionTypes } from '@/components/Table/reducers/selectionReducer'
 import TableSkeleton from '@/components/Table/TableSkeleton.tsx'
 
@@ -99,13 +99,20 @@ const Table = <T extends Entity>(
                 { columns.map(column =>
                   <TableCell
                     key={`${item.id}-${column.name || column.key}`}
-                    className={`${cellPadding()} ${item.id === selectedId ? 'bg-slate-100' : ''} text-gray-800 ${!isCustomCol(column) && column.onClick && 'cursor-pointer group'}`}
+                    className={`
+                      ${cellPadding()}
+                      ${item.id === selectedId ? 'bg-slate-100' : ''} text-gray-800
+                      ${!isCustomCol(column) && column.onClick && 'cursor-pointer group'}
+                    `}
                     onClick={ () => isCustomCol(column) ? null : column.onClick!(item.id) }
                   >
                     { !isCustomCol(column) && column.onClick
                       ? <div className='flex items-center gap-2 w-full text-blue-500'>
                           { cellValue(column, item) }
-                          <SquareArrowOutUpRight className='invisible size-3.5 group-hover:visible'/>
+                          { selectedId === item.id
+                            ? <X className='invisible size-3.5 group-hover:visible'/>
+                            : <SquareArrowOutUpRight className='invisible size-3.5 group-hover:visible'/>
+                          }
                         </div>
                       : cellValue(column, item)
                     }

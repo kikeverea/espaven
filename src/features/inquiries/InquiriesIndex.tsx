@@ -24,7 +24,12 @@ const InquiriesIndex = () => {
   const columns: TableColumn<Inquiry>[] = [
     { name: 'Nombre',
       accessor: inquiry => `${inquiry.contact.name} ${inquiry.contact.lastName}`,
-      onClick: id => setSelectedInquiry(inquiries.find(inquiry => id === inquiry.id) || null),
+      onClick: id => (
+        setSelectedInquiry(selectedInquiry?.id === id
+          ? null
+          : inquiries.find(inquiry => id === inquiry.id) || null
+        )
+      )
     },
     { name: 'Servicio', accessor: 'service' },
     { name: 'Estado', accessor: 'status', presenter: statusBadge },
