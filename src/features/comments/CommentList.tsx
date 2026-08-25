@@ -1,5 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card.tsx'
 import { type Comment } from '@/features/inquiries/types.ts'
+import Avatar from '@/components/Avatar/Avatar.tsx'
 
 type CommentListProps = {
   comments: Comment[],
@@ -14,7 +15,8 @@ const CommentList = ({ comments, showEmptyMessage=true }: CommentListProps) => {
         className={`my-4 w-full min-h-0 transition-[padding,box-shadow] duration-300`}
       >
         <CardContent className='text-[13px] '>
-          <div className=''>
+          <div className='flex gap-3 items-start'>
+            <Avatar name={ comment.createdBy.fullName } variant='circle' size='sm' className='mt-1'/>
             { comment.body }
           </div>
         </CardContent>

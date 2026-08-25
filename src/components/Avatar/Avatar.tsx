@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils.ts'
 type AvatarProps = {
   name: string,
   className?: string
+  variant?: 'classic' | 'circle'
+  size?: 'sm' | 'md' | 'lg'
 }
 
 const LETTER_COLORS = [
@@ -43,18 +45,35 @@ const colorForLetter = (letter: string): string => {
   return LETTER_COLORS[index]
 }
 
-const Avatar = ({ name, className }: AvatarProps) => {
+const Avatar = ({ name, className, variant='classic', size='md' }: AvatarProps) => {
   const letter = name.trim().charAt(0).toUpperCase() || '?'
+
+  const [dimensions, textSize] = determineDimensions(size)
 
   return (
     <div className={cn(
-      'w-13.5 h-13.5 rounded-lg border grid place-content-center text-white text-2xl font-semibold',
+      dimensions, textSize,
+      variant === 'classic' ? 'rounded-lg' : 'rounded-full',
+      'border grid place-content-center text-white font-semibold',
       colorForLetter(letter),
       className
     )}>
       {letter}
     </div>
   )
+}
+
+const determineDimensions = (size: string): [string, string] => {
+  switch (size) {
+    case 'sm':
+      return ['min-w-6 min-h-6', 'text-[13px]']
+    case 'md':
+      return ['w-9 h-9', 'text-lg']
+    case 'lg':
+      return ['w-13.5 h-13.5', 'text-2xl']
+    default:
+      throw new Error(`Unsupported size size ${size}`)
+  }
 }
 
 export default Avatar

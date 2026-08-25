@@ -24,7 +24,7 @@ const DetailsTray = ({ inquiry, closeTray }: DetailsTrayProps) => {
       { inquiry &&
         <>
           <div className='flex gap-4 items-start'>
-            <Avatar name={ inquiry.contact.name } />
+            <Avatar name={ inquiry.contact.name } size='lg' />
             <div className='flex-1'>
               <div className='font-semibold mb-1'>
                 {`${inquiry.contact.name} ${inquiry.contact.lastName}` }

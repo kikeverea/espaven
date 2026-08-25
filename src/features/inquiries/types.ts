@@ -34,7 +34,7 @@ export type InquiryComment = Comment & { inquiry: Inquiry }
 export type FormInquiryComment = Omit<Partial<InquiryComment>, 'id'>
 
 export type User = Record & {
-  name: string
+  fullName: string
   lastName?: string
   email: string
 }
