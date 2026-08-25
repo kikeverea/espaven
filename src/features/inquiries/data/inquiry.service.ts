@@ -2,7 +2,7 @@ import type { FormInquiry, Inquiry } from '../types.ts'
 import { api } from '@/api/apiClient.ts'
 import { mapperFactory } from './inquiry.mapper.ts'
 
-const apiFetch = api(mapperFactory())
+const { apiFetch, fetch } = api(mapperFactory())
 
 const getInquiries = async (): Promise<Inquiry[]> => {
   return await apiFetch<Inquiry[]>(`/inquiries`)
@@ -30,4 +30,11 @@ const deleteInquiry = async (inquiry: Inquiry): Promise<Inquiry> => {
   return await apiFetch<Inquiry>(`/inquiries/${inquiry.id}`, { method: 'DELETE' })
 }
 
-export default { getInquiries, getInquiry, createInquiry, updateInquiry, deleteInquiry }
+const deleteAll = async (ids: Inquiry['id'][]): Promise<boolean[]> => {
+  return await fetch<boolean[]>(`/inquiries/batch/delete`, {
+    method: 'POST',
+    body: ids
+  })
+}
+
+export default { getInquiries, getInquiry, createInquiry, updateInquiry, deleteInquiry, deleteAll }

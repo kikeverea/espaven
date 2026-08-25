@@ -2,18 +2,21 @@ import { TableHead, TableHeader, TableRow } from '@/components/ui/table.tsx'
 
 import { ChevronUp } from 'lucide-react'
 import type { Entity } from '@/types.ts'
-import type { TableColumn, TableSort } from '@/components/Table/types.ts'
+import type { SelectionAction, TableColumn, TableSort } from '@/components/Table/types.ts'
 import { normalized } from '@/lib/strings.ts'
 import { cellPadding } from '@/components/Table/util.tsx'
 import { Checkbox } from '@/components/ui/checkbox.tsx'
 import { useState } from 'react'
+import { Button } from '@/components/ui/button.tsx'
 
 type SortingHeaderProps<T extends Entity> = {
   sort?: TableSort,
   columns: TableColumn<T>[],
   setSortColumn: (name: string)=> void,
   selectable?: boolean
+  selection?: T['id'][]
   onSelectedChange?: (selected: boolean) => void
+  selectionActions?: SelectionAction<T>[]
 }
 
 const SortingHeader = <T extends Entity>({
@@ -21,7 +24,9 @@ const SortingHeader = <T extends Entity>({
   columns,
   setSortColumn,
   selectable,
-  onSelectedChange
+  selection,
+  onSelectedChange,
+  selectionActions
 }: SortingHeaderProps<T>) => {
 
   const column = sort?.column
@@ -67,6 +72,21 @@ const SortingHeader = <T extends Entity>({
             </div>
           </TableHead>
         )}
+
+        <TableHead>
+          { selection?.length
+            ? selectionActions?.map((action, ind) => (
+              <Button
+                key={ind}
+                variant={action.variant}
+                onClick={() => selection && action.mutation(selection)}
+              >
+                { action.icon }
+              </Button>
+            ))
+            : null
+          }
+        </TableHead>
       </TableRow>
     </TableHeader>
   )

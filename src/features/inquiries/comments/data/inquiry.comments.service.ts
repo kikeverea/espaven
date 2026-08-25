@@ -2,7 +2,7 @@ import type { FormInquiryComment, Inquiry, InquiryComment } from '@/features/inq
 import { api } from '@/api/apiClient.ts'
 import commentMapper from '@/features/comments/data/comment.mapper'
 
-const apiFetch = api<InquiryComment, object, object>(commentMapper<InquiryComment>('inquiry'))
+const { apiFetch } = api(commentMapper<InquiryComment>('inquiry'))
 
 const getComments = async (inquiry: Inquiry): Promise<InquiryComment[]> => {
   return await apiFetch<InquiryComment[]>(`/inquiries/${inquiry.id}/comments`)

@@ -1,13 +1,12 @@
 import {screen, within} from '@testing-library/react'
-import type { Dictionary } from '@/types.ts'
+import type { Dictionary, Entity } from '@/types.ts'
 import type { TableData } from '@/components/Table/types.ts'
 import { normalized } from '@/lib/strings.ts'
 import type { FilterColumns } from '@/components/Table/TableToolbar/types.ts'
 import { buildFilter } from '@/components/Table/TableToolbar/filterBuilder.ts'
 import type { CheckboxesFilter, RangeFilter, TableFilter } from '@/components/Table/TableFilter/types.ts'
 
-export type TestData = {
-  id: number,
+export type TestData = Entity & {
   name: string,
   family: string,
   type: string,

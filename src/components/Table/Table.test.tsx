@@ -60,7 +60,7 @@ describe('Table', () => {
     test('renders empty message', () => {
       render(<Table collection={ [] } columns={ columns } />)
 
-      expect(getNameCellsContent()).toEqual(['No data available'])
+      expect(getNameCellsContent()).toEqual(['No hay entradas'])
     })
 
     test('renders custom empty message', () => {
@@ -114,7 +114,7 @@ describe('Table', () => {
       expect(mock).toHaveBeenCalledTimes(2)
     })
 
-    test('renders actions button', () => {
+    test('renders action buttons', () => {
       render(<Table collection={ collection } columns={ columns } selectable={ true } actions={[
         { label: 'Delete', path: () => '' },
         { label: 'Delete', path: () => '', destructive: true },
@@ -123,6 +123,24 @@ describe('Table', () => {
       const buttons = screen.getAllByRole('button')
 
       expect(buttons).toHaveLength(collection.length)
+    })
+
+    test('renders selection actions', async () => {
+      render(<Table collection={ collection } columns={ columns } selectable={ true } selectionActions={[
+        { icon: <i></i>, mutation: () => '' },
+      ]}/>)
+
+      const noButtons = screen.queryAllByRole('button')
+      expect(noButtons).toHaveLength(0)
+
+      const [_header, body] = screen.getAllByRole('rowgroup')
+      const rowCheckboxes = within(body).getAllByRole('checkbox')
+      const rowCheckbox = rowCheckboxes[Math.round(Math.random() * rowCheckboxes.length)]
+
+      await userEvent.click(rowCheckbox)
+
+      const buttons = screen.getByRole('button')
+      expect(buttons).toBeInTheDocument()
     })
 
     test('renders custom columns', () => {
@@ -173,7 +191,7 @@ describe('Table', () => {
       test('renders empty message if no row passes the search', () => {
         render(<Table collection={ collection } columns={ columns } search='no-rows' />)
 
-        expect(getNameCellsContent()).toEqual(['No data available'])
+        expect(getNameCellsContent()).toEqual(['No hay entradas'])
       })
     })
 
@@ -240,7 +258,7 @@ describe('Table', () => {
 
         render(<Table collection={ collection } columns={ columns } filter={ filterAnd(noPassFilter) } />)
 
-        expect(getNameCellsContent()).toEqual(['No data available'])
+        expect(getNameCellsContent()).toEqual(['No hay entradas'])
       })
 
       test('renders empty message if no row passes the filter and search', () => {
@@ -250,7 +268,7 @@ describe('Table', () => {
           })}
         />)
 
-        expect(getNameCellsContent()).toEqual(['No data available'])
+        expect(getNameCellsContent()).toEqual(['No hay entradas'])
       })
 
       test('renders rows that pass the max range filter', () => {

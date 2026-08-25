@@ -17,7 +17,7 @@ const inquiriesApi = {
 }
 
 export const useInquiryMutations = () => {
-  return useMutations<Inquiry, FormInquiry>(inquiryKeys, inquiriesApi)
+  return useMutations<Inquiry, FormInquiry>(inquiryKeys, inquiriesApi, { batchDelete: true })
 }
 
 export const useInquiries = () => {

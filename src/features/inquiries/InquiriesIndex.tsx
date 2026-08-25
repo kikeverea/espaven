@@ -1,6 +1,6 @@
-import { useInquiries } from '@/features/inquiries/useInquiries'
+import { useInquiries, useInquiryMutations } from '@/features/inquiries/useInquiries'
 import type { TableColumn } from '@/components/Table/types'
-import type { Inquiry, NewInquiry } from '@/features/inquiries/types.ts'
+import type { Inquiry, FormInquiry } from '@/features/inquiries/types.ts'
 import { timeString } from '@/lib/strings'
 import Table from '@/components/Table/Table'
 import { statusBadge } from '@/features/inquiries/util'
@@ -16,8 +16,9 @@ import NavBar from '@/components/NavBar/NavBar.tsx'
 const InquiriesIndex = () => {
 
   const { inquiries = [] } = useInquiries()
+  const { removeAll } = useInquiryMutations()
 
-  const [formInquiry, setFormInquiry] = useState<NewInquiry | Inquiry | null>(null)
+  const [formInquiry, setFormInquiry] = useState<FormInquiry | Inquiry | null>(null)
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry|null>(null)
 
   const columns: TableColumn<Inquiry>[] = [
@@ -41,7 +42,7 @@ const InquiriesIndex = () => {
               ? <Button
                   variant='primary'
                   className='me-2 px-4 py-4'
-                  onClick={() => setFormInquiry({} as NewInquiry)}
+                  onClick={() => setFormInquiry({} as FormInquiry)}
                 >
                   <Plus className='size-4' /> Nueva solicitud
                 </Button>
@@ -63,6 +64,14 @@ const InquiriesIndex = () => {
                 { label: "Editar", icon: <Pencil />, path: (_item) => '/item' },
                 { label: "Eliminar", icon: <Trash />, path: (_item) => '/item', destructive: true },
               ]}
+              selectionActions={removeAll
+                ? [{
+                    icon: <Trash className='size-4'/>,
+                    mutation: removeAll,
+                    variant: 'destructive'
+                  }]
+                : []
+              }
             />
           </div>
         </div>

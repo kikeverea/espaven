@@ -12,6 +12,7 @@ export type Mutations<T extends object, TWrite extends object = T> = {
   create: UseMutateFunction<T, Error | null, TWrite>
   update: UseMutateFunction<T, Error | null, UpdateParams<TWrite>>
   remove: UseMutateFunction<T, Error | null, T>
+  removeAll?: UseMutateFunction<boolean[], Error | null, Entity['id'][]>
   status: MutationStatusTypes<T>
 }
 
@@ -44,6 +45,7 @@ export type MutationApi<T extends object, TWrite extends object = T> = {
   create: (payload: TWrite) => Promise<T>
   update: (id: Entity['id'], payload: TWrite) => Promise<T>
   delete: (payload: T) => Promise<T>
+  deleteAll?: (payload: Entity['id'][]) => Promise<boolean[]>
 }
 
 export function useMutationStatus<T extends Object>(mutationKey: readonly unknown[], mutationStatus: 'error'): MutationError<T>
@@ -70,7 +72,8 @@ export function useMutationStatus<T extends Object>(
 
 export const useMutations = <T extends Entity, TWrite extends object = T>(
   mutationKeys: MutationKeys,
-  mutationApi: MutationApi<T, TWrite>
+  mutationApi: MutationApi<T, TWrite>,
+  args: { batchDelete?: boolean } = {}
 ): Mutations<T, TWrite> => {
   const client = useQueryClient()
 
@@ -103,6 +106,15 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
     onSettled: invalidate,
   })
 
+  const removeAll = args.batchDelete
+    ? useMutation({
+      mutationKey: [...mutationKeys.delete, 'all'],
+      mutationFn: mutationApi.deleteAll,
+      onError: showError,
+      onSettled: invalidate,
+    })
+    : null
+
   const creating = useMutationStatus<T>(mutationKeys.create, 'pending')
   const deleting = useMutationStatus<T>(mutationKeys.delete, 'pending')
 
@@ -134,6 +146,7 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
     create: create.mutate,
     update: update.mutate,
     remove: remove.mutate,
+    ...(args.batchDelete ? { removeAll: removeAll?.mutate } : {}),
     status
   }
 }

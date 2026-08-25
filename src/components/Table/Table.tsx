@@ -35,7 +35,8 @@ const Table = <T extends Entity>(
   selectable=false,
   onSelectionChange,
   selectedId,
-  actions
+  actions,
+  selectionActions,
 }: TableProps<T>) => {
 
   if (!collection)
@@ -53,7 +54,7 @@ const Table = <T extends Entity>(
 
   const [sort, setSortColumn] = useSort(sortBy)
   const [pagination, setItemsPerPage, setPage] = usePagination(paginate, currentPage || 0)
-  const [selected, dispatchSelection] = useReducer(selectionReducer<T>, [] as T['id'][])
+  const [selection, dispatchSelection] = useReducer(selectionReducer<T>, [] as T['id'][])
 
   const applySelection = (type: SelectionTypes, isSelected: boolean, item?: RowData) => {
     const action = type === 'SELECT_ALL'
@@ -61,7 +62,7 @@ const Table = <T extends Entity>(
       : { type, payload: { id: item?.id || 0, isSelected} }
 
     dispatchSelection(action)
-    onSelectionChange?.(selectionReducer(selected, action))
+    onSelectionChange?.(selectionReducer(selection, action))
   }
 
   const rows = sortAndPaginateData(filteredData, { pagination, sort })
@@ -75,6 +76,8 @@ const Table = <T extends Entity>(
           setSortColumn={ setSortColumn }
           selectable={ selectable }
           onSelectedChange={ isSelected => applySelection('SELECT_ALL', isSelected) }
+          selection={ selection }
+          selectionActions={ selectionActions }
         />
         <TableBody>
           { rows?.length
@@ -88,7 +91,7 @@ const Table = <T extends Entity>(
                   >
                     <Checkbox
                       onCheckedChange={(checked) => applySelection('SELECT_ITEM', checked, item)}
-                      checked={ selected.includes(item.id)}
+                      checked={ selection.includes(item.id)}
                       className='data-checked:bg-blue-500 data-checked:border-blue-500 cursor-pointer'
                     />
                   </TableCell>

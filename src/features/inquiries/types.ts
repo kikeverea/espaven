@@ -1,7 +1,7 @@
-import type { Entity } from '@/types.ts'
+import type { Record } from '@/types.ts'
 
 export type Contact =
-  Entity &
+  Record &
   {
     name: string
     lastName?: string
@@ -11,7 +11,7 @@ export type Contact =
 export type FormContact = Omit<Partial<Contact>, 'id'>
 
 export type Inquiry =
-  Entity &
+  Record &
   {
     service: string
     lastActivityAt: string
@@ -28,12 +28,12 @@ export type InquiryStatus =
   | 'contacted'
   | 'secondContact'
 
-export type Comment = Entity & { body: string, createdBy: User }
+export type Comment = Record & { body: string, createdBy: User }
 
 export type InquiryComment = Comment & { inquiry: Inquiry }
 export type FormInquiryComment = Omit<Partial<InquiryComment>, 'id'>
 
-export type User = Entity & {
+export type User = Record & {
   name: string
   lastName?: string
   email: string

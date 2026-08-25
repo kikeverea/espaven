@@ -1,6 +1,6 @@
 import { camelize, snakeCase } from '@/lib/strings.ts'
 import { type ForbiddenApiFields, prepareForApi } from '@/api/entity.mapper.ts'
-import type { Entity } from '@/types.ts'
+import type { Entity, Record } from '@/types.ts'
 
 const API_URL = import.meta.env.API_URL ?? "http://localhost:3000"
 
@@ -9,49 +9,36 @@ export type ApiMapper<TDomain extends Entity, TApiIn, TApiOut extends object & F
   fromApi?: (api: TApiIn) => TDomain
 }
 
-type RequestOptions<TDomain> = Omit<RequestInit, 'body'> & { body?: Partial<TDomain> }
+type ApiBody<T> = { body?: T }
+type ApiOptions<T> = Omit<RequestInit, 'body'> & ApiBody<T>
 
 export function api<
-  TDomain extends Entity, TApiIn, TApiOut extends object & ForbiddenApiFields
+  TDomain extends Record, TApiIn, TApiOut extends object & ForbiddenApiFields
 >
   (mapper?: ApiMapper<TDomain, TApiIn, TApiOut>)
 {
   const toApi = mapper?.toApi ?? prepareForApi<TDomain, TApiOut>
   const fromApi = mapper?.fromApi
 
-  return async function apiFetch<O = TDomain>(
+  const apiFetch = async <O = TDomain>(
     path: string,
-    options: RequestOptions<TDomain> = {},
-  ): Promise<O> {
+    options: ApiOptions<Partial<TDomain>> = {},
+  ): Promise<O> =>
+  {
+    const requestOptions = normalizeBody(options, body => mapToApi(body, toApi))
 
-    const requestOptions = options.body
-      ? {
-          ...options,
-          body: JSON.stringify(mapToApi(options.body, toApi))
-        }
-      : options as RequestInit
-
-    const res = await fetch(`${API_URL}/api${path}`, {
-      ...requestOptions,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
-        ...options.headers
-      },
-    })
-
-    if (!res.ok) {
-      const error = await res.json()
-      throw new Error(`API error: ${res.status}. ${error.exception}`)
-    }
-
-    if (res.status === 204)
-      return true as O
-
-    const json = await res.json()
-
+    const json = await doFetch(`${API_URL}/api${path}`, requestOptions, options.headers)
     return mapFromApi(json, fromApi) as O
   }
+
+  const simpleFetch = async <T>(path: string, options: ApiOptions<object> = {}): Promise<T> => {
+    const requestOptions = normalizeBody(options, body => mapKeys(body, snakeCase))
+
+    const json = await doFetch(`${API_URL}/api${path}`, requestOptions, options.headers)
+    return (isObject(json) ? mapKeys(json, camelize) : json) as T
+  }
+
+  return { apiFetch, fetch: simpleFetch }
 }
 
 function mapToApi<IN, OUT>(data: IN, mapper?: (data: IN) => OUT): unknown {
@@ -77,7 +64,7 @@ function mapKeys(
   if (Array.isArray(data))
     return data.map(item => mapKeys(item, keyMapper))
 
-  if (isDataObject(data)) {
+  if (isObject(data)) {
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => [
         keyMapper(key),
@@ -89,6 +76,35 @@ function mapKeys(
   return data
 }
 
-function isDataObject(data: unknown): data is object {
-  return data !== null && typeof data === 'object'
+function isObject(data: unknown): data is object {
+  return data !== null && typeof data === "object" && !Array.isArray(data)
+}
+
+function normalizeBody<T>(options: ApiOptions<T>, mapper: ((o: T) => unknown)): RequestInit {
+  const body = options.body
+
+  return isObject(body)
+    ? {
+      ...options,
+      body: JSON.stringify(mapper(body))
+    }
+    : options as RequestInit
+}
+
+async function doFetch(path: string, options: RequestInit, headers: HeadersInit = {}): Promise<object> {
+  const res = await fetch(path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
+      ...headers
+    },
+  })
+
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(`API error: ${res.status}. ${error.exception}`)
+  }
+
+  return await res.json()
 }
