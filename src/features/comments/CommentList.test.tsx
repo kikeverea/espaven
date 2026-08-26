@@ -3,7 +3,7 @@ import { expect } from 'vitest'
 import CommentList from '@/features/comments/CommentList.tsx'
 import { createFactories } from '@/test/factories.ts'
 
-describe('Comments', () => {
+describe('Comment List', () => {
 
   const { comment } = createFactories()
   const commentList = Array.from({ length: 3 }, (_, i) => comment({ body: `Comment ${i}`}))

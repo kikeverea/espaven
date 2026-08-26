@@ -1,4 +1,5 @@
-import type { Record } from '@/types.ts'
+import type { Record } from '@/types'
+import type { Comment } from '@/features/comments/types'
 
 export type Contact =
   Record &
@@ -27,8 +28,6 @@ export type InquiryStatus =
   | 'pending'
   | 'contacted'
   | 'secondContact'
-
-export type Comment = Record & { body: string, createdBy: User }
 
 export type InquiryComment = Comment & { inquiry: Inquiry }
 export type FormInquiryComment = Omit<Partial<InquiryComment>, 'id'>

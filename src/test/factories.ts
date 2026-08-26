@@ -1,4 +1,5 @@
-import type { Contact, Comment, Inquiry, User } from '@/features/inquiries/types.ts'
+import type { Contact, Inquiry, User } from '@/features/inquiries/types'
+import type { Comment } from '@/features/comments/types'
 
 export const createFactories = () => {
   const ids = {
@@ -12,7 +13,7 @@ export const createFactories = () => {
 
   const user = (args: Partial<User> = {}): User => ({
     id: ids.user++,
-    name: 'Test',
+    fullName: 'Test',
     lastName: 'User',
     email: 'test@user.com',
     createdAt: now(),
