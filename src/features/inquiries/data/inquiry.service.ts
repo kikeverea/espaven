@@ -30,11 +30,11 @@ const deleteInquiry = async (inquiry: Inquiry): Promise<Inquiry> => {
   return await apiFetch<Inquiry>(`/inquiries/${inquiry.id}`, { method: 'DELETE' })
 }
 
-const deleteAll = async (ids: Inquiry['id'][]): Promise<boolean[]> => {
-  return await fetch<boolean[]>(`/inquiries/batch/delete`, {
+const deleteInquiries = async (ids: Inquiry['id'][]): Promise<boolean[]> => {
+  return await fetch<boolean[]>(`/inquiries/batch_destroy`, {
     method: 'POST',
-    body: ids
+    body: { ids: ids }
   })
 }
 
-export default { getInquiries, getInquiry, createInquiry, updateInquiry, deleteInquiry, deleteAll }
+export default { getInquiries, getInquiry, createInquiry, updateInquiry, deleteInquiry, deleteInquiries }

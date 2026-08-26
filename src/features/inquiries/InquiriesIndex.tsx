@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button.tsx'
 import { Plus, X } from 'lucide-react'
 import InquiryForm from '@/features/inquiries/InquiryForm.tsx'
 import NavBar from '@/components/NavBar/NavBar.tsx'
+import { toast } from '@/components/ui/toast.tsx'
 
 
 const InquiriesIndex = () => {
@@ -73,7 +74,8 @@ const InquiriesIndex = () => {
                 ? [{
                     icon: <Trash className='size-4'/>,
                     mutation: removeAll,
-                    variant: 'destructive'
+                    variant: 'destructive',
+                    onSuccess: () => toast.add({ title: 'Solicitudes eliminadas' })
                   }]
                 : []
               }

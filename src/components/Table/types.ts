@@ -2,6 +2,7 @@ import type { TableFilter } from '@/components/Table/TableFilter/types'
 import type { DataPresenter, Entity, Primitive } from '@/types.ts'
 import type { ReactElement, ReactNode } from 'react'
 import type { UseMutateFunction } from '@tanstack/react-query'
+import type { ButtonVariants } from '@/components/ui/button.tsx'
 
 type StandardTableColumn<T extends Entity> = {
   name: string
@@ -48,8 +49,9 @@ export type TableAction = {
 export type SelectionAction<T extends Entity> = {
   icon: ReactElement,
   mutation: UseMutateFunction<boolean[], Error | null, T['id'][]>,
+  onSuccess: () => void
   destructive?: boolean
-  variant?: string
+  variant?: ButtonVariants
 }
 
 export type TableProps<T extends Entity> = {

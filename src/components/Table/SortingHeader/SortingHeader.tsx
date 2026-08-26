@@ -79,7 +79,7 @@ const SortingHeader = <T extends Entity>({
               <Button
                 key={ind}
                 variant={action.variant}
-                onClick={() => selection && action.mutation(selection)}
+                onClick={() => selection && action.mutation(selection, { onSuccess: action.onSuccess })}
               >
                 { action.icon }
               </Button>

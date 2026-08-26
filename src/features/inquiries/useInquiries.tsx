@@ -14,6 +14,7 @@ const inquiriesApi = {
   create: api.createInquiry,
   update: api.updateInquiry,
   delete: api.deleteInquiry,
+  deleteAll: api.deleteInquiries
 }
 
 export const useInquiryMutations = () => {
