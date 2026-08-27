@@ -6,11 +6,14 @@ const Blinker = ({ className }: ComponentProps<'div'>)=> {
   const blinkOn = useContext(BlinkContext)
 
   return (
-    <div className={cn(
-      className,
-      'bg-red-500 rounded-full h-1 w-1',
-      blinkOn ? 'visible' : 'invisible',
-    )}>
+    <div
+      className={cn(
+        className,
+        'bg-red-500 rounded-full h-1.5 w-1.5',
+        blinkOn ? 'visible' : 'invisible',
+      )}
+      data-testid="blinker"
+    >
     </div>
   )
 }

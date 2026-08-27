@@ -65,14 +65,11 @@ const StatusDropdown = ({ inquiry }: { inquiry: Inquiry }) => {
                   </div>
                 </DropdownMenuItem>
               )}
-
-
             </DropdownMenuContent>
           </DropdownMenu>
       }
     </>
   )
-
 }
 
 export default StatusDropdown

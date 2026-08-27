@@ -1,5 +1,5 @@
 import type { Inquiry, InquiryComment, FormInquiryComment } from '@/features/inquiries/types.ts'
-import { useInquiryCommentsMutations } from '@/features/inquiries/comments/useInquiryComments.tsx'
+import { useInquiryCommentMutations } from '@/features/inquiries/comments/useInquiryComments.tsx'
 import Form from '@/components/Form/Form.tsx'
 import { applyData, config } from '@/features/comments/data/comment.form.ts'
 
@@ -17,7 +17,7 @@ const CommentForm = ({ inquiry, comment, onCancel }: CommentFormProps) => {
       itemName='comentario'
       config={ config }
       item={{ ...comment, inquiry }}
-      mutations={useInquiryCommentsMutations(inquiry)}
+      mutations={useInquiryCommentMutations(inquiry)}
       applyData={applyData}
       onCancel={onCancel}
     />

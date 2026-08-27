@@ -106,22 +106,22 @@ const Table = <T extends Entity>(
                       />
                     </TableCell>
                   }
-                  { columns.map(column =>
+                  { columns.map((column, ind) =>
                     <TableCell
                       key={`${id}-${column.name || column.key}`}
                       className={`
                       ${cellPadding()}
+                      ${!selectable && ind === 0 && item.blink ? 'relative' : ''}
                       ${id === selectedId ? 'bg-slate-100' : ''} text-gray-800
                       ${!isCustomCol(column) && column.onClick && 'cursor-pointer group'}
                     `}
                       onClick={ () => isCustomCol(column) ? null : column.onClick!(id) }
                     >
+                      { !selectable && ind === 0 && item.blink &&
+                        <Blinker className='absolute left-2 top-5.5' />
+                      }
                       { !isCustomCol(column) && column.onClick
-                        ? <div className={
-                          `flex items-center gap-2 w-full text-blue-500
-                          ${!selectable && item.blink ? 'relative' : ''}`}
-                        >
-                          { !selectable && item.blink && <Blinker className='absolute -left-2.5' /> }
+                        ? <div className='flex items-center gap-2 w-full text-blue-500'>
                           { cellValue(column, item) }
                           { selectedId === id
                             ? <X className='invisible size-3.5 group-hover:visible'/>

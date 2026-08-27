@@ -116,8 +116,8 @@ describe('Table', () => {
 
     test('renders action buttons', () => {
       render(<Table collection={ collection } columns={ columns } selectable={ true } actions={[
-        { label: 'Delete', path: () => '' },
-        { label: 'Delete', path: () => '', destructive: true },
+        { label: 'Delete', action: () => {} },
+        { label: 'Delete', action: () => {}, destructive: true },
       ]}/>)
 
       const buttons = screen.getAllByRole('button')
@@ -127,7 +127,7 @@ describe('Table', () => {
 
     test('renders selection actions', async () => {
       render(<Table collection={ collection } columns={ columns } selectable={ true } selectionActions={[
-        { icon: <i></i>, mutation: () => '' },
+        { icon: <i></i>, mutation: () => '', onSuccess: () => {} },
       ]}/>)
 
       const noButtons = screen.queryAllByRole('button')
@@ -179,6 +179,11 @@ describe('Table', () => {
 
       expect(mock).toHaveBeenCalledTimes(1)
       expect(mock).toHaveBeenCalledWith(collection[rowInd].id)
+    })
+
+    test('renders blinkers', () => {
+      render(<Table collection={ collection } columns={ columns } blink={ () => true }/>)
+      expect(screen.getAllByTestId('blinker')).toHaveLength(collection.length)
     })
 
     describe('Search', () => {

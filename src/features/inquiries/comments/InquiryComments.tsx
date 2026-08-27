@@ -40,7 +40,11 @@ const InquiryComments = ({ inquiry }: InquiryCommentsProps) => {
         </button>
       </div>
       { formComment &&
-        <CommentForm inquiry={ inquiry } comment={ formComment } onCancel={() => setFormComment(null)} />
+        <CommentForm
+          inquiry={ inquiry }
+          comment={ formComment }
+          onCancel={() => setFormComment(null)}
+        />
       }
       <CommentList comments={ (comments || []) } showEmptyMessage={ !formComment } />
     </div>

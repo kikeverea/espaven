@@ -15,11 +15,11 @@ export type Inquiry =
   Record &
   {
     service: string
-    lastActivityAt: string
     status: InquiryStatus
     contact: Contact,
     comments?: Comment[]
-    discardedAt?: string
+    discardedAt: string | null
+    lastActivityAt: string | null
   }
 
 export type FormInquiry = Omit<Partial<Inquiry>, 'id'> & { contact: FormContact }

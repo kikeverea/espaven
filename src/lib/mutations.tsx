@@ -49,6 +49,12 @@ export type MutationApi<T extends object, TWrite extends object = T> = {
   deleteAll?: (payload: Entity['id'][]) => Promise<boolean[]>
 }
 
+export type MutationSideEffects<T extends Entity> = {
+  create?: (item: T) => void
+  update?: (item: T) => void
+  delete?: (item: T) => void
+}
+
 export function useMutationStatus<T extends Object>(mutationKey: readonly unknown[], mutationStatus: 'error'): MutationError<T>
 export function useMutationStatus<T extends Object>(mutationKey: readonly unknown[], mutationStatus: 'idle'|'pending'): T
 export function useMutationStatus<T extends Object>(
@@ -74,6 +80,7 @@ export function useMutationStatus<T extends Object>(
 export const useMutations = <T extends Entity, TWrite extends object = T>(
   mutationKeys: MutationKeys,
   mutationApi: MutationApi<T, TWrite>,
+  mutationSideEffects: MutationSideEffects<T> = {},
   args: { batchDelete?: boolean } = {}
 ): Mutations<T, TWrite> => {
   const client = useQueryClient()
@@ -82,7 +89,7 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
   const showError = (error: Error | null) => {
     toast.add({
       title: error?.message,
-      type: 'error',
+      type: 'error'
     })
   }
 
@@ -90,6 +97,7 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
     mutationKey: mutationKeys.create,
     mutationFn: mutationApi.create,
     onError: showError,
+    onSuccess: mutationSideEffects.create,
     onSettled: invalidate,
   })
 
@@ -97,12 +105,14 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
     mutationKey: mutationKeys.update,
     mutationFn: ({ id, payload }: UpdateParams<TWrite>) => mutationApi.update(id, payload),
     onError: showError,
+    onSuccess: mutationSideEffects.update,
     onSettled: invalidate,
   })
 
   const remove = useMutation({
     mutationKey: mutationKeys.delete,
     mutationFn: mutationApi.delete,
+    onSuccess: mutationSideEffects.delete,
     onError: showError,
     onSettled: invalidate,
   })
