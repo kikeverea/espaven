@@ -7,6 +7,7 @@ import type { ButtonVariants } from '@/components/ui/button.tsx'
 type StandardTableColumn<T extends Entity> = {
   name: string
   accessor: keyof T | ((item: T) => Primitive | Primitive[])
+  blink?: (item: T) => boolean
   presenter?: DataPresenter
   onClick?: (id: number) => void
 
@@ -33,10 +34,10 @@ export type TableColumn<T extends Entity> =
 
 export type TableData = RowData[]
 
-export type RowData = { id: Entity['id'], data: ItemData }
+export type RowData = { id: Entity['id'], data: ItemData, blink?: boolean}
 
 export type ItemData = {
-  [column: string]: { value: Primitive | Primitive[], presenter?: DataPresenter }
+  [column: string]: { value: Primitive | Primitive[], presenter?: DataPresenter, blink?: boolean }
 }
 
 export type TableAction = {
@@ -68,6 +69,7 @@ export type TableProps<T extends Entity> = {
   actions?: TableAction[],
   selectionActions?: SelectionAction<T>[],
   selectedId?: Entity['id']
+  blink?: (item: T) => boolean
 }
 
 export type TableSort = { column: string, direction?: 'asc' | 'desc' }

@@ -36,7 +36,6 @@ export const createFactories = () => {
     service: 'Test service',
     status: 'contacted',
     lastActivityAt: now(),
-    accessed: true,
     comments: [],
     createdAt: now(),
     ...args,

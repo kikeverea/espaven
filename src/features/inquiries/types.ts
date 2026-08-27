@@ -16,7 +16,6 @@ export type Inquiry =
   {
     service: string
     lastActivityAt: string
-    accessed?: boolean
     status: InquiryStatus
     contact: Contact,
     comments?: Comment[]

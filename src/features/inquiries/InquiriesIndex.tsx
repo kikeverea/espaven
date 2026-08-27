@@ -25,6 +25,7 @@ const InquiriesIndex = () => {
   const columns: TableColumn<Inquiry>[] = [
     { name: 'Nombre',
       accessor: inquiry => `${inquiry.contact.name} ${inquiry.contact.lastName}`,
+      blink: inquiry => !inquiry.lastActivityAt,
       onClick: id => (
         setSelectedInquiry(selectedInquiry?.id === id
           ? null
@@ -66,6 +67,7 @@ const InquiriesIndex = () => {
               noEntriesMessage='No hay solicitudes'
               selectable={ true }
               selectedId={ selectedInquiry?.id }
+              blink={ inquiry => !inquiry.lastActivityAt }
               actions={[
                 { label: "Editar", icon: <Pencil />, path: (_item) => '/item' },
                 { label: "Eliminar", icon: <Trash />, path: (_item) => '/item', destructive: true },

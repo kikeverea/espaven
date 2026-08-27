@@ -21,6 +21,7 @@ import { TableActions } from '@/components/Table/TableActions/TableActions.tsx'
 import { SquareArrowOutUpRight, X } from 'lucide-react'
 import selectionReducer, { type SelectionTypes } from '@/components/Table/reducers/selectionReducer'
 import TableSkeleton from '@/components/Table/TableSkeleton.tsx'
+import Blinker from '@/components/Blinker/Blinker.tsx'
 
 const Table = <T extends Entity>(
 {
@@ -37,13 +38,14 @@ const Table = <T extends Entity>(
   selectedId,
   actions,
   selectionActions,
+  blink
 }: TableProps<T>) => {
 
   if (!collection)
     return <TableSkeleton colCount={ columns.length }/>
 
   const tableData = useMemo<TableData>(
-    () => mapToData(collection, columns),
+    () => mapToData(collection, columns, blink),
     [collection, columns]
   )
 
@@ -82,49 +84,62 @@ const Table = <T extends Entity>(
         <TableBody>
           { rows?.length
             ?
-            rows.map(item =>
-              <TableRow key={ item.id }>
-                { selectable &&
-                  <TableCell
-                    key={`${item.id}-select`}
-                    className={`ps-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${item.id === selectedId ? 'bg-slate-100' : ''}`}
-                  >
-                    <Checkbox
-                      onCheckedChange={(checked) => applySelection('SELECT_ITEM', checked, item)}
-                      checked={ selection.includes(item.id)}
-                      className='data-checked:bg-blue-500 data-checked:border-blue-500 cursor-pointer'
-                    />
-                  </TableCell>
-                }
-                { columns.map(column =>
-                  <TableCell
-                    key={`${item.id}-${column.name || column.key}`}
-                    className={`
+            rows.map(item => {
+              const id = item.id
+
+              return (
+                <TableRow key={ id }>
+                  { selectable &&
+                    <TableCell
+                      key={`${id}-select`}
+                      className={`
+                        ps-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25
+                        ${id === selectedId ? 'bg-slate-100' : ''}
+                        ${item.blink ? 'relative' : ''}`
+                      }
+                    >
+                      { item.blink && <Blinker className='absolute left-2 top-5.5' /> }
+                      <Checkbox
+                        onCheckedChange={(checked) => applySelection('SELECT_ITEM', checked, item)}
+                        checked={ selection.includes(id)}
+                        className='data-checked:bg-blue-500 data-checked:border-blue-500 cursor-pointer'
+                      />
+                    </TableCell>
+                  }
+                  { columns.map(column =>
+                    <TableCell
+                      key={`${id}-${column.name || column.key}`}
+                      className={`
                       ${cellPadding()}
-                      ${item.id === selectedId ? 'bg-slate-100' : ''} text-gray-800
+                      ${id === selectedId ? 'bg-slate-100' : ''} text-gray-800
                       ${!isCustomCol(column) && column.onClick && 'cursor-pointer group'}
                     `}
-                    onClick={ () => isCustomCol(column) ? null : column.onClick!(item.id) }
-                  >
-                    { !isCustomCol(column) && column.onClick
-                      ? <div className='flex items-center gap-2 w-full text-blue-500'>
+                      onClick={ () => isCustomCol(column) ? null : column.onClick!(id) }
+                    >
+                      { !isCustomCol(column) && column.onClick
+                        ? <div className={
+                          `flex items-center gap-2 w-full text-blue-500
+                          ${!selectable && item.blink ? 'relative' : ''}`}
+                        >
+                          { !selectable && item.blink && <Blinker className='absolute -left-2.5' /> }
                           { cellValue(column, item) }
-                          { selectedId === item.id
+                          { selectedId === id
                             ? <X className='invisible size-3.5 group-hover:visible'/>
                             : <SquareArrowOutUpRight className='invisible size-3.5 group-hover:visible'/>
                           }
                         </div>
-                      : cellValue(column, item)
-                    }
-                  </TableCell>
-                )}
-                { actions &&
-                  <TableCell className={`pe-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${item.id === selectedId ? 'bg-slate-100' : ''}`}>
-                    <TableActions actions={ actions } item={ item } />
-                  </TableCell>
-                }
-              </TableRow>
-            )
+                        : cellValue(column, item)
+                      }
+                    </TableCell>
+                  )}
+                  { actions &&
+                    <TableCell className={`pe-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${id === selectedId ? 'bg-slate-100' : ''}`}>
+                      <TableActions actions={ actions } item={ item } />
+                    </TableCell>
+                  }
+                </TableRow>
+              )
+            })
             : <TableRow key='empty-message'>
                 <td className='text-center py-4 text-muted-foreground italic' colSpan={ columns.length + 1 }>
                   { noEntriesMessage || 'No hay entradas' }

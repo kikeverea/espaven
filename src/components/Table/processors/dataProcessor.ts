@@ -1,4 +1,4 @@
-import type { TableColumn, ItemData, TableData } from '../types'
+import type { TableColumn, ItemData, TableData, RowData } from '../types'
 import {
   type CheckboxesFilter,
   isRange,
@@ -13,7 +13,11 @@ type FilterDataArgs = {
   filter?: TableFilter
 }
 
-export const mapToData = <T extends Entity>(collection: T[] = [], columns: TableColumn<T>[]): TableData => {
+export const mapToData = <T extends Entity>(
+  collection: T[] = [],
+  columns: TableColumn<T>[],
+  blink?: (item: T) => boolean,
+): TableData => {
 
   return collection.map(item => {
     const data = columns.reduce((data, column) => {
@@ -22,12 +26,13 @@ export const mapToData = <T extends Entity>(collection: T[] = [], columns: Table
         ? column.accessor(item)
         : stringify(item[column.accessor as keyof T])
 
-      data[columnName] = { value: columnData, presenter: column.presenter }
+      const blink = 'blink' in column && column.blink?.(item)
+      data[columnName] = { value: columnData, presenter: column.presenter, blink: blink }
 
       return data
     }, {} as ItemData)
 
-    return { id: item.id, data }
+    return { id: item.id, blink: blink?.(item), data } satisfies RowData
   })
 }
 
