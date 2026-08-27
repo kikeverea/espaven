@@ -42,7 +42,7 @@ export type ItemData = {
 
 export type TableAction = {
   label: string,
-  path: (item: RowData) => string,
+  action: (item: RowData) => void,
   icon?: ReactElement,
   destructive?: boolean
 }
@@ -68,7 +68,7 @@ export type TableProps<T extends Entity> = {
   onSelectionChange?: (selection: T['id'][]) => void,
   actions?: TableAction[],
   selectionActions?: SelectionAction<T>[],
-  selectedId?: Entity['id']
+  selectedId?: Entity['id'] | null
   blink?: (item: T) => boolean
 }
 

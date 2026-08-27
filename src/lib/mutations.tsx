@@ -17,8 +17,9 @@ export type Mutations<T extends object, TWrite extends object = T> = {
 }
 
 type QueryActions<T> = {
-  creating: T | null,
-  deleting: T | null,
+  creating: T | null
+  updating: T | null
+  deleting: T | null
   any: boolean,
 }
 
@@ -116,24 +117,29 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
     : null
 
   const creating = useMutationStatus<T>(mutationKeys.create, 'pending')
+  const updating = useMutationStatus<T>(mutationKeys.update, 'pending')
   const deleting = useMutationStatus<T>(mutationKeys.delete, 'pending')
 
   const createError = useMutationStatus<T>(mutationKeys.create, 'error')
+  const updateError = useMutationStatus<T>(mutationKeys.update, 'error')
   const deleteError = useMutationStatus<T>(mutationKeys.delete, 'error')
 
   const status: MutationStatusTypes<T> = {
     pending: {
       creating,
       deleting,
+      updating,
       any: !!creating || !!deleting,
       current: (item) => (
         (creating && creating as unknown as T) ||
+        (updating?.id === item.id && updating) ||
         (deleting?.id === item.id && deleting) ||
         null
       )
     },
     errors: {
       creating: createError,
+      updating: updateError,
       deleting: deleteError,
       any: !!createError || !!deleteError,
       error: (item?: T) => (

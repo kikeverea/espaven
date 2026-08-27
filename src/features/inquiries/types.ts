@@ -19,6 +19,7 @@ export type Inquiry =
     status: InquiryStatus
     contact: Contact,
     comments?: Comment[]
+    discardedAt?: string
   }
 
 export type FormInquiry = Omit<Partial<Inquiry>, 'id'> & { contact: FormContact }

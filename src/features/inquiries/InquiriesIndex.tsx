@@ -13,31 +13,39 @@ import InquiryForm from '@/features/inquiries/InquiryForm.tsx'
 import NavBar from '@/components/NavBar/NavBar.tsx'
 import { toast } from '@/components/ui/toast.tsx'
 
-
 const InquiriesIndex = () => {
 
   const { inquiries = [] } = useInquiries()
-  const { removeAll } = useInquiryMutations()
+  const { remove, removeAll } = useInquiryMutations()
 
   const [formInquiry, setFormInquiry] = useState<FormInquiry | Inquiry | null>(null)
-  const [selectedInquiry, setSelectedInquiry] = useState<Inquiry|null>(null)
+  const [selectedInquiryId, setSelectedInquiryId] = useState<Inquiry['id']|null>(null)
 
   const columns: TableColumn<Inquiry>[] = [
     { name: 'Nombre',
       accessor: inquiry => `${inquiry.contact.name} ${inquiry.contact.lastName}`,
       blink: inquiry => !inquiry.lastActivityAt,
-      onClick: id => (
-        setSelectedInquiry(selectedInquiry?.id === id
-          ? null
-          : inquiries.find(inquiry => id === inquiry.id) || null
-        )
-      )
+      onClick: id => setSelectedInquiryId(selectedInquiryId === id ? null : id)
     },
     { name: 'Servicio', accessor: 'service' },
     { name: 'Estado', accessor: 'status', presenter: statusBadge },
     { name: 'Última actividad', accessor: 'lastActivityAt', presenter: timeString },
     { name: 'Registrado', accessor: 'createdAt', presenter: timeString },
   ]
+
+  const removeInquiry = (id: Inquiry['id']) => {
+    const inquiry = findInquiry(id)
+
+    if (inquiry)
+      remove(inquiry, { onSuccess: () => {
+        if (selectedInquiryId === id)
+          setSelectedInquiryId(null)
+
+        toast.add({ title: 'Solicitud descartada' })
+      }})
+  }
+  const findInquiry = (id: Inquiry['id']) => inquiries.find(inq => inq.id === id ) || null
+  const selectedInquiry = selectedInquiryId ? findInquiry(selectedInquiryId) : null
 
   return (
     <>
@@ -66,11 +74,11 @@ const InquiriesIndex = () => {
               columns={ columns }
               noEntriesMessage='No hay solicitudes'
               selectable={ true }
-              selectedId={ selectedInquiry?.id }
+              selectedId={ selectedInquiryId }
               blink={ inquiry => !inquiry.lastActivityAt }
               actions={[
-                { label: "Editar", icon: <Pencil />, path: (_item) => '/item' },
-                { label: "Eliminar", icon: <Trash />, path: (_item) => '/item', destructive: true },
+                { label: "Editar", icon: <Pencil />, action: item => setFormInquiry(findInquiry(item.id)) },
+                { label: "Eliminar", icon: <Trash />, action: item => removeInquiry(item.id), destructive: true },
               ]}
               selectionActions={removeAll
                 ? [{
@@ -84,7 +92,7 @@ const InquiriesIndex = () => {
             />
           </div>
         </div>
-        <DetailsTray inquiry={ selectedInquiry } closeTray={() => setSelectedInquiry(null) }/>
+        <DetailsTray inquiry={ selectedInquiry } closeTray={() => setSelectedInquiryId(null) }/>
       </div>
     </>
   )

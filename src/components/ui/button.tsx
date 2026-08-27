@@ -11,6 +11,10 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+        outlineSuccess:
+          "bg-green-50 text-green-500 border-green-300 hover:bg-green-100",
+        outlineDestructive:
+          "bg-red-50 text-red-500 border-red-300 hover:bg-red-100",
         primary:
           "bg-blue-600 hover:bg-blue-700 text-white",
         secondary:
@@ -20,6 +24,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
+        icon: ""
       },
       size: {
         default:

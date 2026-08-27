@@ -91,7 +91,7 @@ function normalizeBody<T>(options: ApiOptions<T>, mapper: ((o: T) => unknown)): 
     : options as RequestInit
 }
 
-async function doFetch(path: string, options: RequestInit, headers: HeadersInit = {}): Promise<object> {
+async function doFetch(path: string, options: RequestInit, headers: HeadersInit = {}): Promise<any> {
   const res = await fetch(path, {
     ...options,
     headers: {
@@ -100,6 +100,9 @@ async function doFetch(path: string, options: RequestInit, headers: HeadersInit 
       ...headers
     },
   })
+
+  if (res.status === 204)
+    return true
 
   if (!res.ok) {
     const error = await res.json()

@@ -6,6 +6,10 @@ import { X } from 'lucide-react'
 import { statusBadge } from '@/features/inquiries/util.tsx'
 import InquiryComments from '@/features/inquiries/comments/InquiryComments.tsx'
 import Avatar from '@/components/Avatar/Avatar.tsx'
+import { Button } from '@/components/ui/button.tsx'
+import { useInquiryMutations } from '@/features/inquiries/useInquiries.tsx'
+import { toast } from '@/components/ui/toast.tsx'
+import StatusDropdown from '@/features/inquiries/StatusDropdown.tsx'
 
 type DetailsTrayProps = {
   inquiry: Inquiry | null,
@@ -13,6 +17,16 @@ type DetailsTrayProps = {
 }
 
 const DetailsTray = ({ inquiry, closeTray }: DetailsTrayProps) => {
+
+  const { remove } = useInquiryMutations()
+
+  const handleRemove = (inquiry: Inquiry) => {
+    remove(inquiry, { onSuccess: () => {
+      closeTray()
+      toast.add({ title: 'Solicitud descartada' })
+    }})
+  }
+
   return (
     <div className={`
       ${inquiry ? 'w-[415px] px-4 py-5 border shadow-xl' : 'w-0 p-0 border-0'}
@@ -26,16 +40,27 @@ const DetailsTray = ({ inquiry, closeTray }: DetailsTrayProps) => {
           <div className='flex gap-4 items-start'>
             <Avatar name={ inquiry.contact.name } size='lg' />
             <div className='flex-1'>
-              <div className='font-semibold mb-1'>
+              <div className='font-semibold'>
                 {`${inquiry.contact.name} ${inquiry.contact.lastName}` }
               </div>
-              { statusBadge(inquiry.status) }
+              <div className='flex gap-2 items-center'>
+                { statusBadge(inquiry.status) }
+                <StatusDropdown inquiry={ inquiry }/>
+              </div>
             </div>
             <button className='ps-2 pb-2 cursor-pointer' onClick={ closeTray }>
               <X className='text-gray-400 size-5'/>
             </button>
           </div>
-          <div className='flex flex-col gap-4 py-6'>
+          <div className='flex gap-4 mt-6 mb-2'>
+            <Button className='flex-1' size='sm' variant='outlineSuccess'>
+              Crear presupuesto
+            </Button>
+            <Button className='flex-1' size='sm' variant='outlineDestructive' onClick={ () => handleRemove(inquiry) }>
+              Descartar
+            </Button>
+          </div>
+          <div className='flex flex-col gap-4 pb-6'>
             <Card>
               <CardHeader>
                 <CardTitle>Solicitud</CardTitle>
