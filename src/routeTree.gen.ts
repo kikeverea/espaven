@@ -13,6 +13,9 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRouteImport } from './routes/__root'
 
 const InquiriesIndexLazyRouteImport = createFileRoute('/inquiries/')()
+const InventoryIndexLazyRouteImport = createFileRoute('/inventory/')()
+const Units_of_measureIndexLazyRouteImport =
+  createFileRoute('/units_of_measure/')()
 
 const InquiriesIndexLazyRoute = InquiriesIndexLazyRouteImport.update({
   id: '/inquiries/',
@@ -21,27 +24,50 @@ const InquiriesIndexLazyRoute = InquiriesIndexLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/inquiries/index.lazy').then((d) => d.Route),
 )
+const InventoryIndexLazyRoute = InventoryIndexLazyRouteImport.update({
+  id: '/inventory/',
+  path: '/inventory/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/inventory/index.lazy').then((d) => d.Route),
+)
+const Units_of_measureIndexLazyRoute =
+  Units_of_measureIndexLazyRouteImport.update({
+    id: '/units_of_measure/',
+    path: '/units_of_measure/',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/units_of_measure/index.lazy').then((d) => d.Route),
+  )
 
 export interface FileRoutesByFullPath {
   '/inquiries/': typeof InquiriesIndexLazyRoute
+  '/inventory/': typeof InventoryIndexLazyRoute
+  '/units_of_measure/': typeof Units_of_measureIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/inquiries': typeof InquiriesIndexLazyRoute
+  '/inventory': typeof InventoryIndexLazyRoute
+  '/units_of_measure': typeof Units_of_measureIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/inquiries/': typeof InquiriesIndexLazyRoute
+  '/inventory/': typeof InventoryIndexLazyRoute
+  '/units_of_measure/': typeof Units_of_measureIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/inquiries/'
+  fullPaths: '/inquiries/' | '/inventory/' | '/units_of_measure/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/inquiries'
-  id: '__root__' | '/inquiries/'
+  to: '/inquiries' | '/inventory' | '/units_of_measure'
+  id: '__root__' | '/inquiries/' | '/inventory/' | '/units_of_measure/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   InquiriesIndexLazyRoute: typeof InquiriesIndexLazyRoute
+  InventoryIndexLazyRoute: typeof InventoryIndexLazyRoute
+  Units_of_measureIndexLazyRoute: typeof Units_of_measureIndexLazyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -53,11 +79,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InquiriesIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inventory/': {
+      id: '/inventory/'
+      path: '/inventory'
+      fullPath: '/inventory/'
+      preLoaderRoute: typeof InventoryIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/units_of_measure/': {
+      id: '/units_of_measure/'
+      path: '/units_of_measure'
+      fullPath: '/units_of_measure/'
+      preLoaderRoute: typeof Units_of_measureIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   InquiriesIndexLazyRoute: InquiriesIndexLazyRoute,
+  InventoryIndexLazyRoute: InventoryIndexLazyRoute,
+  Units_of_measureIndexLazyRoute: Units_of_measureIndexLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
