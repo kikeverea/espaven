@@ -58,7 +58,8 @@ const Form = <T extends Entity, TWrite extends object, C extends AnyFormConfig
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    disabled: status.pending.any
+    disabled: status.pending.any,
+    defaultValues: config.defaultValues
   })
 
   const handleSubmit = (formData: z.infer<typeof schema>) => {

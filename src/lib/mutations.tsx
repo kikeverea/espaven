@@ -80,8 +80,7 @@ export function useMutationStatus<T extends Object>(
 export const useMutations = <T extends Entity, TWrite extends object = T>(
   mutationKeys: MutationKeys,
   mutationApi: MutationApi<T, TWrite>,
-  mutationSideEffects: MutationSideEffects<T> = {},
-  args: { batchDelete?: boolean } = {}
+  args: { batchDelete?: boolean, mutationSideEffects?: MutationSideEffects<T> } = {}
 ): Mutations<T, TWrite> => {
   const client = useQueryClient()
 
@@ -97,7 +96,7 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
     mutationKey: mutationKeys.create,
     mutationFn: mutationApi.create,
     onError: showError,
-    onSuccess: mutationSideEffects.create,
+    onSuccess: args.mutationSideEffects?.create,
     onSettled: invalidate,
   })
 
@@ -105,14 +104,14 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
     mutationKey: mutationKeys.update,
     mutationFn: ({ id, payload }: UpdateParams<TWrite>) => mutationApi.update(id, payload),
     onError: showError,
-    onSuccess: mutationSideEffects.update,
+    onSuccess: args.mutationSideEffects?.update,
     onSettled: invalidate,
   })
 
   const remove = useMutation({
     mutationKey: mutationKeys.delete,
     mutationFn: mutationApi.delete,
-    onSuccess: mutationSideEffects.delete,
+    onSuccess: args.mutationSideEffects?.delete,
     onError: showError,
     onSettled: invalidate,
   })

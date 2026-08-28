@@ -38,7 +38,8 @@ const Table = <T extends Entity>(
   selectedId,
   actions,
   selectionActions,
-  blink
+  blink,
+  ...props
 }: TableProps<T>) => {
 
   if (!collection)
@@ -70,7 +71,7 @@ const Table = <T extends Entity>(
   const rows = sortAndPaginateData(filteredData, { pagination, sort })
 
   return (
-    <div className='rounded-lg border overflow-hidden bg-background'>
+    <div className={`rounded-lg border overflow-hidden bg-background ${props.className}`}>
       <ShdcnTable className='text-[13px]'>
         <SortingHeader
           columns={ columns }
@@ -123,13 +124,15 @@ const Table = <T extends Entity>(
                       }
                       { !isCustomCol(column) && column.onClick
                         ? <div className='flex items-center gap-2 w-full text-blue-500'>
-                          { cellValue(column, item) }
-                          { selectedId === id
-                            ? <X className='invisible size-3.5 group-hover:visible'/>
-                            : <SquareArrowOutUpRight className='invisible size-3.5 group-hover:visible'/>
-                          }
-                        </div>
-                        : cellValue(column, item)
+                            { cellValue(column, item) }
+                            { selectedId === id
+                              ? <X className='invisible size-3.5 group-hover:visible'/>
+                              : <SquareArrowOutUpRight className='invisible size-3.5 group-hover:visible'/>
+                            }
+                          </div>
+                        : <div className={`${column.className || ''}`}>
+                            { cellValue(column, item) }
+                          </div>
                       }
                     </TableCell>
                   )}

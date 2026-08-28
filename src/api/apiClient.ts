@@ -106,7 +106,18 @@ async function doFetch(path: string, options: RequestInit, headers: HeadersInit 
 
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(`API error: ${res.status}. ${error.exception}`)
+
+    console.log(error)
+
+    const message = error.exception
+      ? error.exception
+      : Object.entries(error)
+        .flatMap(([field, messages]) =>
+          (messages as string[]).map(message => `${field} ${message}`)
+        )
+        .join(', ')
+
+    throw new Error(`API error: ${res.status}. ${message}`)
   }
 
   return await res.json()

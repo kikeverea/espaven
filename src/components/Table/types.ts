@@ -1,6 +1,6 @@
 import type { TableFilter } from '@/components/Table/TableFilter/types'
 import type { DataPresenter, Entity, Primitive } from '@/types.ts'
-import type { ReactElement, ReactNode } from 'react'
+import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import type { UseMutateFunction } from '@tanstack/react-query'
 import type { ButtonVariants } from '@/components/ui/button.tsx'
 
@@ -9,6 +9,7 @@ type StandardTableColumn<T extends Entity> = {
   accessor: keyof T | ((item: T) => Primitive | Primitive[])
   blink?: (item: T) => boolean
   presenter?: DataPresenter
+  className?: string
   onClick?: (id: number) => void
 
   key?: never
@@ -24,6 +25,7 @@ type CustomTableColumn = {
   name?: never
   accessor?: never
   presenter?: never
+  className?: never
 }
 
 export const isCustomCol = (col: TableColumn<any>): col is CustomTableColumn => !!col.component
@@ -55,7 +57,7 @@ export type SelectionAction<T extends Entity> = {
   variant?: ButtonVariants
 }
 
-export type TableProps<T extends Entity> = {
+export type TableProps<T extends Entity> = ComponentProps<"div"> & {
   collection?: T[]
   columns: TableColumn<T>[],
   search?: string,

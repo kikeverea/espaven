@@ -75,7 +75,7 @@ const SortingHeader = <T extends Entity>({
           </TableHead>
         )}
 
-        <TableHead>
+        <TableHead className='text-end pe-6'>
           { selection?.length
             ? selectionActions?.map((action, ind) => (
               <Button

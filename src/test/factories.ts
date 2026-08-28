@@ -1,4 +1,5 @@
 import type { Contact, Inquiry, User } from '@/features/inquiries/types'
+import type { UnitOfMeasure } from '@/features/unitsOfMeasure/types'
 import type { Comment } from '@/features/comments/types'
 
 export const createFactories = () => {
@@ -7,6 +8,7 @@ export const createFactories = () => {
     contact: 1,
     inquiry: 1,
     comment: 1,
+    unitOfMeasure: 1,
   }
 
   const now = () => new Date().toISOString()
@@ -38,6 +40,7 @@ export const createFactories = () => {
     lastActivityAt: now(),
     comments: [],
     createdAt: now(),
+    discardedAt: null,
     ...args,
   })
 
@@ -49,5 +52,12 @@ export const createFactories = () => {
     ...args
   })
 
-  return { contact, comment, inquiry, user }
+  const unitOfMeasure = (args: Partial<UnitOfMeasure> = {}): UnitOfMeasure => ({
+    id: ids.unitOfMeasure++,
+    name: 'Test unit',
+    createdAt: now(),
+    ...args
+  })
+
+  return { contact, comment, inquiry, user, unitOfMeasure }
 }

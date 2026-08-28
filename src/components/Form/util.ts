@@ -9,7 +9,7 @@ export const extractSchema = (config: FormConfig<FormFields>) => {
   const schema = z.object(
     Object.fromEntries(
       Object.entries(config.fields).map(([key, field]) => [key, field.schema]),
-    )
+    ),
   )
 
   return config.refine
