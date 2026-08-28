@@ -86,19 +86,20 @@ const Table = <T extends Entity>(
             ?
             rows.map(item => {
               const id = item.id
-
               return (
                 <TableRow key={ id }>
                   { selectable &&
                     <TableCell
                       key={`${id}-select`}
+                      // percentage-width columns are treated differently in the table auto layout leftover-space
+                      // redistribution step: they're excluded from getting extra space, unlike plain pixel-width columns
                       className={`
-                        ps-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25
+                        w-[1%] ps-8 whitespace-nowrap
                         ${id === selectedId ? 'bg-slate-100' : ''}
                         ${item.blink ? 'relative' : ''}`
                       }
                     >
-                      { item.blink && <Blinker className='absolute left-2 top-5.5' /> }
+                      { item.blink && <Blinker className='absolute left-3 top-5.5' /> }
                       <Checkbox
                         onCheckedChange={(checked) => applySelection('SELECT_ITEM', checked, item)}
                         checked={ selection.includes(id)}
@@ -118,7 +119,7 @@ const Table = <T extends Entity>(
                       onClick={ () => isCustomCol(column) ? null : column.onClick!(id) }
                     >
                       { !selectable && ind === 0 && item.blink &&
-                        <Blinker className='absolute left-2 top-5.5' />
+                        <Blinker className='absolute left-3 top-5.5' />
                       }
                       { !isCustomCol(column) && column.onClick
                         ? <div className='flex items-center gap-2 w-full text-blue-500'>
@@ -133,7 +134,7 @@ const Table = <T extends Entity>(
                     </TableCell>
                   )}
                   { actions &&
-                    <TableCell className={`pe-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${id === selectedId ? 'bg-slate-100' : ''}`}>
+                    <TableCell className={`text-end pe-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${id === selectedId ? 'bg-slate-100' : ''}`}>
                       <TableActions actions={ actions } item={ item } />
                     </TableCell>
                   }

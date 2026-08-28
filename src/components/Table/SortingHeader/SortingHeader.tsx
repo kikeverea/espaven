@@ -42,7 +42,9 @@ const SortingHeader = <T extends Entity>({
     <TableHeader>
       <TableRow className='bg-gray-50'>
         { selectable &&
-          <TableHead key='select' className={`ps-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25`}>
+          // percentage-width columns are treated differently in the table auto layout leftover-space
+          // redistribution step: they're excluded from getting extra space, unlike plain pixel-width columns
+          <TableHead key='select' className={`w-[1%] ps-8 whitespace-nowrap`}>
             <Checkbox
               onCheckedChange={ selectionChange }
               checked={ selected }
