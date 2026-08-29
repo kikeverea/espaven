@@ -7,11 +7,11 @@ import FormMultiInput from '@/components/Form/FormMultiInput.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import FormTextarea from '@/components/Form/FormTextarea.tsx'
-import { extractSchema, getFieldInfo } from '@/components/Form/util.ts'
+import { extractSchema, getFieldInfo, pickValues } from '@/components/Form/util.ts'
 import FormSelect from '@/components/Form/FormSelect.tsx'
 import FormCheckbox from '@/components/Form/FormCheckbox.tsx'
 import FormDatePicker from '@/components/Form/FormDatePicker.tsx'
-import type { ComponentType, PropsWithChildren } from 'react'
+import { type ComponentType, type PropsWithChildren, useEffect } from 'react'
 import type { Mutations } from '@/lib/mutations.tsx'
 import type { FormConfig, FormFields } from '@/components/Form/types.ts'
 import type { Entity } from '@/types.ts'
@@ -31,6 +31,7 @@ type FormProps<
   mutations: Mutations<T, TWrite>
   item: T | TWrite
   applyData?: (item: T | TWrite, formData: any) => TWrite
+  pickData?: (item: T) => Record<string,unknown>
   onCancel?: () => void
   FormContainer?: ComponentType<ContainerProps>
   ButtonsContainer?: ComponentType<ContainerProps>
@@ -46,6 +47,7 @@ const Form = <T extends Entity, TWrite extends object, C extends AnyFormConfig
   mutations,
   item,
   applyData,
+  pickData,
   onCancel,
   FormContainer = FallbackContainer,
   ButtonsContainer = FallbackContainer,
@@ -61,6 +63,16 @@ const Form = <T extends Entity, TWrite extends object, C extends AnyFormConfig
     disabled: status.pending.any,
     defaultValues: config.defaultValues
   })
+
+  useEffect(() => {
+    if (!item || !Object.keys(item).length)
+      return
+
+    form.reset(pickData ?
+      pickData(item as T) :
+      pickValues(item as Record<string, unknown>, config.fields)
+    )
+  }, [item, form])
 
   const handleSubmit = (formData: z.infer<typeof schema>) => {
     if (item === null) return
@@ -84,6 +96,7 @@ const Form = <T extends Entity, TWrite extends object, C extends AnyFormConfig
     form.reset()
     onCancel?.()
   }
+
   return (
     <>
       <FormContainer>

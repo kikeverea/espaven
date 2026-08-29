@@ -18,9 +18,9 @@ export const useInquiryCommentMutations = (inquiry: Inquiry) => {
     delete: api.deleteComment,
   }
 
-  const sideEffects = { create: syncInquiry }
+  const mutationSideEffects = { create: syncInquiry }
 
-  return useMutations<InquiryComment, FormInquiryComment>(commentKeys, commentsApi, sideEffects)
+  return useMutations<InquiryComment, FormInquiryComment>(commentKeys, commentsApi, { mutationSideEffects })
 }
 
 export const useInquiryComments = (inquiry: Inquiry) => {

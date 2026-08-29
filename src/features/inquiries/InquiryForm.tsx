@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.t
 import type { FormInquiry, Inquiry } from '@/features/inquiries/types.ts'
 import { useInquiryMutations } from '@/features/inquiries/useInquiries.tsx'
 import Form from '@/components/Form/Form.tsx'
-import { config, applyData } from '@/features/inquiries/data/inquiry.form.ts'
+import { config, applyData, pickData } from '@/features/inquiries/data/inquiry.form.ts'
 
 type InquiryFormProps<T> = {
   inquiry: T | null
@@ -31,6 +31,7 @@ const InquiryForm = <T extends Inquiry | FormInquiry>({ inquiry, onCancel }: Inq
             item={inquiry || {} as T}
             mutations={useInquiryMutations()}
             applyData={applyData}
+            pickData={pickData}
             onCancel={onCancel}
           />
         </CardContent>

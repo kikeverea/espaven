@@ -1,18 +1,18 @@
-import type { Record } from '@/types'
+import type { PersistedRecord } from '@/types'
 import type { Comment } from '@/features/comments/types'
 
 export type Contact =
-  Record &
+  PersistedRecord &
   {
     name: string
     lastName?: string
-    emails?: string[]
-    phoneNumbers?: string[]
+    emails?: { address: string, primary: boolean }[]
+    phoneNumbers?: { number: string, primary: boolean }[]
   }
 export type FormContact = Omit<Partial<Contact>, 'id'>
 
 export type Inquiry =
-  Record &
+  PersistedRecord &
   {
     service: string
     status: InquiryStatus
@@ -32,7 +32,7 @@ export type InquiryStatus =
 export type InquiryComment = Comment & { inquiry: Inquiry }
 export type FormInquiryComment = Omit<Partial<InquiryComment>, 'id'>
 
-export type User = Record & {
+export type User = PersistedRecord & {
   fullName: string
   lastName?: string
   email: string

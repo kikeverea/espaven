@@ -1,4 +1,4 @@
-import type { Record } from '@/types.ts'
+import type { PersistedRecord } from '@/types.ts'
 
 export type ForbiddenApiFields = {
   id?: never
@@ -6,7 +6,7 @@ export type ForbiddenApiFields = {
 }
 
 export const prepareForApi = <
-  TDomain extends Record, TApiOut extends object & ForbiddenApiFields>(domain: Partial<TDomain>): TApiOut =>
+  TDomain extends PersistedRecord, TApiOut extends object & ForbiddenApiFields>(domain: Partial<TDomain>): TApiOut =>
 {
   const { id, createdAt, ...rest } = domain
   return { ...rest } as TApiOut

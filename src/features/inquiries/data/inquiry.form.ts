@@ -1,5 +1,5 @@
 import * as z from 'zod'
-import type { FormInquiry } from '@/features/inquiries/types.ts'
+import type { FormInquiry, Inquiry } from '@/features/inquiries/types.ts'
 import type { InferSchema } from '@/components/Form/types.ts'
 import { defineFormConfig } from '@/components/Form/util.ts'
 
@@ -55,5 +55,17 @@ export const applyData = (
       emails: emails.map((email) => email.value),
       phoneNumbers: phoneNumbers?.map(phoneNumber => phoneNumber.value),
     }
+  }
+}
+
+export const pickData = (item: Inquiry): Record<string,unknown> => {
+  const { contact, ...inquiry } = item
+  const { emails, phoneNumbers, ...contactRest } = contact
+
+  return {
+    ...contactRest,
+    emails: emails?.map(email => ({ value: email.address })) || [],
+    phoneNumbers: phoneNumbers?.map(phoneNumber => ({ value: phoneNumber.number })) || [],
+    ...inquiry,
   }
 }

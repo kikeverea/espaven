@@ -17,6 +17,14 @@ export const extractSchema = (config: FormConfig<FormFields>) => {
     : schema
 }
 
+export const pickValues = <T extends Record<string, unknown>>(item: T, fields: FormFields): Record<string,unknown> =>
+  Object.keys(fields).reduce((defaultValues, field) => {
+    console.log('setting', field, item[field])
+
+    defaultValues[field] = item[field]
+    return defaultValues
+  }, {} as Record<string, unknown>)
+
 export const getFieldInfo = (baseSchema: z.ZodType) => {
   const info = {
     required: !baseSchema.isOptional(),

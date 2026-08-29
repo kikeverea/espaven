@@ -1,4 +1,4 @@
 import type { User } from '@/features/inquiries/types'
-import type { Record } from '@/types'
+import type { PersistedRecord } from '@/types'
 
-export type Comment = Record & { body: string, createdBy: User }
+export type Comment = PersistedRecord & { body: string, createdBy: User }

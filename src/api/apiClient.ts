@@ -1,6 +1,6 @@
 import { camelize, snakeCase } from '@/lib/strings.ts'
 import { type ForbiddenApiFields, prepareForApi } from '@/api/entity.mapper.ts'
-import type { Entity, Record } from '@/types.ts'
+import type { Entity, PersistedRecord } from '@/types.ts'
 
 const API_URL = import.meta.env.API_URL ?? "http://localhost:3000"
 
@@ -13,7 +13,7 @@ type ApiBody<T> = { body?: T }
 type ApiOptions<T> = Omit<RequestInit, 'body'> & ApiBody<T>
 
 export function api<
-  TDomain extends Record, TApiIn, TApiOut extends object & ForbiddenApiFields
+  TDomain extends PersistedRecord, TApiIn, TApiOut extends object & ForbiddenApiFields
 >
   (mapper?: ApiMapper<TDomain, TApiIn, TApiOut>)
 {

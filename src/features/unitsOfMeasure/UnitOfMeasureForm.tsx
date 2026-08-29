@@ -16,8 +16,6 @@ const UnitOfMeasureForm = <T extends UnitOfMeasure | FormUnitOfMeasure>(
   { name, unit, onCancel, existingNames, ...props }: useUnitsOfMeasureFormProps<T>) =>
 {
 
-  console.log(name, unit)
-
   const formConfig = defineForm({ name: existingNames })
 
   return (
