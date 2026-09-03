@@ -6,10 +6,10 @@ export type Contact =
   {
     name: string
     lastName?: string
-    emails?: { address: string, primary: boolean }[]
-    phoneNumbers?: { number: string, primary: boolean }[]
+    emails?: { address: string, primary?: boolean }[]
+    phoneNumbers?: { number: string, primary?: boolean }[]
   }
-export type FormContact = Omit<Partial<Contact>, 'id'>
+export type FormContact = Partial<Contact>
 
 export type Inquiry =
   PersistedRecord &
@@ -22,7 +22,7 @@ export type Inquiry =
     lastActivityAt: string | null
   }
 
-export type FormInquiry = Omit<Partial<Inquiry>, 'id'> & { contact: FormContact }
+export type FormInquiry = Partial<Inquiry> & { contact?: FormContact } & Record<string, unknown>
 
 export type InquiryStatus =
   | 'pending'

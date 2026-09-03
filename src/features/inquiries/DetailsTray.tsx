@@ -1,7 +1,6 @@
 import type { Inquiry } from '@/features/inquiries/types.ts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import ContactInfo from '@/features/inquiries/ContactInfo'
-import InquiryInfo from '@/features/inquiries/InquiryInfo'
 import { X } from 'lucide-react'
 import { statusBadge } from '@/features/inquiries/util.tsx'
 import InquiryComments from '@/features/inquiries/comments/InquiryComments.tsx'
@@ -10,6 +9,8 @@ import { Button } from '@/components/ui/button.tsx'
 import { useInquiryMutations } from '@/features/inquiries/useInquiries.tsx'
 import { toast } from '@/components/ui/toast.tsx'
 import StatusDropdown from '@/features/inquiries/StatusDropdown.tsx'
+import TableList from '@/components/TableList/TableList.tsx'
+import { timeString } from '@/lib/strings.ts'
 
 type DetailsTrayProps = {
   inquiry: Inquiry | null,
@@ -60,13 +61,17 @@ const DetailsTray = ({ inquiry, closeTray }: DetailsTrayProps) => {
               Descartar
             </Button>
           </div>
-          <div className='flex flex-col gap-4 pb-6'>
+          <div className='flex flex-col gap-4 pt-3 pb-6'>
             <Card>
               <CardHeader>
                 <CardTitle>Solicitud</CardTitle>
               </CardHeader>
               <CardContent className='text-sm'>
-                <InquiryInfo inquiry={ inquiry } />
+                <TableList entries={[
+                  [ 'Servicio', inquiry.service ],
+                  [ 'Última actividad', timeString(inquiry.lastActivityAt) ],
+                  [ 'Registrado', timeString(inquiry.createdAt) ],
+                ]} />
               </CardContent>
             </Card>
             <Card>

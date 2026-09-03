@@ -1,7 +1,7 @@
 import { prepareForApi } from '@/api/entity.mapper'
 import { mapperFactory } from '@/features/comments/data/mapper.factory'
 import { type EntityKeys, isEntity } from '@/types'
-import type { Comment } from '@/features/inquiries/types'
+import type { Comment } from '@/features/comments/types'
 
 type ApiComment<T> = T & { commentable?: object }
 

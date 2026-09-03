@@ -21,7 +21,15 @@ export const useInquiryMutations = () => {
   return useMutations<Inquiry, FormInquiry>(inquiryKeys, inquiriesApi, { batchDelete: true })
 }
 
-export const useInquiries = () => {
-  const { data: inquiries, isPending, isError } = useQuery({ queryKey: inquiryKeys.all, queryFn: api.getInquiries })
-  return { inquiries, isPending, isError }
+export const useInquiries = (target: 'active' | 'discarded') => {
+  return useQuery({
+    queryKey: inquiryKeys.all,
+    queryFn: api.getInquiries,
+    select: data =>
+      data.filter(inquiry =>
+        target === 'active'
+          ? !inquiry.discardedAt
+          : !!inquiry.discardedAt
+      ),
+  })
 }

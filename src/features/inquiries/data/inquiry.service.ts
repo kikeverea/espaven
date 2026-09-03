@@ -1,32 +1,30 @@
-import type { FormInquiry, Inquiry } from '../types.ts'
+import type { Inquiry } from '../types.ts'
 import { api } from '@/api/apiClient.ts'
 import { mapperFactory } from './inquiry.mapper.ts'
 
 const { apiFetch, fetch } = api(mapperFactory())
 
-const getInquiries = async (): Promise<Inquiry[]> => {
-  return await apiFetch<Inquiry[]>(`/inquiries`)
-}
+const getInquiries = (): Promise<Inquiry[]> =>
+  apiFetch<Inquiry[]>(`/inquiries`)
 
-const getInquiry = async (id: Inquiry['id']): Promise<Inquiry> => {
-  return await apiFetch<Inquiry>(`/inquiries/${id}`)
-}
+const getInquiry = (id: Inquiry['id']): Promise<Inquiry> =>
+  apiFetch<Inquiry>(`/inquiries/${id}`)
 
-const createInquiry = async (payload: FormInquiry): Promise<Inquiry> => {
+const createInquiry = async (payload: Partial<Inquiry>): Promise<Inquiry> => {
   return await apiFetch<Inquiry>(`/inquiries`, {
     method: 'POST',
     body: payload
   })
 }
 
-const updateInquiry = async (id: Inquiry['id'], inquiry: FormInquiry): Promise<Inquiry> => {
+const updateInquiry = async (id: Inquiry['id'], inquiry: Partial<Inquiry>): Promise<Inquiry> => {
   return await apiFetch<Inquiry>(`/inquiries/${id}`, {
     method: 'PUT',
     body: inquiry,
   })
 }
 
-const deleteInquiry = async (inquiry: Inquiry): Promise<Inquiry> => {
+const deleteInquiry = async (inquiry: Partial<Inquiry>): Promise<Inquiry> => {
   return await apiFetch<Inquiry>(`/inquiries/${inquiry.id}`, { method: 'DELETE' })
 }
 
