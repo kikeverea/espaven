@@ -17,11 +17,12 @@ export const mapToData = <T extends Entity>(
   collection: T[] = [],
   columns: TableColumn<T>[],
   blink?: (item: T) => boolean,
-): TableData => {
+): TableData<T> => {
 
   return collection.map(item => {
     const data = columns.reduce((data, column) => {
       const columnName = normalized(column.name)
+
       const columnData = typeof column.accessor === 'function'
         ? column.accessor(item)
         : stringify(item[column.accessor as keyof T])
@@ -30,19 +31,19 @@ export const mapToData = <T extends Entity>(
       data[columnName] = { value: columnData, presenter: column.presenter, blink: blink }
 
       return data
-    }, {} as ItemData)
+    }, {} as ItemData<T>)
 
-    return { id: item.id, blink: blink?.(item), data } satisfies RowData
+    return { id: item.id, blink: blink?.(item), entity: item, data } satisfies RowData<T>
   })
 }
 
-export const filterData = (collection: TableData = [], args: FilterDataArgs): TableData => {
+export const filterData = <T extends Entity>(collection: TableData<T> = [], args: FilterDataArgs): TableData<T> => {
   const normalizedFilter = args.filter && normalizeFilter(args.filter)
   return collection.filter(item => applySearchAndFilter(item.data, args.search, normalizedFilter))
 }
 
-const applySearchAndFilter = (
-  item: ItemData,
+const applySearchAndFilter = <T extends Entity>(
+  item: ItemData<T>,
   search?: string,
   filter?: TableFilter
 ): boolean => {
@@ -126,7 +127,7 @@ const evaluateCheckboxesFilter = (filter: CheckboxesFilter, value: Primitive): b
 }
 
 const asNumber = (value: string | number | undefined): number | null => {
-  if (!value)
+  if (value == null)
     return null
 
   if (isBoolean(value))

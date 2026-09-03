@@ -1,9 +1,8 @@
-import type { ReactNode } from 'react'
-
 export type PersistedRecord = Entity & { createdAt: string }
+
 export type Entity = { id: number } & Record<string, unknown>
+
 export type Primitive = string | number
-export type DataPresenter = (value: any) => ReactNode
 
 export type Dictionary<T> = { [key: string]: T}
 

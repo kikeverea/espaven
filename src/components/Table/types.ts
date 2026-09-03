@@ -1,5 +1,5 @@
 import type { TableFilter } from '@/components/Table/TableFilter/types'
-import type { DataPresenter, Entity, Primitive } from '@/types.ts'
+import type { Entity, Primitive } from '@/types.ts'
 import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import type { UseMutateFunction } from '@tanstack/react-query'
 import type { ButtonVariants } from '@/components/ui/button.tsx'
@@ -8,8 +8,9 @@ type StandardTableColumn<T extends Entity> = {
   name: string
   accessor: keyof T | ((item: T) => Primitive | Primitive[])
   blink?: (item: T) => boolean
-  presenter?: DataPresenter
+  presenter?: DataPresenter<T>
   className?: string
+  headerClassName?: string
   onClick?: (id: number) => void
 
   key?: never
@@ -26,6 +27,7 @@ type CustomTableColumn = {
   accessor?: never
   presenter?: never
   className?: never
+  headerClassName?: never
 }
 
 export const isCustomCol = (col: TableColumn<any>): col is CustomTableColumn => !!col.component
@@ -34,17 +36,19 @@ export type TableColumn<T extends Entity> =
   | StandardTableColumn<T>
   | CustomTableColumn
 
-export type TableData = RowData[]
+export type TableData<T extends Entity> = RowData<T>[]
 
-export type RowData = { id: Entity['id'], data: ItemData, blink?: boolean}
+export type RowData<T extends Entity> = { id: Entity['id'], entity: T, data: ItemData<T>, blink?: boolean}
 
-export type ItemData = {
-  [column: string]: { value: Primitive | Primitive[], presenter?: DataPresenter, blink?: boolean }
+export type ItemData<T extends Entity> = {
+  [column: string]: { value: Primitive | Primitive[], presenter?: DataPresenter<T>, blink?: boolean }
 }
+
+export type DataPresenter<T extends Entity> = (value: any, original: T) => ReactNode
 
 export type TableAction = {
   label: string,
-  action: (item: RowData) => void,
+  action: (id: RowData<any>['id']) => void,
   icon?: ReactElement,
   destructive?: boolean
 }

@@ -1,12 +1,13 @@
 import { Field, FieldError } from '@/components/ui/field.tsx'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx'
 import type { ComponentProps } from 'react'
-import type { FieldValues, Path } from "react-hook-form"
+import { Controller, type FieldValues, type Path } from 'react-hook-form'
 import type { FormFieldProps } from '@/components/Form/types.ts'
 import FormLabel from '@/components/Form/FormLabel.tsx'
+import type { Entity } from '@/types.ts'
 
 type SelectOption = {
-  value: string
+  value: string | Entity['id']
   label: string
 }
 
@@ -35,25 +36,35 @@ const FormSelect = <T extends FieldValues>({
     <Field data-invalid={invalid} className='py-2'>
       <FormLabel label={ label } required={ required } htmlFor={ id }/>
 
-      <Select id={id} items={items} disabled={ !items || !items.length }>
-        <SelectTrigger className="w-full max-w-48">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            { items.length
-              ? items.map((item) => (
-                  <SelectItem key={ item.value } value={ item.value }>
-                    { item.label }
+      <Controller
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <Select
+            items={items}
+            value={field.value ?? null}
+            onValueChange={field.onChange}
+            disabled={!items.length}
+          >
+            <SelectTrigger id={id} className="w-full max-w-48">
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectGroup>
+                {items.map(item => (
+                  <SelectItem
+                    key={item.value}
+                    value={item.value}
+                  >
+                    {item.label}
                   </SelectItem>
-                ))
-              : <SelectItem key='empty-select' value=''>
-                  Vacío
-                </SelectItem>
-            }
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        )}
+      />
 
       { invalid && <FieldError errors={[error]} /> }
     </Field>

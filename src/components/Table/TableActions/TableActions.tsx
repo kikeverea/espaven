@@ -14,14 +14,16 @@ import { EllipsisVertical } from 'lucide-react'
 
 type TableActionsProps = {
   actions: TableAction[],
-  item: RowData
+  row: RowData
 }
 
-export function TableActions({ actions = [], item }: TableActionsProps): JSX.Element {
+export function TableActions({ actions = [], row }: TableActionsProps): JSX.Element {
 
   const { regular, destructive } = actions.reduce((result, action) => {
-    if (action.destructive) result.destructive.push(action)
-    else result.regular.push(action)
+    if (action.destructive)
+      result.destructive.push(action)
+    else
+      result.regular.push(action)
 
     return result
   }, { regular: [], destructive: [] } as Dictionary<TableAction[]>)
@@ -35,7 +37,7 @@ export function TableActions({ actions = [], item }: TableActionsProps): JSX.Ele
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         { regular.map(action =>
-          <DropdownMenuItem className='p-0 cursor-pointer' onClick={ () => action.action(item) }>
+          <DropdownMenuItem key={action.label} className='p-0 cursor-pointer' onClick={ () => action.action(row.id) }>
             <div className='flex gap-2 px-2 py-2 w-full'>
               { action.icon }
               <span className='text-xs'>{ action.label }</span>
@@ -44,7 +46,7 @@ export function TableActions({ actions = [], item }: TableActionsProps): JSX.Ele
         )}
         { !!destructive.length && <DropdownMenuSeparator /> }
         { destructive.map(action =>
-          <DropdownMenuItem variant='destructive' className='p-0 cursor-pointer' onClick={ () => action.action(item) }>
+          <DropdownMenuItem variant='destructive' className='p-0 cursor-pointer' onClick={ () => action.action(row.id) }>
             <div className='flex gap-2 px-2 py-2 w-full'>
               { action.icon }
               <span className='text-xs'>{ action.label }</span>

@@ -1,11 +1,38 @@
 import * as z from 'zod'
-import type { FormConfig, FormFields } from '@/components/Form/types.ts'
+import type { FieldInfo, FormConfig, FormField, FormFields, InferSchema } from '@/components/Form/types.ts'
+import type { Entity } from '@/types.ts'
 
-export const defineFormConfig = <T extends FormFields>(
-  config: FormConfig<T>
-) => config
+type PartialConfig<P extends { toFormData: P['toFormData'], toSubmitData: P['toSubmitData'] }> =
+  & Omit<P, 'toFormData' | 'toSubmitData'>
+  & { toFormData? : P['toFormData'] }
+  & { toSubmitData? : P['toSubmitData'] }
 
-export const extractSchema = (config: FormConfig<FormFields>) => {
+export const defineFormConfig = <
+  T extends Entity,
+  TSubmit extends Record<string, unknown>,
+  F extends FormFields = FormFields,
+  FData extends InferSchema<F> = InferSchema<F>,
+>
+(config: PartialConfig<FormConfig<T, TSubmit, F, FData>>):
+  FormConfig<T, TSubmit, F, FData> =>
+{
+
+  const {
+    toFormData = (item: T) => (pickValues(item, config.fields) as FData),
+    toSubmitData = (item: T, formData: FData) => ({ ...item, ...formData } as TSubmit),
+    ...rest
+  } = config
+
+  return { toFormData, toSubmitData, ...rest }
+}
+
+export const extractSchema = <
+  T extends Entity,
+  TSubmit extends Record<string, unknown>,
+  F extends FormFields = FormFields,
+  FData extends InferSchema<F> = InferSchema<F>
+>(config: FormConfig<T, TSubmit, F, FData>) =>
+{
   const schema = z.object(
     Object.fromEntries(
       Object.entries(config.fields).map(([key, field]) => [key, field.schema]),
@@ -17,15 +44,19 @@ export const extractSchema = (config: FormConfig<FormFields>) => {
     : schema
 }
 
-export const pickValues = <T extends Record<string, unknown>>(item: T, fields: FormFields): Record<string,unknown> =>
-  Object.keys(fields).reduce((defaultValues, field) => {
-    console.log('setting', field, item[field])
+export const pickValues = <T extends Entity, F extends FormFields>(item: T, fields: F): InferSchema<F> => {
+  return Object.keys(fields).reduce((values, field) => {
+    const key = field as keyof InferSchema<F>
+    values[key] = item[field] as InferSchema<F>[typeof key]
 
-    defaultValues[field] = item[field]
-    return defaultValues
-  }, {} as Record<string, unknown>)
+    return values
+  }, {} as InferSchema<F>)
+}
 
-export const getFieldInfo = (baseSchema: z.ZodType) => {
+export const getFieldInfo = (field: FormField): FieldInfo => {
+
+  const baseSchema: z.ZodType = field.schema
+
   const info = {
     required: !baseSchema.isOptional(),
     nullable: baseSchema.isNullable(),
@@ -58,7 +89,7 @@ export const getFieldInfo = (baseSchema: z.ZodType) => {
     return {
       ...info,
       kind: 'enum' as const,
-      options: schema.options,
+      options: field.options || [],
     }
   }
 

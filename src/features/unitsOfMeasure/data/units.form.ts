@@ -1,5 +1,5 @@
 import * as z from 'zod'
-import { defineFormConfig } from '@/components/Form/util.ts'
+import { defineFormConfig } from '@/components/Form/util'
 
 type UOMUniqFields = 'name'
 

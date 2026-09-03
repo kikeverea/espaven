@@ -45,12 +45,12 @@ const Table = <T extends Entity>(
   if (!collection)
     return <TableSkeleton colCount={ columns.length }/>
 
-  const tableData = useMemo<TableData>(
+  const tableData = useMemo<TableData<T>>(
     () => mapToData(collection, columns, blink),
     [collection, columns]
   )
 
-  const filteredData = useMemo<TableData>(
+  const filteredData = useMemo<TableData<T>>(
     () => filterData(tableData, { search, filter }),
     [tableData, search, filter]
   )
@@ -59,7 +59,7 @@ const Table = <T extends Entity>(
   const [pagination, setItemsPerPage, setPage] = usePagination(paginate, currentPage || 0)
   const [selection, dispatchSelection] = useReducer(selectionReducer<T>, [] as T['id'][])
 
-  const applySelection = (type: SelectionTypes, isSelected: boolean, item?: RowData) => {
+  const applySelection = (type: SelectionTypes, isSelected: boolean, item?: RowData<T>) => {
     const action = type === 'SELECT_ALL'
       ? { type, payload: { ids: collection.map(item => item.id), isSelected} }
       : { type, payload: { id: item?.id || 0, isSelected} }
@@ -69,6 +69,7 @@ const Table = <T extends Entity>(
   }
 
   const rows = sortAndPaginateData(filteredData, { pagination, sort })
+  const hasActions = !!actions || !!selectionActions
 
   return (
     <div className={`rounded-lg border overflow-hidden bg-background ${props.className}`}>
@@ -80,13 +81,14 @@ const Table = <T extends Entity>(
           selectable={ selectable }
           onSelectedChange={ isSelected => applySelection('SELECT_ALL', isSelected) }
           selection={ selection }
+          hasActions={ hasActions }
           selectionActions={ selectionActions }
         />
         <TableBody>
           { rows?.length
             ?
-            rows.map(item => {
-              const id = item.id
+            rows.map(row => {
+              const id = row.id
               return (
                 <TableRow key={ id }>
                   { selectable &&
@@ -97,12 +99,12 @@ const Table = <T extends Entity>(
                       className={`
                         w-[1%] ps-8 whitespace-nowrap
                         ${id === selectedId ? 'bg-slate-100' : ''}
-                        ${item.blink ? 'relative' : ''}`
+                        ${row.blink ? 'relative' : ''}`
                       }
                     >
-                      { item.blink && <Blinker className='absolute left-3 top-5.5' /> }
+                      { row.blink && <Blinker className='absolute left-3 top-5.5' /> }
                       <Checkbox
-                        onCheckedChange={(checked) => applySelection('SELECT_ITEM', checked, item)}
+                        onCheckedChange={(checked) => applySelection('SELECT_ITEM', checked, row)}
                         checked={ selection.includes(id)}
                         className='data-checked:bg-blue-500 data-checked:border-blue-500 cursor-pointer'
                       />
@@ -113,32 +115,34 @@ const Table = <T extends Entity>(
                       key={`${id}-${column.name || column.key}`}
                       className={`
                       ${cellPadding()}
-                      ${!selectable && ind === 0 && item.blink ? 'relative' : ''}
+                      ${!selectable && ind === 0 && row.blink ? 'relative' : ''}
                       ${id === selectedId ? 'bg-slate-100' : ''} text-gray-800
                       ${!isCustomCol(column) && column.onClick && 'cursor-pointer group'}
+                     
+                      ${ind === columns.length - 1 && !hasActions ? 'pe-8' : ''}
                     `}
                       onClick={ () => isCustomCol(column) ? null : column.onClick!(id) }
                     >
-                      { !selectable && ind === 0 && item.blink &&
+                      { !selectable && ind === 0 && row.blink &&
                         <Blinker className='absolute left-3 top-5.5' />
                       }
                       { !isCustomCol(column) && column.onClick
                         ? <div className='flex items-center gap-2 w-full text-blue-500'>
-                            { cellValue(column, item) }
+                            { cellValue(column, row) }
                             { selectedId === id
                               ? <X className='invisible size-3.5 group-hover:visible'/>
                               : <SquareArrowOutUpRight className='invisible size-3.5 group-hover:visible'/>
                             }
                           </div>
                         : <div className={`${column.className || ''}`}>
-                            { cellValue(column, item) }
+                            { cellValue(column, row) }
                           </div>
                       }
                     </TableCell>
                   )}
                   { actions &&
                     <TableCell className={`text-end pe-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${id === selectedId ? 'bg-slate-100' : ''}`}>
-                      <TableActions actions={ actions } item={ item } />
+                      <TableActions actions={ actions } row={ row } />
                     </TableCell>
                   }
                 </TableRow>
@@ -165,14 +169,14 @@ const Table = <T extends Entity>(
   )
 }
 
-const cellValue = <T extends Entity> (column: TableColumn<T>, item: RowData): ReactNode => {
+const cellValue = <T extends Entity> (column: TableColumn<T>, item: RowData<T>): ReactNode => {
   if (column.component)
     return column.component()
 
   const data = item.data[normalized(column.name)]
 
   return column.presenter
-    ? column.presenter(data.value)
+    ? column.presenter(data.value, item.entity)
     : String(data.value ?? '-')
 }
 

@@ -1,6 +1,6 @@
 import type { ItemData, TableData, TableSort } from '@/components/Table/types'
 import type { Pagination } from '@/components/Table/TablePaginator/types'
-import { isBoolean, isNumber, isString } from '@/types'
+import { type Entity, isBoolean, isNumber, isString } from '@/types'
 import { normalized } from '@/lib/strings'
 
 type SortAndPaginateDataArgs = {
@@ -8,10 +8,10 @@ type SortAndPaginateDataArgs = {
   sort?: TableSort
 }
 
-export const sortAndPaginateData = (
-  data: TableData,
+export const sortAndPaginateData = <T extends Entity>(
+  data: TableData<T>,
   args: SortAndPaginateDataArgs
-): TableData => {
+): TableData<T> => {
 
   const [ pageStart, pageEnd ] = pageRange(args.pagination, data.length)
 
@@ -22,9 +22,9 @@ export const sortAndPaginateData = (
     : data
 }
 
-const applySort = (
-  item1: ItemData,
-  item2: ItemData,
+const applySort = <T extends Entity>(
+  item1: ItemData<T>,
+  item2: ItemData<T>,
   sort?: TableSort,
 ): number => {
 

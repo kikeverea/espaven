@@ -15,6 +15,7 @@ type SortingHeaderProps<T extends Entity> = {
   setSortColumn: (name: string)=> void,
   selectable?: boolean
   selection?: T['id'][]
+  hasActions: boolean
   onSelectedChange?: (selected: boolean) => void
   selectionActions?: SelectionAction<T>[]
 }
@@ -26,7 +27,8 @@ const SortingHeader = <T extends Entity>({
   selectable,
   selection,
   onSelectedChange,
-  selectionActions
+  selectionActions,
+  hasActions = !!selectionActions,
 }: SortingHeaderProps<T>) => {
 
   const column = sort?.column
@@ -52,13 +54,17 @@ const SortingHeader = <T extends Entity>({
             />
           </TableHead>
         }
-        { columns.map(col =>
+        { columns.map((col, ind) =>
           <TableHead
             key={ col.name || col.key }
-            className={`w-25 text-gray-500 cursor-pointer ${cellPadding()}`}
+            className={`
+              w-25 text-gray-500 cursor-pointer
+              ${cellPadding()}
+              ${ind === columns.length - 1 && !hasActions ? 'pe-8' : ''}
+            `}
             onClick={ () => setSortColumn(normalized(col.name)) }
           >
-            <div className="flex items-center gap-1">
+            <div className={`flex items-center gap-1 ${col.headerClassName}`}>
               {('name' in col) ? col.name : col.header()}
 
               {column?.toLowerCase() === col.name?.toLowerCase() && (
@@ -75,20 +81,22 @@ const SortingHeader = <T extends Entity>({
           </TableHead>
         )}
 
-        <TableHead className='text-end pe-6'>
-          { selection?.length
-            ? selectionActions?.map((action, ind) => (
-              <Button
-                key={ind}
-                variant={action.variant}
-                onClick={() => selection && action.mutation(selection, { onSuccess: action.onSuccess })}
-              >
-                { action.icon }
-              </Button>
-            ))
-            : null
-          }
-        </TableHead>
+        { hasActions &&
+          <TableHead className='text-end pe-6'>
+            {
+              selectionActions?.map((action, ind) => (
+                <Button
+                  key={ind}
+                  variant={action.variant}
+                  className={selection?.length ? '' : 'invisible'}
+                  onClick={() => selection && action.mutation(selection, { onSuccess: action.onSuccess })}
+                >
+                  { action.icon }
+                </Button>
+              ))
+            }
+          </TableHead>
+        }
       </TableRow>
     </TableHeader>
   )
