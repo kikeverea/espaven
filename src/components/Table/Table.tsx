@@ -22,6 +22,7 @@ import { SquareArrowOutUpRight, X } from 'lucide-react'
 import selectionReducer, { type SelectionTypes } from '@/components/Table/reducers/selectionReducer'
 import TableSkeleton from '@/components/Table/TableSkeleton.tsx'
 import Blinker from '@/components/Blinker/Blinker.tsx'
+import ClickableCell from '@/components/Table/ClickableCell/ClickableCell.tsx'
 
 const Table = <T extends Entity>(
 {
@@ -110,36 +111,42 @@ const Table = <T extends Entity>(
                       />
                     </TableCell>
                   }
-                  { columns.map((column, ind) =>
-                    <TableCell
-                      key={`${id}-${column.name || column.key}`}
-                      className={`
-                      ${cellPadding()}
-                      ${!selectable && ind === 0 && row.blink ? 'relative' : ''}
-                      ${id === selectedId ? 'bg-slate-100' : ''} text-gray-800
-                      ${!isCustomCol(column) && column.onClick && 'cursor-pointer group'}
-                     
-                      ${ind === columns.length - 1 && !hasActions ? 'pe-8' : ''}
-                    `}
-                      onClick={ () => isCustomCol(column) ? null : column.onClick!(id) }
-                    >
-                      { !selectable && ind === 0 && row.blink &&
-                        <Blinker className='absolute left-3 top-5.5' />
-                      }
-                      { !isCustomCol(column) && column.onClick
-                        ? <div className='flex items-center gap-2 w-full text-blue-500'>
-                            { cellValue(column, row) }
-                            { selectedId === id
-                              ? <X className='invisible size-3.5 group-hover:visible'/>
-                              : <SquareArrowOutUpRight className='invisible size-3.5 group-hover:visible'/>
-                            }
-                          </div>
-                        : <div className={`${column.className || ''}`}>
-                            { cellValue(column, row) }
-                          </div>
-                      }
-                    </TableCell>
-                  )}
+                  { columns.map((column, ind) => {
+
+                    const isCustom = isCustomCol(column)
+
+                    return (
+                      <TableCell
+                        key={`${id}-${column.name || column.key}`}
+                        className={`
+                          ${cellPadding()}
+                          ${!selectable && ind === 0 && row.blink ? 'relative' : ''}
+                          ${id === selectedId ? 'bg-slate-100' : ''} text-gray-800
+                          ${!isCustom && column.onClick && 'cursor-pointer group'}
+                          ${ind === columns.length - 1 && !hasActions ? 'pe-8' : ''}
+                        `}
+                        onClick={ isCustom ? undefined : () => column.onClick?.(id) }
+                      >
+                        { !selectable && ind === 0 && row.blink &&
+                          <Blinker className='absolute left-3 top-5.5' />
+                        }
+                        { !isCustom && (column.onClick || column.link)
+                          ? <ClickableCell link={ column.link?.(id) }>
+                              <div className='flex items-center gap-2 w-full text-blue-500'>
+                                { cellValue(column, row) }
+                                { selectedId === id
+                                  ? <X className='invisible size-3.5 group-hover:visible'/>
+                                  : <SquareArrowOutUpRight className='invisible size-3.5 group-hover:visible'/>
+                                }
+                              </div>
+                            </ClickableCell>
+                          : <div className={`${column.className || ''}`}>
+                              { cellValue(column, row) }
+                            </div>
+                        }
+                      </TableCell>
+                    )
+                  })}
                   { actions &&
                     <TableCell className={`text-end pe-5 max-w-8 w-8 xl:max-w-6.25 xl:w-w-6.25 ${id === selectedId ? 'bg-slate-100' : ''}`}>
                       <TableActions actions={ actions } row={ row } />
@@ -149,7 +156,10 @@ const Table = <T extends Entity>(
               )
             })
             : <TableRow key='empty-message'>
-                <td className='text-center py-4 text-muted-foreground italic' colSpan={ columns.length + 1 }>
+                <td
+                  className='text-center py-4 text-muted-foreground italic'
+                  colSpan={ columns.length + (selectionActions ? 2 : 0) }
+                >
                   { noEntriesMessage || 'No hay entradas' }
                 </td>
               </TableRow>

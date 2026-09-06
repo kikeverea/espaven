@@ -6,7 +6,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { queryClient } from '@/queryClient'
 import { Toaster } from "@/components/ui/toast"
 import { BlinkProvider } from '@/components/Blinker/BlinkContext.tsx'
-import { Inbox, User, CirclePile, Scale } from 'lucide-react'
+import { Inbox, User, CirclePile, Scale, NotepadTextDashed, Wrench } from 'lucide-react'
 
 export type RouterContext = {
   queryClient: QueryClient
@@ -22,6 +22,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
               CRM: [
                 { label: 'Solicitudes', path: '/inquiries', icon: <Inbox /> },
                 { label: 'Clientes', path: '/clients', icon: <User /> },
+              ],
+              Servicios: [
+                { label: 'Activos', path: '/services', icon: <Wrench /> },
+                { label: 'Plantillas', path: '/service_templates', icon: <NotepadTextDashed /> },
               ],
               Inventario: [
                 { label: 'Inventario', path: '/inventory', icon: <CirclePile /> },

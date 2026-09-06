@@ -5,7 +5,7 @@ import { toast } from '@/components/ui/toast.tsx'
 import type { Mutations } from '@/lib/mutations.tsx'
 import type { UseQueryResult } from '@tanstack/react-query'
 
-export const useTable =
+export const useCollection =
   <T extends Entity, FT extends object>
   (queryResult: UseQueryResult<NoInfer<T[]>, Error>, mutations: Mutations<T, FT>) =>
 {

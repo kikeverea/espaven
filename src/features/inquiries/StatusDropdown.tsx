@@ -33,7 +33,7 @@ const StatusDropdown = ({ inquiry }: { inquiry: Inquiry }) => {
       { status.pending.current(inquiry)
         ? <Spinner />
         : <DropdownMenu>
-            <DropdownMenuTrigger render={
+            <DropdownMenuTrigger nativeButton={ false } render={
               <div className='flex items-center group cursor-pointer'>
                 <Button
                   size="icon"

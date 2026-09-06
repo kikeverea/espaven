@@ -14,18 +14,18 @@ export const config = (unitsOfMeasure: UnitOfMeasure[]) => {
     name: {
       label: 'Nombre',
       schema: z.string().min(2, 'Mínimo 2 caracteres').max(48, 'Máximo 48 caracteres'),
-      step: "0.01"
     },
 
     unitOfMeasureId: {
       label: 'Unidad de medida',
-      schema: z.enum(unitIds.length ? unitIds as [string, ...string[]] : ['sin valores']).optional(),
+      schema: z.enum(unitIds.length ? unitIds as [string, ...string[]] : ['sin valores']),
       options: units
     },
 
     price: {
+      schema: z.coerce.number().min(0, 'No puede ser menor de 0'),
       label: 'Precio',
-      schema: z.coerce.number().min(0, 'No puede ser menor de 0').optional()
+      step: '0.01'
     },
 
     stock: {

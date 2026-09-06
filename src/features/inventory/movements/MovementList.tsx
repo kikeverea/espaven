@@ -6,7 +6,7 @@ import { timeString } from '@/lib/strings.ts'
 import Table from '@/components/Table/Table.tsx'
 import TableSkeleton from '@/components/Table/TableSkeleton.tsx'
 import { useInventoryItemMovementMutations, useItemMovements } from '@/features/inventory/useItemMovements.tsx'
-import { useTable } from '@/components/Table/useTable.tsx'
+import { useCollection } from '@/components/Table/useCollection.tsx'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils.ts'
 import { ArrowDown, ArrowUp, X } from 'lucide-react'
@@ -19,7 +19,7 @@ type MovementListProps = FormCallbacks & {
 
 const List = ({ item }: { item: InventoryItem } ) => {
   const { collection: movements = [], isLoading } =
-    useTable(useItemMovements(item), useInventoryItemMovementMutations(item))
+    useCollection(useItemMovements(item), useInventoryItemMovementMutations(item))
 
   const columns: TableColumn<InventoryMovement>[] = [
     { name: 'Movimiento', accessor: 'movement', presenter: movementBadge },

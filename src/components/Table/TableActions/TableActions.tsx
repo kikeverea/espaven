@@ -8,16 +8,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { type JSX } from 'react'
 import type { RowData, TableAction } from '@/components/Table/types.ts'
-import type { Dictionary } from '@/types.ts'
+import type { Dictionary, Entity } from '@/types.ts'
 
 import { EllipsisVertical } from 'lucide-react'
 
-type TableActionsProps = {
+type TableActionsProps<T extends Entity> = {
   actions: TableAction[],
-  row: RowData
+  row: RowData<T>
 }
 
-export function TableActions({ actions = [], row }: TableActionsProps): JSX.Element {
+export function TableActions<T extends Entity>({ actions = [], row }: TableActionsProps<T>): JSX.Element {
 
   const { regular, destructive } = actions.reduce((result, action) => {
     if (action.destructive)

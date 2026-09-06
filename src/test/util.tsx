@@ -1,16 +1,22 @@
 import type { ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import {
+  createMemoryHistory,
+  createRouter,
+  RouterContextProvider,
+} from '@tanstack/react-router'
 import { render as rtlRender } from '@testing-library/react'
+import { routeTree } from '@/routeTree.gen'
 
 export function render(children: ReactNode) {
-  const client = new QueryClient({
+  const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         retry: false,
-        staleTime: 0,                 // everything is stale immediately
-        refetchOnMount: 'always',     // force refetch even with initialData
+        staleTime: 0,
+        refetchOnMount: 'always',
         refetchOnWindowFocus: false,
-        gcTime: Infinity
+        gcTime: Infinity,
       },
       mutations: {
         retry: false,
@@ -18,5 +24,19 @@ export function render(children: ReactNode) {
     },
   })
 
-  return rtlRender(<QueryClientProvider client={client}>{children}</QueryClientProvider>)
+  const router = createRouter({
+    routeTree,
+    context: { queryClient },
+    history: createMemoryHistory({
+      initialEntries: ['/'],
+    }),
+  })
+
+  return rtlRender(
+    <QueryClientProvider client={queryClient}>
+      <RouterContextProvider router={router}>
+        {children}
+      </RouterContextProvider>
+    </QueryClientProvider>
+  )
 }

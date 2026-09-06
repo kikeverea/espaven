@@ -5,7 +5,7 @@ import Table from '@/components/Table/Table'
 import type { TableColumn } from '@/components/Table/types.ts'
 import type { Inquiry } from '@/features/inquiries/types.ts'
 
-describe('InquiriesIndex', () => {
+describe('ServiceTemplatesIndex', () => {
 
   const { inquiry } = createFactories()
 

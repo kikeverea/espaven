@@ -4,7 +4,7 @@ import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import type { UseMutateFunction } from '@tanstack/react-query'
 import type { ButtonVariants } from '@/components/ui/button.tsx'
 
-type StandardTableColumn<T extends Entity> = {
+export type StandardTableColumn<T extends Entity> = {
   name: string
   accessor: keyof T | ((item: T) => Primitive | Primitive[])
   blink?: (item: T) => boolean
@@ -12,13 +12,14 @@ type StandardTableColumn<T extends Entity> = {
   className?: string
   headerClassName?: string
   onClick?: (id: number) => void
+  link?: (id: number) => string
 
   key?: never
   header?: never
   component?: never
 }
 
-type CustomTableColumn = {
+export type CustomTableColumn = {
   header: () => ReactNode
   component: () => ReactNode
   key: string | number

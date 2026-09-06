@@ -11,12 +11,14 @@ import { Plus, X } from 'lucide-react'
 import InquiryForm from '@/features/inquiries/InquiryForm.tsx'
 import NavBar from '@/components/NavBar/NavBar.tsx'
 import { toast } from '@/components/ui/toast.tsx'
-import { useTable } from '@/components/Table/useTable.tsx'
+import { useCollection } from '@/components/Table/useCollection.tsx'
 
 const InquiriesIndex = () => {
 
-  const { collection: inquiries = [], formItem, selectedItem, remove, removeAll } =
-    useTable(useInquiries('active'), useInquiryMutations())
+  const { collection: inquiries = [], formItem, selectedItem, remove, removeAll } = useCollection(
+    useInquiries('active'),
+    useInquiryMutations()
+  )
 
   const columns: TableColumn<Inquiry>[] = [
     { name: 'Nombre',

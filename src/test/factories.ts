@@ -1,6 +1,8 @@
 import type { Contact, Inquiry, User } from '@/features/inquiries/types'
 import type { UnitOfMeasure } from '@/features/unitsOfMeasure/types'
 import type { Comment } from '@/features/comments/types'
+import type { ServiceTemplate } from '@/features/serviceTemplates/types.ts'
+import type { InventoryItem } from '@/features/inventory/types.ts'
 
 export const createFactories = () => {
   const ids = {
@@ -9,6 +11,7 @@ export const createFactories = () => {
     inquiry: 1,
     comment: 1,
     unitOfMeasure: 1,
+    serviceTemplate: 1,
   }
 
   const now = () => new Date().toISOString()
@@ -26,8 +29,8 @@ export const createFactories = () => {
     id: ids.contact++,
     name: 'Test',
     lastName: 'Contact',
-    emails: ['test@contact.com'],
-    phoneNumbers: ['555 555 555'],
+    emails: [{ address: 'test@contact.com', primary: true }],
+    phoneNumbers: [{ number: '555 555 555', primary: true }],
     createdAt: now(),
     ...args,
   })
@@ -59,5 +62,24 @@ export const createFactories = () => {
     ...args
   })
 
-  return { contact, comment, inquiry, user, unitOfMeasure }
+  const inventoryItem = (args: Partial<InventoryItem> = {}) => ({
+    name: 'Test item 1',
+    stock: 15,
+    sku: 'SKUT',
+    unitOfMeasure: unitOfMeasure(),
+    priceCents: 2000,
+    ...args
+  })
+
+
+  const serviceTemplate = (args: Partial<ServiceTemplate> = {}): ServiceTemplate => ({
+    id: ids.serviceTemplate++,
+    name: 'Template 1',
+    expectedMinutes: 60,
+    priceCents: 2000,
+    createdAt: now(),
+    ...args
+  })
+
+  return { contact, comment, inquiry, user, inventoryItem, unitOfMeasure, serviceTemplate }
 }

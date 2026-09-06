@@ -1,6 +1,7 @@
 import * as z from 'zod'
-import { config } from '@/features/inquiries/data/inquiry.form.ts'
-import { extractSchema } from '@/components/Form/Form.tsx'
+import { config } from '@/features/inquiries/data/inquiry.form'
+import { extractSchema } from '@/components/Form/util'
+
 const formSchema = extractSchema(config)
 
 describe('inquiryFormSchema', () => {
