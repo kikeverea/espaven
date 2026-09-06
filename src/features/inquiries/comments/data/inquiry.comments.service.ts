@@ -1,5 +1,5 @@
 import type { FormInquiryComment, Inquiry, InquiryComment } from '@/features/inquiries/types.ts'
-import { api } from '@/api/apiClient.ts'
+import { api } from '@/api/apiClient'
 import commentMapper from '@/features/comments/data/comment.mapper'
 
 const { apiFetch } = api(commentMapper<InquiryComment>('inquiry'))

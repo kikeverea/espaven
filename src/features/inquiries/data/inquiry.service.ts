@@ -1,5 +1,5 @@
-import type { Inquiry } from '../types.ts'
-import { api } from '@/api/apiClient.ts'
+import type { Inquiry } from '../types'
+import { api } from '@/api/apiClient'
 import { mapperFactory } from './inquiry.mapper.ts'
 
 const { apiFetch, fetch } = api(mapperFactory())

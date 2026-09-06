@@ -1,4 +1,4 @@
-import type { ApiMapper } from '@/api/apiClient.ts'
+import type { ApiMapper } from '@/api/apiClient'
 import type { Inquiry } from '@/features/inquiries/types.ts'
 import { type ForbiddenApiFields, prepareForApi } from '@/api/entity.mapper.ts'
 

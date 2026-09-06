@@ -7,7 +7,7 @@ export type InventoryItem = PersistedRecord & {
   sku?: string
   unitOfMeasure: UnitOfMeasure
   priceCents: number
-  observations: string
+  observations?: string
 }
 export type FormInventoryItem = Partial<InventoryItem> & Record<string, unknown>
 

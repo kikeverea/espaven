@@ -1,5 +1,5 @@
 import type { FormUnitOfMeasure, UnitOfMeasure } from '../types'
-import { api } from '@/api/apiClient.ts'
+import { api } from '@/api/apiClient'
 
 const { apiFetch, fetch } = api()
 

@@ -1,5 +1,5 @@
-import type { ServiceTemplate } from '../types.ts'
-import { api } from '@/api/apiClient.ts'
+import type { ServiceTemplate } from '../types'
+import { api } from '@/api/apiClient'
 
 const { apiFetch, fetch } = api()
 

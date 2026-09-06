@@ -2,7 +2,7 @@ import { Field, FieldError } from '@/components/ui/field'
 import { Checkbox } from '@/components/ui/checkbox'
 
 import type { ComponentProps } from 'react'
-import type { FieldValues, Path } from "react-hook-form"
+import { Controller, type FieldValues, type Path } from 'react-hook-form'
 import type { FormFieldProps } from '@/components/Form/types.ts'
 import FormLabel from '@/components/Form/FormLabel.tsx'
 
@@ -26,7 +26,22 @@ const FormCheckbox = <T extends FieldValues>({
   return (
     <Field data-invalid={invalid} className='py-2'>
       <Field orientation="horizontal">
-        <Checkbox id={id} name={name} />
+        <Controller
+          control={form.control}
+          name={name}
+          render={({ field }) => (
+            <Checkbox
+              id={id}
+              name={field.name}
+              inputRef={field.ref}
+              checked={field.value ?? false}
+              onCheckedChange={field.onChange}
+              onBlur={field.onBlur}
+              disabled={field.disabled}
+              aria-invalid={invalid}
+            />
+          )}
+        />
         <FormLabel label={ label } required={ required } htmlFor={ id }/>
       </Field>
 

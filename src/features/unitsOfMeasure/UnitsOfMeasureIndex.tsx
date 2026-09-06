@@ -64,8 +64,8 @@ const UnitsOfMeasureIndex = () => {
               noEntriesMessage='No hay unidades'
               selectable={ true }
               actions={[
-                { label: "Editar", icon: <Pencil />, action: unitOfMeasure => setFormUnitOfMeasure(findById(unitsOfMeasure, unitOfMeasure.id)) },
-                { label: "Eliminar", icon: <Trash />, action: unitOfMeasure => removeUnitOfMeasure(unitOfMeasure.id), destructive: true },
+                { label: "Editar", icon: <Pencil />, action: id => setFormUnitOfMeasure(findById(unitsOfMeasure, id)) },
+                { label: "Eliminar", icon: <Trash />, action: id => removeUnitOfMeasure(id), destructive: true },
               ]}
               selectionActions={removeAll
                 ? [{

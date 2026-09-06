@@ -46,7 +46,7 @@ export function TableActions<T extends Entity>({ actions = [], row }: TableActio
         )}
         { !!destructive.length && <DropdownMenuSeparator /> }
         { destructive.map(action =>
-          <DropdownMenuItem variant='destructive' className='p-0 cursor-pointer' onClick={ () => action.action(row.id) }>
+          <DropdownMenuItem key={action.label} variant='destructive' className='p-0 cursor-pointer' onClick={ () => action.action(row.id) }>
             <div className='flex gap-2 px-2 py-2 w-full'>
               { action.icon }
               <span className='text-xs'>{ action.label }</span>
