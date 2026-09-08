@@ -1,4 +1,4 @@
-import api from '@/features/inquiries/comments/data/inquiry.comments.service'
+import api from '@/features/inquiries/comments/data/inquiryComment.api'
 import { useMutations } from '@/lib/mutations'
 import { useQuery } from '@tanstack/react-query'
 import type { Inquiry, InquiryComment, FormInquiryComment } from '@/features/inquiries/types'

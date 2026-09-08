@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import api from './data/serviceTemplates.service.ts'
+import api from './data/serviceTemplate.api.ts'
 import type { ServiceTemplate } from '@/features/serviceTemplates/types.ts'
 import ServiceTemplateItem from '@/features/serviceTemplates/ServiceTemplateItem.tsx'
 

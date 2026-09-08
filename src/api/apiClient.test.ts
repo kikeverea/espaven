@@ -107,7 +107,7 @@ describe('collectionQuery', () => {
   })
 })
 
-describe('genericPart.service', () => {
+describe('genericPart.api', () => {
 
   afterEach(() => { vi.restoreAllMocks() })
 
@@ -117,7 +117,7 @@ describe('genericPart.service', () => {
         { status: 200, headers: { 'Content-Type': 'application/json' } })
     )
 
-    const service = (await import('@/features/genericParts/data/genericPart.service')).default
+    const service = (await import('@/features/genericParts/data/genericPart.api')).default
     await service.getAll({ page: 3, perPage: 25, sort: { column: 'categoría', key: 'category' } })
 
     expect(fetchSpy.mock.calls[0][0])

@@ -1,5 +1,5 @@
 import { type Inquiry, type FormInquiry } from './types.ts'
-import api from '@/features/inquiries/data/inquiry.service.ts'
+import api from '@/features/inquiries/data/inquiry.api.ts'
 import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
 import { useQuery } from '@tanstack/react-query'
 

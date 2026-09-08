@@ -3,7 +3,7 @@ import {
   type InventoryMovement,
   type FormInventoryMovement
 } from './types.ts'
-import api from '@/features/inventory/movements/data/movements.service'
+import api from '@/features/inventory/movements/data/movement.api'
 import { useMutations } from '@/lib/mutations.tsx'
 import { useQuery } from '@tanstack/react-query'
 

@@ -1,5 +1,5 @@
 import { type InventoryCategory, type FormInventoryCategory } from './types.ts'
-import api from '@/features/inventoryCategories/data/inventoryCategory.service.ts'
+import api from '@/features/inventoryCategories/data/inventoryCategory.api.ts'
 import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
 import { useQuery } from '@tanstack/react-query'
 

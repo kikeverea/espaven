@@ -1,5 +1,5 @@
 import { type UnitOfMeasure, type FormUnitOfMeasure } from './types.ts'
-import api from '@/features/unitsOfMeasure/data/units.service.ts'
+import api from '@/features/unitsOfMeasure/data/unitOfMeasure.api.ts'
 import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
 import { useQuery } from '@tanstack/react-query'
 

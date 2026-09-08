@@ -1,5 +1,5 @@
 import { type ServiceTemplate, type FormServiceTemplate } from './types'
-import api from '@/features/serviceTemplates/data/serviceTemplates.service'
+import api from '@/features/serviceTemplates/data/serviceTemplate.api'
 import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
 import { useQuery } from '@tanstack/react-query'
 

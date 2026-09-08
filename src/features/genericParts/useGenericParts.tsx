@@ -1,5 +1,5 @@
 import { type GenericPart, type FormGenericPart } from './types.ts'
-import api from '@/features/genericParts/data/genericPart.service.ts'
+import api from '@/features/genericParts/data/genericPart.api.ts'
 import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import type { TableQuery } from '@/components/Table/hooks/useTableQuery'
