@@ -12,6 +12,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
 
+const Generic_partsIndexLazyRouteImport = createFileRoute('/generic_parts/')()
 const InquiriesIndexLazyRouteImport = createFileRoute('/inquiries/')()
 const InventoryIndexLazyRouteImport = createFileRoute('/inventory/')()
 const Inventory_categoriesIndexLazyRouteImport = createFileRoute(
@@ -29,6 +30,13 @@ const Service_templatesNewIndexLazyRouteImport = createFileRoute(
   '/service_templates/new/',
 )()
 
+const Generic_partsIndexLazyRoute = Generic_partsIndexLazyRouteImport.update({
+  id: '/generic_parts/',
+  path: '/generic_parts/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/generic_parts/index.lazy').then((d) => d.Route),
+)
 const InquiriesIndexLazyRoute = InquiriesIndexLazyRouteImport.update({
   id: '/inquiries/',
   path: '/inquiries/',
@@ -85,6 +93,7 @@ const Service_templatesNewIndexLazyRoute =
   )
 
 export interface FileRoutesByFullPath {
+  '/generic_parts/': typeof Generic_partsIndexLazyRoute
   '/inquiries/': typeof InquiriesIndexLazyRoute
   '/inventory/': typeof InventoryIndexLazyRoute
   '/inventory_categories/': typeof Inventory_categoriesIndexLazyRoute
@@ -94,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/service_templates/new/': typeof Service_templatesNewIndexLazyRoute
 }
 export interface FileRoutesByTo {
+  '/generic_parts': typeof Generic_partsIndexLazyRoute
   '/inquiries': typeof InquiriesIndexLazyRoute
   '/inventory': typeof InventoryIndexLazyRoute
   '/inventory_categories': typeof Inventory_categoriesIndexLazyRoute
@@ -104,6 +114,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/generic_parts/': typeof Generic_partsIndexLazyRoute
   '/inquiries/': typeof InquiriesIndexLazyRoute
   '/inventory/': typeof InventoryIndexLazyRoute
   '/inventory_categories/': typeof Inventory_categoriesIndexLazyRoute
@@ -115,6 +126,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/generic_parts/'
     | '/inquiries/'
     | '/inventory/'
     | '/inventory_categories/'
@@ -124,6 +136,7 @@ export interface FileRouteTypes {
     | '/service_templates/new/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/generic_parts'
     | '/inquiries'
     | '/inventory'
     | '/inventory_categories'
@@ -133,6 +146,7 @@ export interface FileRouteTypes {
     | '/service_templates/new'
   id:
     | '__root__'
+    | '/generic_parts/'
     | '/inquiries/'
     | '/inventory/'
     | '/inventory_categories/'
@@ -143,6 +157,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  Generic_partsIndexLazyRoute: typeof Generic_partsIndexLazyRoute
   InquiriesIndexLazyRoute: typeof InquiriesIndexLazyRoute
   InventoryIndexLazyRoute: typeof InventoryIndexLazyRoute
   Inventory_categoriesIndexLazyRoute: typeof Inventory_categoriesIndexLazyRoute
@@ -154,6 +169,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/generic_parts/': {
+      id: '/generic_parts/'
+      path: '/generic_parts'
+      fullPath: '/generic_parts/'
+      preLoaderRoute: typeof Generic_partsIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inquiries/': {
       id: '/inquiries/'
       path: '/inquiries'
@@ -207,6 +229,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  Generic_partsIndexLazyRoute: Generic_partsIndexLazyRoute,
   InquiriesIndexLazyRoute: InquiriesIndexLazyRoute,
   InventoryIndexLazyRoute: InventoryIndexLazyRoute,
   Inventory_categoriesIndexLazyRoute: Inventory_categoriesIndexLazyRoute,

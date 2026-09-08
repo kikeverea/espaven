@@ -6,7 +6,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { queryClient } from '@/queryClient'
 import { Toaster } from "@/components/ui/toast"
 import { BlinkProvider } from '@/components/Blinker/BlinkContext.tsx'
-import { Inbox, User, CirclePile, Scale, NotepadTextDashed, Wrench, ChartBarStacked } from 'lucide-react'
+import { Inbox, User, CirclePile, Scale, NotepadTextDashed, Wrench, ChartBarStacked, Cog, PaintBucket } from 'lucide-react'
 
 export type RouterContext = {
   queryClient: QueryClient
@@ -30,8 +30,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
               Inventario: [
                 { label: 'Inventario', path: '/inventory', icon: <CirclePile /> },
                 { label: 'Categorías', path: '/inventory_categories', icon: <ChartBarStacked /> },
+                { label: 'Partes', path: '/generic_parts', icon: <Cog /> },
+                { label: 'Consumibles', path: '/consumables', icon: <PaintBucket /> },
                 { label: 'Uds. de medida', path: '/units_of_measure', icon: <Scale /> },
-              ]
+              ],
             }}/>
             <SidebarInset>
               <div className='h-full'>
