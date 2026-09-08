@@ -17,7 +17,7 @@ import SideTray from '@/components/SideTray/SideTray.tsx'
 const InventoryIndex = () => {
 
   const { collection: inventory = [], formItem, selectedItem, remove, removeAll } =
-    useCollection(useInventory(), useInventoryItemMutations())
+    useCollection('Artículo', useInventory(), useInventoryItemMutations())
 
   const columns: TableColumn<InventoryItem>[] = [
     { name: 'Nombre',

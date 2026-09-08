@@ -5,7 +5,7 @@ import Table from '@/components/Table/Table'
 import type { TableColumn } from '@/components/Table/types.ts'
 import type { InventoryCategory } from '@/features/inventoryCategories/types.ts'
 
-describe('ServiceTemplatesIndex', () => {
+describe('InventoryCategories table', () => {
 
   const { inventoryCategory } = createFactories()
 
@@ -17,7 +17,7 @@ describe('ServiceTemplatesIndex', () => {
   test('renders all categories', () => {
     const categories = [ inventoryCategory(), inventoryCategory({ appliesSigaus: true }) ]
 
-    render(<Table collection={ categories } columns={ columns }/>)
+    render(<Table collection={ categories } columns={ columns } selectable={ true }/>)
 
     const rows = screen.queryAllByRole('row')
     const dataRows = rows.slice(1)

@@ -1,9 +1,12 @@
-import { type ReactNode, useMemo, useReducer } from 'react'
+import { type ReactNode, useMemo, useReducer, useState } from 'react'
 import { mapToData, filterData } from './processors/dataProcessor'
-import useSort from './hooks/useSort'
+import useSort, { nextSort } from './hooks/useSort'
 import usePagination from './hooks/usePagination'
 import TablePaginator from '@/components/Table/TablePaginator/TablePaginator'
-import { sortAndPaginateData } from './processors/dataSortAndPaginate'
+import TableToolbar from '@/components/Table/TableToolbar/TableToolbar'
+import useDebouncedCallback from '@/components/Table/hooks/useDebouncedCallback'
+import { sortData } from './processors/dataSort'
+import { paginateData } from './processors/dataPaginate'
 import SortingHeader from '@/components/Table/SortingHeader/SortingHeader'
 import { normalized } from '@/lib/strings'
 import type { Entity } from '@/types.ts'
@@ -27,12 +30,13 @@ import ClickableCell from '@/components/Table/ClickableCell/ClickableCell.tsx'
 const Table = <T extends Entity>(
 {
   collection=[],
+  server,
   columns,
   search,
   filter,
   sortBy,
   paginate,
-  page: currentPage,
+  page: initialPage,
   noEntriesMessage,
   selectable=false,
   onSelectionChange,
@@ -40,25 +44,42 @@ const Table = <T extends Entity>(
   actions,
   selectionActions,
   blink,
+  isLoading,
   ...props
 }: TableProps<T>) => {
 
-  if (!collection)
+  if (!collection || isLoading)
     return <TableSkeleton colCount={ columns.length }/>
+
+  const [searchTerm, setSearchTerm] = useState(server?.search ?? search ?? '')
+  const [internalSort, setInternalSortColumn] = useSort(sortBy)
+  const [clientPagination, setItemsPerPage, setPage] = usePagination(paginate, initialPage || 0)
+  const [selection, dispatchSelection] = useReducer(selectionReducer<T>, [] as T['id'][])
 
   const tableData = useMemo<TableData<T>>(
     () => mapToData(collection, columns, blink),
     [collection, columns]
   )
 
+  // in server mode the api already searched: re-filtering here would only match the current page
   const filteredData = useMemo<TableData<T>>(
-    () => filterData(tableData, { search, filter }),
-    [tableData, search, filter]
+    () => server ? tableData : filterData(tableData, { search: searchTerm, filter }),
+    [tableData, searchTerm, filter, server]
   )
 
-  const [sort, setSortColumn] = useSort(sortBy)
-  const [pagination, setItemsPerPage, setPage] = usePagination(paginate, currentPage || 0)
-  const [selection, dispatchSelection] = useReducer(selectionReducer<T>, [] as T['id'][])
+  // in server mode the api sorted and sliced the rows already, the header only reports the change
+  const sort = server ? server.sort : internalSort
+
+  const setSortColumn = server
+    ? (columnName: string) => server.setSort({ ...nextSort(server.sort, columnName), key: sortKeyOf(columns, columnName) })
+    : setInternalSortColumn
+
+  // typing stays instant; only the request waits for the term to settle
+  useDebouncedCallback(searchTerm, SEARCH_DEBOUNCE_MS, term => server?.setSearch(term))
+
+  // the api knows how many rows there are in total, a client mode table has them all in hand
+  const recordCount = server?.pagination?.count ?? collection.length
+  const showToolbar = !!server || recordCount > SEARCH_THRESHOLD
 
   const applySelection = (type: SelectionTypes, isSelected: boolean, item?: RowData<T>) => {
     const action = type === 'SELECT_ALL'
@@ -69,11 +90,21 @@ const Table = <T extends Entity>(
     onSelectionChange?.(selectionReducer(selection, action))
   }
 
-  const rows = sortAndPaginateData(filteredData, { pagination, sort })
+  // sort before slicing: sorting a slice only orders the rows already on the page
+  const rows = server
+    ? filteredData
+    : paginateData(sortData(filteredData, sort), clientPagination)
   const hasActions = !!actions || !!selectionActions
 
   return (
     <div className={`rounded-lg border overflow-hidden bg-background ${props.className}`}>
+      { showToolbar &&
+        <TableToolbar
+          search={ searchTerm }
+          searchPlaceholder='Buscar'
+          onSearchChange={ setSearchTerm }
+        />
+      }
       <ShdcnTable className='text-[13px]'>
         <SortingHeader
           columns={ columns }
@@ -166,18 +197,38 @@ const Table = <T extends Entity>(
           }
         </TableBody>
       </ShdcnTable>
-      {
-        pagination && collection &&
-        <TablePaginator
-          pagination={ pagination }
-          setPage={ setPage }
-          setItemsPerPage={ setItemsPerPage }
-          collection={ collection }
-        />
+      { server
+        ? server.pagination &&
+          <TablePaginator
+            page={ server.pagination.page }
+            pages={ server.pagination.pages }
+            count={ server.pagination.count }
+            perPage={ server.pagination.perPage }
+            onPageChange={ server.setPage }
+            onItemsPerPageChange={ server.setPerPage }
+          />
+        : clientPagination &&
+          <TablePaginator
+            page={ clientPagination.page + 1 }
+            pages={ Math.ceil(collection.length / clientPagination.itemsPerPage) }
+            count={ collection.length }
+            perPage={ clientPagination.itemsPerPage }
+            onPageChange={ page => setPage(page - 1) }
+            onItemsPerPageChange={ setItemsPerPage }
+          />
       }
     </div>
   )
 }
+
+const SEARCH_DEBOUNCE_MS = 300
+
+/* Below this a table fits on one screen, and a search box is more clutter than help */
+const SEARCH_THRESHOLD = 15
+
+/* the column header names the sort for the user, `sortKey` names it for the api */
+const sortKeyOf = <T extends Entity>(columns: TableColumn<T>[], columnName: string): string | undefined =>
+  columns.find(column => normalized(column.name) === columnName)?.sortKey
 
 const cellValue = <T extends Entity> (column: TableColumn<T>, item: RowData<T>): ReactNode => {
   if (column.component)

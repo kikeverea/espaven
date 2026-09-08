@@ -19,7 +19,7 @@ type MovementListProps = FormCallbacks & {
 
 const List = ({ item }: { item: InventoryItem } ) => {
   const { collection: movements = [], isLoading } =
-    useCollection(useItemMovements(item), useInventoryItemMovementMutations(item))
+    useCollection('Movimiento', useItemMovements(item), useInventoryItemMovementMutations(item))
 
   const columns: TableColumn<InventoryMovement>[] = [
     { name: 'Movimiento', accessor: 'movement', presenter: movementBadge },

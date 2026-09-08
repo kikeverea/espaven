@@ -19,13 +19,14 @@ const InventoryCategoriesIndex = () => {
     remove,
     removeAll
   } = useCollection(
+    'Categoría',
     useInventoryCategories(),
     useInventoryCategoryMutations()
   )
 
   const columns: TableColumn<InventoryCategory>[] = [
     { name: 'Nombre', accessor: 'name' },
-    { name: 'SEGAUS',
+    { name: 'SIGAUS',
       accessor: 'appliesSigaus',
       presenter: applies => <BooleanBadge
         bool={applies === 'true'}
@@ -80,7 +81,8 @@ const InventoryCategoriesIndex = () => {
             <div className='lg:flex-1'>
               <InventoryCategoryForm
                 className="hidden lg:block lg:flex-1"
-                inventoryCategory={ formCategory.get() || {}} onCancel={() => formCategory.set(null)}
+                inventoryCategory={ formCategory.get() || {} }
+                onCancel={ () => formCategory.set(null) }
               />
             </div>
           </div>

@@ -1,11 +1,12 @@
 import type { FormInquiryComment, Inquiry, InquiryComment } from '@/features/inquiries/types.ts'
 import { api } from '@/api/apiClient'
 import commentMapper from '@/features/comments/data/comment.mapper'
+import type { EntityCollection } from '@/components/Table/useCollection.tsx'
 
 const { apiFetch } = api(commentMapper<InquiryComment>('inquiry'))
 
-const getComments = async (inquiry: Inquiry): Promise<InquiryComment[]> => {
-  return await apiFetch<InquiryComment[]>(`/inquiries/${inquiry.id}/comments`)
+const getComments = async (inquiry: Inquiry): Promise<EntityCollection<InquiryComment>> => {
+  return await apiFetch<EntityCollection<InquiryComment>>(`/inquiries/${inquiry.id}/comments`)
 }
 
 const createComment = async (comment: FormInquiryComment): Promise<InquiryComment> => {

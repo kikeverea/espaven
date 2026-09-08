@@ -21,7 +21,7 @@ const InventoryIndex = () => {
     selectedItem,
     remove,
     removeAll
-  } = useCollection(useServiceTemplates('active'), useServiceTemplateMutations())
+  } = useCollection('Plantilla', useServiceTemplates('active'), useServiceTemplateMutations())
 
   const columns: TableColumn<ServiceTemplate>[] = [
     { name: 'Nombre',

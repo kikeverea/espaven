@@ -1,4 +1,5 @@
 import { render, screen, within} from '@testing-library/react'
+import { useState } from 'react'
 import TableToolbar from './TableToolbar.tsx'
 import { defaultCollection, defaultFilterColumns, type TestData } from '@/lib/testUtils'
 import userEvent from '@testing-library/user-event'
@@ -31,12 +32,24 @@ describe('Table Toolbar', () => {
     test('Calls search change handler', async () => {
       const onSearchChangeMock = vi.fn()
 
-      render(<TableToolbar onSearchChange={ onSearchChangeMock }/>)
+      // the search box is controlled: its owner holds the term and feeds it back
+      const Controlled = () => {
+        const [search, setSearch] = useState('')
+        return (
+          <TableToolbar
+            search={ search }
+            onSearchChange={ term => { setSearch(term); onSearchChangeMock(term) } }
+          />
+        )
+      }
+
+      render(<Controlled />)
 
       const searchBar = screen.getByRole('textbox')
       await userEvent.type(searchBar, 'Hello')
 
-      expect(onSearchChangeMock).toHaveBeenCalledWith('Hello')
+      expect(onSearchChangeMock).toHaveBeenLastCalledWith('Hello')
+      expect(searchBar).toHaveValue('Hello')
     })
   })
 

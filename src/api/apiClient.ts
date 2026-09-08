@@ -1,6 +1,7 @@
 import { camelize, snakeCase } from '@/lib/strings.ts'
 import { type ForbiddenApiFields, prepareForApi } from '@/api/entity.mapper.ts'
 import type { Entity, PersistedRecord } from '@/types.ts'
+import type { EntityCollection } from '@/components/Table/useCollection.tsx'
 
 const API_URL = import.meta.env.API_URL ?? "http://localhost:3000"
 
@@ -11,6 +12,39 @@ export type ApiMapper<TDomain extends Entity, TApiIn, TApiOut extends object & F
 
 type ApiBody<T> = { body?: T }
 type ApiOptions<T> = Omit<RequestInit, 'body'> & ApiBody<T>
+
+export type CollectionQuery = {
+  page?: number
+  perPage?: number
+  search?: string
+  sort?: { key?: string, column: string, direction?: 'asc' | 'desc' }
+}
+
+export const collectionQuery = (query?: CollectionQuery): string => {
+  const params = new URLSearchParams()
+
+  if (query?.page)
+    params.set('page', String(query.page))
+
+  if (query?.perPage)
+    params.set('per_page', String(query.perPage))
+
+  const search = query?.search?.trim()
+
+  if (search)
+    params.set('search', search)
+
+  const sort = query?.sort
+  const sortColumn = sort?.key ?? sort?.column
+
+  if (sortColumn) {
+    params.set('sort', sortColumn)
+    params.set('direction', sort?.direction ?? 'asc')
+  }
+
+  const queryString = params.toString()
+  return queryString ? `?${queryString}` : ''
+}
 
 export function api<
   TDomain extends PersistedRecord, TApiIn, TApiOut extends object & ForbiddenApiFields
@@ -53,6 +87,14 @@ function mapFromApi<IN, OUT>(data: unknown, mapper?: (data: IN) => OUT): unknown
   if (Array.isArray(data))
     return data.map(item => mapFromApi(item, mapper))
 
+  if (isEntityCollection(data)) {
+    const { collection, ...meta } = data
+    return {
+      ...mapKeys(meta, camelize) as object,
+      collection: collection.map(item => mapFromApi(item, mapper)),
+    }
+  }
+
   const normalized = mapKeys(data, camelize) as IN
   return mapper ? mapper(normalized) : normalized
 }
@@ -78,6 +120,10 @@ function mapKeys(
 
 function isObject(data: unknown): data is object {
   return data !== null && typeof data === "object" && !Array.isArray(data)
+}
+
+function isEntityCollection(data: unknown): data is EntityCollection<Entity> {
+  return isObject(data) && 'collection' in data && Array.isArray(data.collection)
 }
 
 function normalizeBody<T>(options: ApiOptions<T>, mapper: ((o: T) => unknown)): RequestInit {

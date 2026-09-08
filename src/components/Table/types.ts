@@ -1,5 +1,5 @@
 import type { TableFilter } from '@/components/Table/TableFilter/types'
-import type { Entity, Primitive } from '@/types.ts'
+import type { Entity, Pagination, Primitive } from '@/types.ts'
 import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import type { UseMutateFunction } from '@tanstack/react-query'
 import type { ButtonVariants } from '@/components/ui/button.tsx'
@@ -7,6 +7,7 @@ import type { ButtonVariants } from '@/components/ui/button.tsx'
 export type StandardTableColumn<T extends Entity> = {
   name: string
   accessor: keyof T | ((item: T) => Primitive | Primitive[])
+  sortKey?: string            // what the api calls this column, when it is the one sorting
   blink?: (item: T) => boolean
   presenter?: DataPresenter<T>
   className?: string
@@ -26,6 +27,7 @@ export type CustomTableColumn = {
 
   name?: never
   accessor?: never
+  sortKey?: never
   presenter?: never
   className?: never
   headerClassName?: never
@@ -62,21 +64,56 @@ export type SelectionAction<T extends Entity> = {
   variant?: ButtonVariants
 }
 
-export type TableProps<T extends Entity> = ComponentProps<"div"> & {
-  collection?: T[]
-  columns: TableColumn<T>[],
-  search?: string,
-  filter?: TableFilter,
-  sortBy?: TableSort,
-  noEntriesMessage?: string,
-  paginate?: number,
-  page?: number,
-  selectable?: boolean,
-  onSelectionChange?: (selection: T['id'][]) => void,
-  actions?: TableAction[],
-  selectionActions?: SelectionAction<T>[],
-  selectedId?: Entity['id'] | null
-  blink?: (item: T) => boolean
+/*
+ * Everything the api decided for a server driven table: the slice it sent, the order it
+ * used, and the callbacks that ask it for a different one
+ */
+export type ServerTable = {
+  pagination?: Pagination
+  sort?: TableSort
+  search: string
+  setPage: (page: number) => void
+  setPerPage: (perPage: number) => void
+  setSearch: (search: string) => void
+  setSort: (sort: TableSort) => void
 }
 
-export type TableSort = { column: string, direction?: 'asc' | 'desc' }
+type BaseTableProps<T extends Entity> = ComponentProps<"div"> & {
+  collection?: T[]
+  columns: TableColumn<T>[]
+  noEntriesMessage?: string
+  selectable?: boolean
+  onSelectionChange?: (selection: T['id'][]) => void
+  actions?: TableAction[]
+  selectionActions?: SelectionAction<T>[]
+  selectedId?: Entity['id'] | null
+  blink?: (item: T) => boolean
+  isLoading?: boolean
+}
+
+/* The Table holds the whole collection, so it does the searching, sorting and paging itself */
+type ClientModeProps = {
+  server?: never
+  search?: string
+  filter?: TableFilter
+  sortBy?: TableSort
+  paginate?: number
+  page?: number
+}
+
+/*
+ * The api holds the collection and sent one page of it, so searching and sorting are its job.
+ * `filter` stays absent: applied here it would only ever match the rows of the current page
+ */
+type ServerModeProps = {
+  server?: ServerTable
+  search?: never
+  filter?: never
+  sortBy?: never
+  paginate?: never
+  page?: never
+}
+
+export type TableProps<T extends Entity> = BaseTableProps<T> & (ClientModeProps | ServerModeProps)
+
+export type TableSort = { column: string, direction?: 'asc' | 'desc', key?: string }

@@ -1,12 +1,15 @@
 import { api } from '@/api/apiClient'
 import type { FormInventoryMovement, InventoryItem, InventoryMovement } from '@/features/inventory/types'
 import { mapperFactory } from '@/features/inventory/movements/data/movement.mapper.ts'
+import type { EntityCollection } from '@/components/Table/useCollection.tsx'
 
 const { apiFetch, fetch } = api(mapperFactory())
 
-const getMovements = async (itemId: InventoryItem['id'] | undefined): Promise<InventoryMovement[]> => {
-  if (!itemId) return []
-  return await apiFetch<InventoryMovement[]>(`/inventory_items/${itemId}/inventory_movements`)
+const getMovements = async (itemId: InventoryItem['id'] | undefined):
+  Promise<EntityCollection<InventoryMovement>> =>
+{
+  if (!itemId) return { collection: [] }
+  return await apiFetch<EntityCollection<InventoryMovement>>(`/inventory_items/${itemId}/inventory_movements`)
 }
 
 const getMovement = async (itemId: InventoryItem['id'], id: InventoryMovement['id']): Promise<InventoryMovement> => {

@@ -10,6 +10,7 @@ import type { TableToolbarProps } from '@/components/Table/TableToolbar/types.ts
 const TableToolbar = (
 {
   filter,
+  search,
   showSearch=true,
   searchPlaceholder,
   onSearchChange=() => {},
@@ -25,6 +26,7 @@ const TableToolbar = (
           <input
             type='text'
             className={ styles.searchbar }
+            value={ search ?? '' }
             onChange={ e => onSearchChange(e.currentTarget.value) }
             aria-label='table search'
             placeholder={ searchPlaceholder || 'Search' }

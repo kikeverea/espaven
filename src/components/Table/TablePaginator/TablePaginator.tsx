@@ -1,81 +1,134 @@
-import type { Pagination } from '@/components/Table/TablePaginator/types.ts'
-import type { Dispatch } from 'react'
-import type { Entity } from '@/types.ts'
+import type { MouseEvent } from 'react'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 
-type TablePaginatorProps<T> = {
-  pagination: Pagination,
-  collection: T[],
-  setPage: Dispatch<number>,
-  setItemsPerPage: Dispatch<number>
+export const MAX_PAGE_LINKS = 6
+const PER_PAGE_OPTIONS = [10, 25, 50, 100]
+
+type TablePaginatorProps = {
+  page: number
+  pages: number
+  count: number
+  perPage: number
+  onPageChange: (page: number) => void
+  onItemsPerPageChange?: (itemsPerPage: number) => void
 }
 
-const TablePaginator = <T extends Entity>({ pagination, setPage, setItemsPerPage, collection }: TablePaginatorProps<T>) => {
+export const pageWindow = (page: number, pages: number, max: number = MAX_PAGE_LINKS): number[] => {
+  if (pages <= max)
+    return Array.from({ length: pages }, (_unused, ind) => ind + 1)
 
-  const { page=0, itemsPerPage } = pagination
+  const start = Math.min(
+    Math.max(1, page - Math.floor((max - 1) / 2)),
+    pages - max + 1
+  )
 
-  const handleLeftArrowClick = () => {
-    if (page > 0)
-      setPage(page - 1)
-  }
+  return Array.from({ length: max }, (_unused, ind) => start + ind)
+}
 
-  const handleRightArrowClick = () => {
-    if (page < collection.length - 1)
-      setPage(page + 1)
+const TablePaginator = (
+  { page, pages, count, perPage, onPageChange, onItemsPerPageChange }: TablePaginatorProps
+) => {
+
+  const pageLinks = pageWindow(page, pages)
+  const showArrows = pages > MAX_PAGE_LINKS
+
+  const goTo = (target: number) => (event: MouseEvent) => {
+    event.preventDefault()
+
+    if (target >= 1 && target <= pages && target !== page)
+      onPageChange(target)
   }
 
   const paginationInfoMessage = (): string => {
-    if (!collection)
-      return ''
+    if (!count)
+      return 'Sin resultados'
 
-    const paginationStart = page * itemsPerPage
-    const paginationEnd = Math.min(collection.length, paginationStart + itemsPerPage)
+    const start = (page - 1) * perPage
+    const end = Math.min(count, start + perPage)
 
-    return `Showing ${paginationStart + 1} to ${paginationEnd} of ${collection.length} records`
+    return `Showing ${start + 1} to ${end} of ${count} records`
   }
 
-  const pages = pagination
-    ? Math.ceil((collection?.length || 0) / itemsPerPage)
-    : 1
-
   return (
-    <div>
-      <span role="status" aria-live="polite">
+    <div className='flex flex-wrap items-center justify-between gap-2 border-t px-4 py-3'>
+      <span role='status' aria-live='polite' className='text-[13px] text-muted-foreground'>
         { paginationInfoMessage() }
       </span>
-      <nav aria-label="Pagination Navigation">
-        <ul>
+      <Pagination aria-label='Pagination Navigation' className='mx-0 w-auto justify-end'>
+        { onItemsPerPageChange &&
           <select
-            id="per-page-select"
-            name="per-page-select"
-            onChange={ (e) => setItemsPerPage(parseInt(e.currentTarget.value)) }
+            id='per-page-select'
+            name='per-page-select'
+            aria-label='Items per page'
+            value={ perPage }
+            className='me-2 rounded-md border bg-background px-2 py-1 text-[13px]'
+            onChange={ event => onItemsPerPageChange(parseInt(event.currentTarget.value)) }
           >
-            { itemsPerPage < 10 && <option value={ itemsPerPage }>{ pagination.itemsPerPage }</option> }
-            <option value="10">10</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
+            { !PER_PAGE_OPTIONS.includes(perPage) && <option value={ perPage }>{ perPage }</option> }
+            { PER_PAGE_OPTIONS.map(option =>
+              <option key={ option } value={ option }>{ option }</option>
+            )}
           </select>
-          { pages > 6 &&
-            <li onClick={ handleLeftArrowClick } aria-label='Go to previous page'>←</li>
+        }
+        <PaginationContent>
+          { showArrows &&
+            <PaginationItem>
+              <PaginationPrevious
+                href='#'
+                text='Anterior'
+                aria-label='Go to previous page'
+                aria-disabled={ page <= 1 }
+                className={ page <= 1 ? 'pointer-events-none opacity-50' : undefined }
+                onClick={ goTo(page - 1) }
+              />
+            </PaginationItem>
           }
-          { Array.from({ length: Math.min(pages, 6) }).map((_u, index: number) =>
-            <li
-              key={ index }
-              style={{ padding: '10px', backgroundColor: "#1A84FF", color: 'white', display: 'flex', gap: '16px' }}
-              aria-label={ `Go to page ${index + 1}` }
-              aria-current={ page === index }
-              onClick={() => setPage(index)}
-            >
-              { index + 1 }
-            </li>
+          { pageLinks[0] > 1 &&
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+          }
+          { pageLinks.map(pageNumber =>
+            <PaginationItem key={ pageNumber }>
+              <PaginationLink
+                href='#'
+                aria-label={ `Go to page ${pageNumber}` }
+                isActive={ pageNumber === page }
+                onClick={ goTo(pageNumber) }
+              >
+                { pageNumber }
+              </PaginationLink>
+            </PaginationItem>
           )}
-          { pages > 6 &&
-            <li onClick={ handleRightArrowClick } aria-label='Go to next page'>→</li>
+          { pageLinks[pageLinks.length - 1] < pages &&
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
           }
-        </ul>
-      </nav>
+          { showArrows &&
+            <PaginationItem>
+              <PaginationNext
+                href='#'
+                text='Siguiente'
+                aria-label='Go to next page'
+                aria-disabled={ page >= pages }
+                className={ page >= pages ? 'pointer-events-none opacity-50' : undefined }
+                onClick={ goTo(page + 1) }
+              />
+            </PaginationItem>
+          }
+        </PaginationContent>
+      </Pagination>
     </div>
   )
-
 }
 
 export default TablePaginator

@@ -35,7 +35,7 @@ describe('strings', () => {
     })
 
     test('snake case mixed', () => {
-      expect(snakeCase('this_is_Mixed string')).toBe('this_is_mixed')
+      expect(snakeCase('this_is_Mixed string')).toBe('this_is_mixed_string')
     })
   })
 

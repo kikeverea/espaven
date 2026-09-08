@@ -24,10 +24,10 @@ export const useInquiryCommentMutations = (inquiry: Inquiry) => {
 }
 
 export const useInquiryComments = (inquiry: Inquiry) => {
-  const { data: comments, isPending, isError } =
+  const { data, isPending, isError } =
     useQuery({ queryKey: ['inquiries', inquiry.id, 'comments'], queryFn: () => api.getComments(inquiry) })
 
-  return { comments, isPending, isError }
+  return { comments: data?.collection, isPending, isError }
 }
 
 function syncInquiry(comment: InquiryComment) {

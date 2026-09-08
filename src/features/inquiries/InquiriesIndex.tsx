@@ -16,6 +16,7 @@ import { useCollection } from '@/components/Table/useCollection.tsx'
 const InquiriesIndex = () => {
 
   const { collection: inquiries = [], formItem, selectedItem, remove, removeAll } = useCollection(
+    'Solicitud',
     useInquiries('active'),
     useInquiryMutations()
   )

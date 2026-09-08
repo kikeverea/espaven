@@ -1,7 +1,7 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Table from './Table.tsx'
-import type { TableColumn } from '@/components/Table/types'
+import type { ServerTable, TableColumn } from '@/components/Table/types'
 import type { FilterColumns } from '@/components/Table/TableToolbar/types'
 
 import type { TestData, UpdateFilterArgs } from '@/lib/testUtils.ts'
@@ -40,6 +40,9 @@ describe('Table', () => {
     { id: 6, name: 'Gold Fish', family: 'Fish', type: 'Pet', age: 3, birth: '2022-11-16' },
     { id: 7, name: 'Monkey', family: 'Primate', type: 'Wild', age: 5, birth: '2020-01-08' },
   ]
+
+  const pageLink = (page: number) =>
+    within(screen.getByLabelText('Pagination Navigation')).getByLabelText(`Go to page ${page}`)
 
   const filterColumns: FilterColumns = [ 'Family', 'Type', ['Age', 'range'], ['Birth', 'range', parseDate] ]
   const filterAnd = (args?: UpdateFilterArgs) => newFilter(filterColumns, args, longCollection)
@@ -106,7 +109,7 @@ describe('Table', () => {
 
       const headerCheckbox = within(header).getByRole('checkbox')
       const rowCheckboxes = within(body).getAllByRole('checkbox')
-      const rowCheckbox = rowCheckboxes[Math.round(Math.random() * rowCheckboxes.length)]
+      const rowCheckbox = rowCheckboxes[Math.floor(Math.random() * rowCheckboxes.length)]
 
       await userEvent.click(headerCheckbox)
       await userEvent.click(rowCheckbox)
@@ -130,17 +133,17 @@ describe('Table', () => {
         { icon: <i></i>, mutation: () => '', onSuccess: () => {} },
       ]}/>)
 
-      const noButtons = screen.queryAllByRole('button')
-      expect(noButtons).toHaveLength(0)
+      /* Mounted from the start, hidden until something is selected, so the header does not jump */
+      const [ hiddenAction ] = screen.getAllByRole('button')
+      expect(hiddenAction).toHaveClass('invisible')
 
       const [_header, body] = screen.getAllByRole('rowgroup')
       const rowCheckboxes = within(body).getAllByRole('checkbox')
-      const rowCheckbox = rowCheckboxes[Math.round(Math.random() * rowCheckboxes.length)]
+      const rowCheckbox = rowCheckboxes[Math.floor(Math.random() * rowCheckboxes.length)]
 
       await userEvent.click(rowCheckbox)
 
-      const buttons = screen.getByRole('button')
-      expect(buttons).toBeInTheDocument()
+      expect(screen.getByRole('button')).not.toHaveClass('invisible')
     })
 
     test('renders custom columns', () => {
@@ -319,7 +322,105 @@ describe('Table', () => {
       })
     })
 
-    describe('Pagination', () => {
+    describe('Search', () => {
+
+      const manyRows = (count: number): TestData[] =>
+        Array.from({ length: count }, (_unused, ind) => ({
+          id: ind + 1, name: `Animal ${ind + 1}`, family: 'Feline', type: 'Pet', age: ind, birth: '2015-07-14'
+        }))
+
+      const searchBox = () => screen.queryByLabelText('table search')
+
+      test('is hidden on a small client mode collection', () => {
+        render(<Table collection={ manyRows(15) } columns={ columns } />)
+
+        expect(searchBox()).not.toBeInTheDocument()
+      })
+
+      test('appears once a client mode collection passes the threshold', () => {
+        render(<Table collection={ manyRows(16) } columns={ columns } />)
+
+        expect(searchBox()).toBeInTheDocument()
+      })
+
+      test('always appears in server mode, however few rows came back', () => {
+        render(
+          <Table
+            collection={ collection }
+            columns={ columns }
+            server={{
+              pagination: { page: 1, pages: 1, count: 4, perPage: 25, next: null, prev: null },
+              search: '', setPage: vi.fn(), setPerPage: vi.fn(), setSearch: vi.fn(), setSort: vi.fn()
+            }}
+          />
+        )
+
+        expect(searchBox()).toBeInTheDocument()
+      })
+
+      test('counts the whole collection in server mode, not the rows on screen', () => {
+        // four rows on this page, but the api says there are 400: the box belongs there
+        render(
+          <Table
+            collection={ collection }
+            columns={ columns }
+            server={{
+              pagination: { page: 1, pages: 100, count: 400, perPage: 4, next: 2, prev: null },
+              search: '', setPage: vi.fn(), setPerPage: vi.fn(), setSearch: vi.fn(), setSort: vi.fn()
+            }}
+          />
+        )
+
+        expect(searchBox()).toBeInTheDocument()
+      })
+
+      test('filters locally in client mode', async () => {
+        render(<Table collection={ manyRows(16) } columns={ columns } />)
+
+        await userEvent.type(searchBox()!, 'Animal 16')
+
+        expect(getNameCellsContent()).toEqual(['Animal 16'])
+      })
+
+      test('hands the api the term that was typed', async () => {
+        const setSearch = vi.fn()
+
+        render(
+          <Table
+            collection={ collection }
+            columns={ columns }
+            server={{
+              pagination: { page: 1, pages: 17, count: 405, perPage: 25, next: 2, prev: null },
+              search: '', setPage: vi.fn(), setPerPage: vi.fn(), setSearch, setSort: vi.fn()
+            }}
+          />
+        )
+
+        await userEvent.type(searchBox()!, 'turbo')
+
+        // debounced: one call for the settled term, not one per keystroke
+        await waitFor(() => expect(setSearch).toHaveBeenCalledWith('turbo'))
+        expect(setSearch).toHaveBeenCalledTimes(1)
+      })
+
+      test('does not re-filter server results locally', async () => {
+        // the api sent these four rows as the answer for 'zzz'; the table must not second guess it
+        render(
+          <Table
+            collection={ collection }
+            columns={ columns }
+            server={{
+              pagination: { page: 1, pages: 1, count: 4, perPage: 25, next: null, prev: null },
+              search: 'zzz', setPage: vi.fn(), setPerPage: vi.fn(), setSearch: vi.fn(), setSort: vi.fn()
+            }}
+          />
+        )
+
+        expect(dataRows()).toHaveLength(collection.length)
+      })
+    })
+
+    describe('Client mode', () => {
 
       test('paginates data', () => {
         render(<Table collection={ collection } columns={ columns } paginate={ 2 }/>)
@@ -327,13 +428,10 @@ describe('Table', () => {
         expect(getNameCellsContent()).toEqual(['Cat', 'Dog'])
       })
 
-      test('render the selected page data', async () => {
+      test('renders the selected page data', async () => {
         render(<Table collection={ collection } columns={ columns } paginate={ 2 }/>)
 
-        const paginationNavigation = screen.getByLabelText('Pagination Navigation')
-        const pageNumbers = within(paginationNavigation).getAllByRole('listitem')
-
-        await userEvent.click(pageNumbers[1])
+        await userEvent.click(pageLink(2))
 
         expect(getNameCellsContent()).toEqual(['Lion', 'Sea Lion'])
       })
@@ -341,37 +439,152 @@ describe('Table', () => {
       test('left arrow navigates to previous page', async () => {
         render(<Table collection={ longCollection } columns={ columns } paginate={ 1 } page={ 4 } />)
 
-        const paginationNavigation = screen.getByLabelText('Pagination Navigation')
+        await userEvent.click(screen.getByLabelText('Go to previous page'))
 
-        const leftArrow = within(paginationNavigation).getByLabelText('Go to previous page')
-        await userEvent.click(leftArrow)
-
-        const expectedPage = 3
-        expect(getNameCellsContent()).toEqual([longCollection[expectedPage].name])
+        expect(getNameCellsContent()).toEqual([longCollection[3].name])
       })
 
       test('right arrow navigates to next page', async () => {
         render(<Table collection={ longCollection } columns={ columns } paginate={ 1 } page={ 4 } />)
 
-        const paginationNavigation = screen.getByLabelText('Pagination Navigation')
+        await userEvent.click(screen.getByLabelText('Go to next page'))
 
-        const rightArrow = within(paginationNavigation).getByLabelText('Go to next page')
-        await userEvent.click(rightArrow)
-
-        const expectedPage = 5
-        expect(getNameCellsContent()).toEqual([longCollection[expectedPage].name])
+        expect(getNameCellsContent()).toEqual([longCollection[5].name])
       })
 
       test('selecting items per page renders that amount of items', async () => {
         render(<Table collection={ longCollection } columns={ columns } paginate={ 2 } />)
 
-        const paginationNavigation = screen.getByLabelText('Pagination Navigation')
-        const itemsPerPageSelect = within(paginationNavigation).getByRole('combobox')
+        await userEvent.selectOptions(screen.getByRole('combobox'), '10')
 
-        await userEvent.selectOptions(itemsPerPageSelect, '10')
+        expect(dataRows()).toHaveLength(Math.min(longCollection.length, 10))
+      })
 
-        const rows = dataRows()
-        expect(rows).toHaveLength(Math.min(longCollection.length, 10))
+      test('sorts the whole collection before paging it, not just the page', async () => {
+        render(
+          <Table collection={ longCollection } columns={ columns } sortBy={{ column: 'family' }} paginate={ 2 } />
+        )
+
+        // 'Dog' and 'Red Fox' are both Canine: the first two of the sorted collection,
+        // not the first two rows of page one sorted among themselves
+        expect(getNameCellsContent()).toEqual(['Dog', 'Red Fox'])
+      })
+
+      test('counts the whole collection in the pagination info', () => {
+        render(<Table collection={ longCollection } columns={ columns } paginate={ 2 } />)
+
+        expect(screen.getByRole('status').textContent)
+          .toBe(`Showing 1 to 2 of ${longCollection.length} records`)
+      })
+    })
+
+    describe('Server mode', () => {
+
+      // the api already sliced this page out of a much bigger collection
+      const pagination = { page: 2, pages: 17, count: 405, perPage: 25, next: 3, prev: 1 }
+
+      const serverTable = (overrides: Partial<ServerTable> = {}): ServerTable => ({
+        pagination,
+        search: '',
+        setPage: vi.fn(),
+        setPerPage: vi.fn(),
+        setSearch: vi.fn(),
+        setSort: vi.fn(),
+        ...overrides
+      })
+
+      const sortableColumns: TableColumn<TestData>[] = [
+        { name: 'Name', accessor: 'name', sortKey: 'animals.name' },
+        { name: 'Family', accessor: item => item.family }
+      ]
+
+      test('renders every row it was given, without slicing them again', () => {
+        render(<Table collection={ longCollection } columns={ columns } server={ serverTable() } />)
+
+        expect(dataRows()).toHaveLength(longCollection.length)
+      })
+
+      test('reports the position of the page inside the whole collection', () => {
+        render(<Table collection={ longCollection } columns={ columns } server={ serverTable() } />)
+
+        expect(screen.getByRole('status').textContent).toBe('Showing 26 to 50 of 405 records')
+      })
+
+      test('asks the api for a new page instead of paging locally', async () => {
+        const setPage = vi.fn()
+        render(<Table collection={ longCollection } columns={ columns } server={ serverTable({ setPage }) } />)
+
+        await userEvent.click(pageLink(4))
+
+        expect(setPage).toHaveBeenCalledWith(4)
+        expect(dataRows()).toHaveLength(longCollection.length)     // still the page the api gave us
+      })
+
+      test('asks the api for a new page size', async () => {
+        const setPerPage = vi.fn()
+        render(<Table collection={ longCollection } columns={ columns } server={ serverTable({ setPerPage }) } />)
+
+        await userEvent.selectOptions(screen.getByRole('combobox'), '100')
+
+        expect(setPerPage).toHaveBeenCalledWith(100)
+      })
+
+      test('reports the clicked column with the key the api knows it by', async () => {
+        const setSort = vi.fn()
+        render(
+          <Table collection={ longCollection } columns={ sortableColumns } server={ serverTable({ setSort }) } />
+        )
+
+        await userEvent.click(screen.getAllByRole('columnheader')[0])
+
+        expect(setSort).toHaveBeenCalledWith({ column: 'name', key: 'animals.name' })
+      })
+
+      test('falls back to the column name when it declares no api key', async () => {
+        const setSort = vi.fn()
+        render(
+          <Table collection={ longCollection } columns={ sortableColumns } server={ serverTable({ setSort }) } />
+        )
+
+        await userEvent.click(screen.getAllByRole('columnheader')[1])
+
+        expect(setSort).toHaveBeenCalledWith({ column: 'family', key: undefined })
+      })
+
+      test('flips the direction when the sorted column is clicked again', async () => {
+        const setSort = vi.fn()
+        render(
+          <Table
+            collection={ longCollection }
+            columns={ sortableColumns }
+            server={ serverTable({ setSort, sort: { column: 'name', direction: 'asc' } }) }
+          />
+        )
+
+        await userEvent.click(screen.getAllByRole('columnheader')[0])
+
+        expect(setSort).toHaveBeenCalledWith({ column: 'name', direction: 'desc', key: 'animals.name' })
+      })
+
+      test('leaves the rows in the order the api sent them', () => {
+        render(
+          <Table
+            collection={ longCollection }
+            columns={ sortableColumns }
+            server={ serverTable({ sort: { column: 'name', direction: 'asc' } }) }
+          />
+        )
+
+        // the api sorts, so the rows stay put until it answers with a new page
+        expect(getNameCellsContent()).toEqual(longCollection.map(item => item.name))
+      })
+
+      test('renders no paginator until the api sends pagination', () => {
+        render(
+          <Table collection={ longCollection } columns={ columns } server={ serverTable({ pagination: undefined }) } />
+        )
+
+        expect(screen.queryByLabelText('Pagination Navigation')).not.toBeInTheDocument()
       })
     })
 
@@ -437,10 +650,10 @@ describe('Table', () => {
         expect(getNameCellsContent()).toEqual(['Sea Lion', 'Lion'])
       })
 
-      test('sorts a filtered, paginated collection', () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'family' }} paginate={ 2 } />)
+      test('sorts by the initial sort column', () => {
+        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'family' }} />)
 
-        expect(getNameCellsContent()).toEqual(['Dog', 'Cat'])
+        expect(getNameCellsContent()).toEqual(['Dog', 'Cat', 'Lion', 'Sea Lion'])
       })
 
       test('sorts the table by the clicked header', async () => {
@@ -461,10 +674,11 @@ describe('Table', () => {
         expect(getNameCellsContent()).toEqual(['Sea Lion', 'Cat', 'Lion', 'Dog'])
       })
 
-      test('sorts a paginated collection', () => {
-        render( <Table collection={ longCollection } columns={ columns } sortBy={{ column: 'family' }} paginate={ 2 } />)
+      test('sorts the whole collection', () => {
+        render( <Table collection={ longCollection } columns={ columns } sortBy={{ column: 'family' }} />)
 
-        expect(getNameCellsContent()).toEqual(['Dog', 'Cat'])
+        expect(getNameCellsContent())
+          .toEqual(['Dog', 'Red Fox', 'Cat', 'Lion', 'Gold Fish', 'Monkey', 'Sea Lion'])
       })
     })
   })

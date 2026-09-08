@@ -4,7 +4,16 @@ export type Entity = { id: number } & Record<string, unknown>
 
 export type Primitive = string | number
 
-export type Dictionary<T> = { [key: string]: T}
+export type Dictionary<T> = { [key: string]: T }
+
+export type Pagination = {
+  page: number
+  pages: number
+  count: number
+  perPage: number
+  next: number | null
+  prev: number | null
+}
 
 export type EntityKeys<T> = {
   [K in keyof T]:
