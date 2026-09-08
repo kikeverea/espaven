@@ -15,7 +15,7 @@ type SortingHeaderProps<T extends Entity> = {
   setSortColumn: (name: string)=> void,
   selectable?: boolean
   selection?: T['id'][]
-  hasActions: boolean
+  hasActions?: boolean
   onSelectedChange?: (selected: boolean) => void
   selectionActions?: SelectionAction<T>[]
 }
