@@ -1,6 +1,5 @@
 
 import type { Dispatch } from 'react'
-import type { Dictionary } from '@/types.ts'
 
 export type FilterParser = (value: any) => number | null
 
@@ -10,7 +9,7 @@ export type TableFilterProps = {
   onCloseFilter: () => void
 }
 
-export type TableFilter = Dictionary<CheckboxesFilter | RangeFilter>
+export type TableFilter = Record<string, CheckboxesFilter | RangeFilter>
 
 export type CheckboxesFilter = {
   values: string[],

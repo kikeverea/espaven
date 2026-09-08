@@ -1,5 +1,5 @@
 import type { FilterAction, FilterParser, TableFilter } from '@/components/Table/TableFilter/types.ts'
-import type { Dictionary } from '@/types.ts'
+import type { Entity } from '@/types.ts'
 import type { Dispatch } from 'react'
 
 export type RangeFilterColumn = [string, 'range', FilterParser?]
@@ -7,7 +7,7 @@ export type RangeFilterColumn = [string, 'range', FilterParser?]
 export type FilterColumns = (string | RangeFilterColumn)[]
 
 export type TableToolbarProps = {
-  collection?: Dictionary<string|number>[]
+  collection?: Entity[]
   search?: string,
   showSearch?: boolean,
   searchPlaceholder?: string,

@@ -4,8 +4,6 @@ export type Entity = { id: number } & Record<string, unknown>
 
 export type Primitive = string | number
 
-export type Dictionary<T> = { [key: string]: T }
-
 export type Pagination = {
   page: number
   pages: number
@@ -16,8 +14,7 @@ export type Pagination = {
 }
 
 export type EntityKeys<T> = {
-  [K in keyof T]:
-  NonNullable<T[K]> extends Entity
+  [K in keyof T]: NonNullable<T[K]> extends Entity
     ? K
     : never
 }[keyof T] & string

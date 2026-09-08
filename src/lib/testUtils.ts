@@ -1,5 +1,5 @@
 import {screen, within} from '@testing-library/react'
-import type { Dictionary, Entity } from '@/types.ts'
+import type { Entity } from '@/types.ts'
 import type { TableData } from '@/components/Table/types.ts'
 import { normalized } from '@/lib/strings.ts'
 import type { FilterColumns } from '@/components/Table/TableToolbar/types.ts'
@@ -14,7 +14,7 @@ export type TestData = Entity & {
   birth: string,
 }
 
-export type UpdateFilterArgs = Dictionary<string[] | { min?: number | string, max?: number | string, parser?: any }>
+export type UpdateFilterArgs = Record<string, string[] | { min?: number | string, max?: number | string, parser?: any }>
 
 export const formatDate = (dateMillis: number): string => {
   const date = new Date(dateMillis as number)
@@ -73,7 +73,7 @@ export const getNameCellsContent = (rows: HTMLElement[]=dataRows()) => {
     within(row).getAllByRole('cell')[nameCellIndex].textContent)
 }
 
-export const names = (data: TableData): string[] => data.map(item => item.data['name'].value as string)
+export const names = <T extends Entity>(data: TableData<T>): string[] => data.map(item => item.data['name'].value as string)
 
 export const get = (collection: TestData[], ...names: string[]): string[] => {
   return names.reduce((items, name) => {

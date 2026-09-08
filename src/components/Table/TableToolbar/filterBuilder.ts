@@ -1,5 +1,5 @@
 import type { FilterColumns, RangeFilterColumn } from '@/components/Table/TableToolbar/types'
-import type { Dictionary } from '@/types.ts'
+import type { Entity } from '@/types.ts'
 import {
   type CheckboxesFilter,
   type FilterParser,
@@ -12,7 +12,7 @@ import { normalized } from '@/lib/strings.ts'
 
 type BuildArgs = {
   columns: FilterColumns;
-  collection: Dictionary<string | number>[];
+  collection: Entity[];
 };
 
 
@@ -39,7 +39,7 @@ const buildRangeFilter = (parser?: FilterParser): RangeFilter => {
   }
 }
 
-const buildCheckboxesFilterWithCollection = (column: string, collection: Dictionary<string|number>[]): CheckboxesFilter => {
+const buildCheckboxesFilterWithCollection = (column: string, collection: Entity[]): CheckboxesFilter => {
 
   const values = collection.reduce((checkboxes, entity): Set<string> => {
     const value = entity[normalized(column)]

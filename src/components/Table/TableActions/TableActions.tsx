@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { type JSX } from 'react'
 import type { RowData, TableAction } from '@/components/Table/types.ts'
-import type { Dictionary, Entity } from '@/types.ts'
+import type { Entity } from '@/types.ts'
 
 import { EllipsisVertical } from 'lucide-react'
 
@@ -26,7 +26,7 @@ export function TableActions<T extends Entity>({ actions = [], row }: TableActio
       result.regular.push(action)
 
     return result
-  }, { regular: [], destructive: [] } as Dictionary<TableAction[]>)
+  }, { regular: [], destructive: [] } as Record<string, TableAction[]>)
 
   return (
     <DropdownMenu>
