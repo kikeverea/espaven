@@ -1,7 +1,7 @@
-import { config } from '@/features/unitsOfMeasure/data/units.form'
+import { defineForm } from '@/features/unitsOfMeasure/data/units.form'
 import { extractSchema } from '@/components/Form/util'
 import { createFactories } from '@/test/factories.ts'
-const formSchema = extractSchema(config)
+const formSchema = extractSchema(defineForm({ name: [] }))
 
 describe('unitOfMeasureFormSchema', () => {
 

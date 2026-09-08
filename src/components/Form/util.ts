@@ -1,6 +1,7 @@
 import * as z from 'zod'
+import type { DefaultValues } from 'react-hook-form'
 import type { FieldInfo, FormConfig, FormField, FormFields, InferSchema } from '@/components/Form/types.ts'
-import type { Entity } from '@/types.ts'
+import type { Entity } from '@/types'
 
 type PartialConfig<P extends { toFormData: P['toFormData'], toSubmitData: P['toSubmitData'] }> =
   & Omit<P, 'toFormData' | 'toSubmitData'>
@@ -18,12 +19,63 @@ export const defineFormConfig = <
 {
 
   const {
-    toFormData = (item: T) => (pickValues(item, config.fields) as FData),
+    fields,
+    defaultValues,
+    toFormData = (item: T) => (pickValues(item, fields) as FData),
     toSubmitData = (item: T, formData: FData) => ({ ...item, ...formData } as TSubmit),
     ...rest
   } = config
 
-  return { toFormData, toSubmitData, ...rest }
+  const resolvedDefaults = {
+    ...emptyValues(fields),
+    ...defaultValues
+  } as DefaultValues<FData>
+
+  return {
+    fields,
+    defaultValues: resolvedDefaults,
+    toFormData: (item: T) => withDefaults(toFormData(item), resolvedDefaults),
+    toSubmitData,
+    ...rest
+  }
+}
+
+/**
+ * Empty value of each field, inferred from its schema. Guarantees every field is present on
+ * `defaultValues` and on every `form.reset`, so inputs never fall back to their previous value
+ */
+export const emptyValues = <F extends FormFields>(fields: F): DefaultValues<InferSchema<F>> =>
+  Object.fromEntries(
+    Object.entries(fields).map(([ name, field ]) => [ name, emptyValue(field) ])
+  ) as DefaultValues<InferSchema<F>>
+
+export const emptyValue = (field: FormField): unknown => {
+  const { kind } = getFieldInfo(field)
+
+  switch (kind) {
+    case 'string':
+    case 'number':
+      /* Numbers included: a blank input reads as '', and `extractSchema` treats it as a missing value */
+      return ''
+    case 'boolean':
+      return false
+    case 'array':
+      return []
+    case 'enum':
+    case 'date':
+      /* Left empty on purpose: null would report 'expected date, received null' instead of 'required' */
+      return undefined
+    default:
+      throw new Error(`Invalid field kind: ${kind}`)
+  }
+}
+
+function withDefaults<FData>(formData: FData, defaults: DefaultValues<FData>): FData {
+  const values = Object.fromEntries(
+    Object.entries(formData as Record<string, unknown>).filter(([ , value ]) => value !== undefined)
+  )
+
+  return { ...defaults, ...values } as FData
 }
 
 export const extractSchema = <
@@ -35,13 +87,30 @@ export const extractSchema = <
 {
   const schema = z.object(
     Object.fromEntries(
-      Object.entries(config.fields).map(([key, field]) => [key, field.schema]),
+      Object.entries(config.fields).map(([key, field]) => [key, validationSchema(field)]),
     ),
   )
 
   return config.refine
     ? schema.refine(config.refine.fn, config.refine?.args || {})
     : schema
+}
+
+/**
+ * An empty number input holds '', which `z.coerce.number()` reads as 0. Blank values are treated as
+ * missing instead, so a required number is rejected rather than silently submitted as a 0
+ */
+function validationSchema(field: FormField): z.ZodType {
+  const info = getFieldInfo(field)
+
+  if (info.kind !== 'number')
+    return field.schema
+
+  const isBlank = (value: unknown) => value === '' || (value == null && !info.nullable)
+
+  return info.required
+    ? z.any().refine(value => !isBlank(value), { message: 'Requerido' }).pipe(field.schema)
+    : z.preprocess(value => isBlank(value) ? undefined : value, field.schema)
 }
 
 export const pickValues = <T extends Entity, F extends FormFields>(item: T, fields: F): InferSchema<F> => {
@@ -56,13 +125,12 @@ export const pickValues = <T extends Entity, F extends FormFields>(item: T, fiel
 export const getFieldInfo = (field: FormField): FieldInfo => {
 
   const baseSchema: z.ZodType = field.schema
+  const { schema, nullable } = unwrapSchema(baseSchema)
 
   const info = {
     required: !baseSchema.isOptional(),
-    nullable: baseSchema.isNullable(),
+    nullable,
   }
-
-  const schema = unwrapSchema(baseSchema)
 
   if (schema instanceof z.ZodString) {
     return {
@@ -111,8 +179,29 @@ export const getFieldInfo = (field: FormField): FieldInfo => {
   throw new Error(`Invalid field kind: ${JSON.stringify(schema)}`)
 }
 
-function unwrapSchema(schema: z.ZodType): z.ZodType {
+export const selectOptions = <T extends Entity>(
+  collection: T[],
+  labelExtractor: (item: T) => string = item => item['name'] as string
+) => {
+  return collection.reduce((options, item) => {
+      const id = String(item.id)
+
+      options.options.push({ label: labelExtractor(item), value: id })
+      options.ids.push(id)
+
+      return options
+    },
+    { ids: [], options: [] } as
+    { ids: string[],options: { label: string, value: string | Entity['id'] }[] })
+}
+
+/*
+ * `isNullable()` cannot be trusted here: it parses a null, and a coerced number reads it as a 0.
+ * The wrappers are walked instead
+ */
+function unwrapSchema(schema: z.ZodType): { schema: z.ZodType, nullable: boolean } {
   let current = schema
+  let nullable = false
 
   while (true) {
     if (current instanceof z.ZodOptional) {
@@ -122,6 +211,7 @@ function unwrapSchema(schema: z.ZodType): z.ZodType {
 
     if (current instanceof z.ZodNullable) {
       current = current.unwrap()
+      nullable = true
       continue
     }
 
@@ -135,6 +225,6 @@ function unwrapSchema(schema: z.ZodType): z.ZodType {
       continue
     }
 
-    return current
+    return { schema: current, nullable }
   }
 }

@@ -2,7 +2,7 @@ import { config } from '@/features/serviceTemplates/data/serviceTemplate.form.ts
 import { extractSchema } from '@/components/Form/util'
 import type { ServiceTemplate } from '@/features/serviceTemplates/types.ts'
 
-const formSchema = extractSchema(config())
+const formSchema = extractSchema(config)
 
 describe('serviceTemplateFormSchema', () => {
 

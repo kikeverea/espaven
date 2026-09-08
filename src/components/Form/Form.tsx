@@ -11,7 +11,7 @@ import { extractSchema, getFieldInfo } from '@/components/Form/util.ts'
 import FormSelect from '@/components/Form/FormSelect.tsx'
 import FormCheckbox from '@/components/Form/FormCheckbox.tsx'
 import FormDatePicker from '@/components/Form/FormDatePicker.tsx'
-import { type ComponentType, type PropsWithChildren, useEffect } from 'react'
+import { type ComponentType, type PropsWithChildren, useEffect, useRef } from 'react'
 import type { Mutations } from '@/lib/mutations.tsx'
 import type { FormConfig, FormFields, InferSchema } from '@/components/Form/types.ts'
 import type { Entity } from '@/types.ts'
@@ -55,8 +55,7 @@ const Form = <T extends Entity, TSubmit extends Record<string, unknown>, F exten
   confirmButton,
   cancelButton,
 }: FormProps<T, TSubmit, F>) => {
-
-
+  
   const { create, update, status } = mutations
 
   const formName = `${name}-form`
@@ -68,11 +67,21 @@ const Form = <T extends Entity, TSubmit extends Record<string, unknown>, F exten
     defaultValues: config.defaultValues
   })
 
-  useEffect(() => {
-    if (!item || !Object.keys(item).length)
-      return
+  /* Item being edited, if any. Kept on a ref to tell 'switched to a new item' from a plain re-render */
+  const editedItem = useRef<Entity['id'] | null>(null)
 
-    form.reset(config.toFormData(item as T))
+  useEffect(() => {
+    if (item && Object.keys(item).length) {
+      form.reset(config.toFormData(item as T))
+      editedItem.current = item.id ?? null
+      return
+    }
+
+    /* New item. Only clear the form when coming from an edit, so typing is not wiped on every render */
+    if (editedItem.current !== null) {
+      form.reset(config.defaultValues)
+      editedItem.current = null
+    }
   }, [item, form])
 
   const handleSubmit = (formData: z.infer<typeof schema>) => {
@@ -82,10 +91,11 @@ const Form = <T extends Entity, TSubmit extends Record<string, unknown>, F exten
       const [ name, gender = 'm' ] = Array.isArray(itemName) ? itemName : [itemName]
 
       toast.add({ title: `${capitalize(name)} ${gender === 'm' ? 'guardado' : 'guardada'}` })
+
       if (item.id != null)
-        onUpdate?.() || form.reset()
+        onUpdate?.() || form.reset(config.defaultValues)
       else
-        onCreate?.() || form.reset()
+        onCreate?.() || form.reset(config.defaultValues)
     }
 
     const submitItem = config.toSubmitData(item as T, formData as InferSchema<typeof config.fields>)
@@ -97,7 +107,7 @@ const Form = <T extends Entity, TSubmit extends Record<string, unknown>, F exten
   }
 
   const handleCancel = () => {
-    form.reset()
+    form.reset(config.defaultValues)
     onCancel?.()
   }
 
