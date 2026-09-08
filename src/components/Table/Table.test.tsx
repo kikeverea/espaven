@@ -13,6 +13,7 @@ import {
   getTestData, newFilter
 } from '@/lib/testUtils.ts'
 import { expect } from 'vitest'
+import { useState } from 'react'
 
 describe('Table', () => {
 
@@ -46,6 +47,48 @@ describe('Table', () => {
 
   const filterColumns: FilterColumns = [ 'Family', 'Type', ['Age', 'range'], ['Birth', 'range', parseDate] ]
   const filterAnd = (args?: UpdateFilterArgs) => newFilter(filterColumns, args, longCollection)
+
+  describe('While loading', () => {
+
+    /* Keeps the table mounted across the flip, the way a refetch does */
+    const LoadingHarness = () => {
+      const [isLoading, setIsLoading] = useState(false)
+
+      return (
+        <>
+          <button type='button' onClick={() => setIsLoading(!isLoading)}>toggle</button>
+          <Table collection={collection} columns={columns} selectable={true} isLoading={isLoading} />
+        </>
+      )
+    }
+
+    const rowCheckboxes = () => {
+      const [ , body ] = screen.getAllByRole('rowgroup')
+      return within(body).getAllByRole('checkbox')
+    }
+
+    test('renders the skeleton instead of the rows', () => {
+      render(<Table collection={ collection } columns={ columns } isLoading={ true }/>)
+
+      expect(screen.queryByText(collection[0].name)).not.toBeInTheDocument()
+    })
+
+    test('keeps the table state across a reload', async () => {
+      const user = userEvent.setup()
+      render(<LoadingHarness />)
+
+      await user.click(rowCheckboxes()[1])
+      expect(rowCheckboxes()[1]).toBeChecked()
+
+      const toggle = screen.getByRole('button', { name: 'toggle' })
+
+      /* Hooks declared under an early return would remount here, emptying the selection */
+      await user.click(toggle)
+      await user.click(toggle)
+
+      expect(rowCheckboxes()[1]).toBeChecked()
+    })
+  })
 
   describe('Without data', () => {
     test('renders header', () => {

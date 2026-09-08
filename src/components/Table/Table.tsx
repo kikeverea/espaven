@@ -48,9 +48,6 @@ const Table = <T extends Entity>(
   ...props
 }: TableProps<T>) => {
 
-  if (!collection || isLoading)
-    return <TableSkeleton colCount={ columns.length }/>
-
   const [searchTerm, setSearchTerm] = useState(server?.search ?? search ?? '')
   const [internalSort, setInternalSortColumn] = useSort(sortBy)
   const [clientPagination, setItemsPerPage, setPage] = usePagination(paginate, initialPage || 0)
@@ -76,6 +73,10 @@ const Table = <T extends Entity>(
 
   // typing stays instant; only the request waits for the term to settle
   useDebouncedCallback(searchTerm, SEARCH_DEBOUNCE_MS, term => server?.setSearch(term))
+
+  /* Below every hook: returning above them remounts all of them on each flip, emptying the table state */
+  if (isLoading)
+    return <TableSkeleton colCount={ columns.length }/>
 
   // the api knows how many rows there are in total, a client mode table has them all in hand
   const recordCount = server?.pagination?.count ?? collection.length

@@ -55,9 +55,9 @@ export type MutationSideEffects<T extends Entity> = {
   delete?: (item: T) => void
 }
 
-export function useMutationStatus<T extends Object>(mutationKey: readonly unknown[], mutationStatus: 'error'): MutationError<T>
-export function useMutationStatus<T extends Object>(mutationKey: readonly unknown[], mutationStatus: 'idle'|'pending'): T
-export function useMutationStatus<T extends Object>(
+export function useMutationStatus<T extends object>(mutationKey: readonly unknown[], mutationStatus: 'error'): MutationError<T> | null
+export function useMutationStatus<T extends object>(mutationKey: readonly unknown[], mutationStatus: 'idle'|'pending'): T | null
+export function useMutationStatus<T extends object>(
   mutationKey: readonly unknown[],
   mutationStatus: MutationStatus
 ): T | MutationError<T> | null
@@ -116,14 +116,18 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
     onSettled: invalidate,
   })
 
-  const removeAll = args.batchDelete
-    ? useMutation({
-      mutationKey: [...mutationKeys.delete, 'all'],
-      mutationFn: mutationApi.deleteAll,
-      onError: showError,
-      onSettled: invalidate,
-    })
-    : null
+  /* Always declared: a hook behind a condition changes the hook order between renders */
+  const removeAll = useMutation({
+    mutationKey: [...mutationKeys.delete, 'all'],
+    mutationFn: (ids: Entity['id'][]) => {
+      if (!mutationApi.deleteAll)
+        return Promise.reject(new Error('Esta colección no admite borrado en lote'))
+
+      return mutationApi.deleteAll(ids)
+    },
+    onError: showError,
+    onSettled: invalidate,
+  })
 
   const creating = useMutationStatus<T>(mutationKeys.create, 'pending')
   const updating = useMutationStatus<T>(mutationKeys.update, 'pending')
@@ -138,9 +142,10 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
       creating,
       deleting,
       updating,
-      any: !!creating || !!deleting,
+      any: !!creating || !!updating || !!deleting,
+      /* Which mutation, if any, is running on this very item. A create has no id to match yet */
       current: (item) => (
-        (creating && creating as unknown as T) ||
+        (creating?.id === item.id && creating) ||
         (updating?.id === item.id && updating) ||
         (deleting?.id === item.id && deleting) ||
         null
@@ -150,10 +155,11 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
       creating: createError,
       updating: updateError,
       deleting: deleteError,
-      any: !!createError || !!deleteError,
-      error: (item?: T) => (
-        deleteError?.item?.id === item?.id ? deleteError.error : createError.error
-      )
+      any: !!createError || !!updateError || !!deleteError,
+      error: (item?: T) =>
+        [ createError, updateError, deleteError ]
+          .find(failed => failed?.item?.id === item?.id)
+          ?.error ?? null
     }
   }
 
