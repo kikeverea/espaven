@@ -46,7 +46,7 @@ const FormSelect = <T extends FieldValues>({
             onValueChange={field.onChange}
             disabled={!items.length}
           >
-            <SelectTrigger id={id} className="w-full max-w-48">
+            <SelectTrigger id={id} className="w-full xl:max-w-[50%]">
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
 
