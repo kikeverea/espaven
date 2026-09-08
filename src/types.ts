@@ -13,11 +13,19 @@ export type Pagination = {
   prev: number | null
 }
 
+/*
+ * The keys a type declares for itself. Plain `keyof` would collapse to the index signature
+ * every Entity carries, taking the named keys down with it
+ */
+type NamedKeys<T> = keyof {
+  [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
+}
+
 export type EntityKeys<T> = {
-  [K in keyof T]: NonNullable<T[K]> extends Entity
+  [K in NamedKeys<T>]: NonNullable<T[K]> extends Entity
     ? K
     : never
-}[keyof T] & string
+}[NamedKeys<T>] & string
 
 export const isString = (value: unknown): value is string => typeof value === 'string'
 export const isNumber = (value: unknown): value is number => typeof value === 'number'
