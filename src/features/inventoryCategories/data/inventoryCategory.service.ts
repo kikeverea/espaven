@@ -1,44 +1,4 @@
-import type { InventoryCategory } from '../types'
-import { api } from '@/api/apiClient'
+import type { FormInventoryCategory, InventoryCategory } from '../types'
+import { createResource } from '@/api/resource.ts'
 
-const { apiFetch, fetch } = api()
-
-const getInventoryCategories = (): Promise<InventoryCategory[]> =>
-  apiFetch<InventoryCategory[]>(`/inventory_categories`)
-
-const getInventoryCategory = (id: InventoryCategory['id']): Promise<InventoryCategory> =>
-  apiFetch<InventoryCategory>(`/inventory_categories/${id}`)
-
-const createInventoryCategory = async (payload: Partial<InventoryCategory>): Promise<InventoryCategory> => {
-  return apiFetch<InventoryCategory>(`/inventory_categories`, {
-    method: 'POST',
-    body: payload
-  })
-}
-
-const updateInventoryCategory = async (id: InventoryCategory['id'], inventoryCategory: Partial<InventoryCategory>): Promise<InventoryCategory> => {
-  return apiFetch<InventoryCategory>(`/inventory_categories/${id}`, {
-    method: 'PUT',
-    body: inventoryCategory,
-  })
-}
-
-const deleteInventoryCategory = async (inventoryCategory: Partial<InventoryCategory>): Promise<InventoryCategory> => {
-  return apiFetch<InventoryCategory>(`/inventory_categories/${inventoryCategory.id}`, { method: 'DELETE' })
-}
-
-const deleteInquiries = async (ids: InventoryCategory['id'][]): Promise<boolean[]> => {
-  return fetch<boolean[]>(`/inventory_categories/batch_destroy`, {
-    method: 'POST',
-    body: { ids: ids }
-  })
-}
-
-export default {
-  getInventoryCategories,
-  getInventoryCategory,
-  createInventoryCategory,
-  updateInventoryCategory,
-  deleteInventoryCategory,
-  deleteInquiries
-}
+export default createResource<InventoryCategory, FormInventoryCategory>('/inventory_categories')

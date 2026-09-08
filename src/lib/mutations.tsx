@@ -42,6 +42,14 @@ export type MutationKeys = {
   delete: readonly [...MutationKey[], 'delete']
 }
 
+/* The four keys a resource mutates under. `name` is what it is called in the cache ('genericParts') */
+export const resourceKeys = (name: string): MutationKeys => ({
+  all: [name] as const,
+  create: [name, 'create'] as const,
+  update: [name, 'update'] as const,
+  delete: [name, 'delete'] as const,
+})
+
 export type MutationApi<T extends object, TWrite extends object = T> = {
   create: (payload: TWrite) => Promise<T>
   update: (id: Entity['id'], payload: TWrite) => Promise<T>

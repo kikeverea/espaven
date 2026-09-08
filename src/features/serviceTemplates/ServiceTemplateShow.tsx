@@ -7,7 +7,7 @@ const ServiceTemplateShow = ({ id }: { id?: any }) => {
 
   const { data: template = null } = useQuery<ServiceTemplate | null>({
     queryKey: [ 'serviceTemplate', id ],
-    queryFn: () => api.getServiceTemplate(id)
+    queryFn: () => api.get(id)
   })
 
   return <ServiceTemplateItem template={template} />

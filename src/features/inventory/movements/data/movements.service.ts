@@ -38,7 +38,7 @@ const updateMovement = async (
 
 const deleteMovement = async (movement: InventoryMovement): Promise<InventoryMovement> => {
   return await apiFetch<InventoryMovement>(
-    `/inventory_items/${movement.inventoryItem.id}/inventory_movements${movement.id}`,
+    `/inventory_items/${movement.inventoryItem.id}/inventory_movements/${movement.id}`,
     { method: 'DELETE' }
   )
 }
