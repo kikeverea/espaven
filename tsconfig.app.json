@@ -9,7 +9,6 @@
     "skipLibCheck": true,
 
     /* shadcn UI */
-    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
