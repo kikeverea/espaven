@@ -1,0 +1,99 @@
+import { use{{pascalCase plural}}, use{{pascalCase entity}}Mutations } from '@/features/{{camelCase plural}}/use{{pascalCase plural}}'
+import type { TableColumn } from '@/components/Table/types'
+import type { {{pascalCase entity}} } from '@/features/{{camelCase plural}}/types.ts'
+import Table from '@/components/Table/Table'
+import { Pencil, Plus, Trash, X } from 'lucide-react'
+import { Button } from '@/components/ui/button.tsx'
+import NavBar from '@/components/NavBar/NavBar.tsx'
+import { toast } from '@/components/ui/toast.tsx'
+import { useCollection } from '@/components/Table/useCollection.tsx'
+import useTableQuery from '@/components/Table/hooks/useTableQuery'
+import {{pascalCase entity}}Form from '@/features/{{camelCase plural}}/{{pascalCase entity}}Form.tsx'
+
+const {{pascalCase plural}}Index = () => {
+  const query = useTableQuery()
+
+  const {
+    collection: {{camelCase plural}} = [],
+    server,
+    formItem: form{{pascalCase entity}},
+    isLoading,
+    remove,
+    removeAll
+  } = useCollection(
+    [ '{{label}}', '{{gender}}' ],
+    use{{pascalCase plural}}(query),
+    use{{pascalCase entity}}Mutations(),
+    query
+  )
+
+  // TODO: the columns of this table. `sortKey` is what the api calls the column
+  const columns: TableColumn<{{pascalCase entity}}>[] = [
+    { name: 'Nombre', accessor: 'name', sortKey: 'name' },
+  ]
+
+  return (
+    <div className='flex w-full h-full'>
+      <div className='min-w-0 flex-1 px-5 pb-8'>
+        <NavBar
+          label='{{labelPlural}}'
+          action={!form{{pascalCase entity}}.get()
+            ? <Button
+              variant='primary'
+              className='me-2 px-4 py-4 lg:hidden'
+              onClick={() => form{{pascalCase entity}}.set({} as {{pascalCase entity}})}
+            >
+              <Plus className='size-4' /> Crear {{lowerCase label}}
+            </Button>
+            : <Button className='me-2 text-[13px] py-4 lg:hidden' onClick={() => form{{pascalCase entity}}.set(null) }>
+              <X className='size-4' /> Cerrar
+            </Button>
+          }
+        />
+
+        <{{pascalCase entity}}Form
+          name='mobile-{{kebabCase entity}}'
+          className='xl:hidden'
+          {{camelCase entity}}={ form{{pascalCase entity}}.get() || {} }
+          onCancel={() => form{{pascalCase entity}}.set(null)}
+        />
+
+        <div className='py-3 flex-1 flex gap-6 my-4 items-start'>
+          <div className='lg:flex-1'>
+            <Table
+              collection={ {{camelCase plural}} }
+              server={ server }
+              isLoading={ isLoading }
+              columns={ columns }
+              noEntriesMessage='No hay {{lowerCase labelPlural}}'
+              selectable={ true }
+              actions={[
+                { label: 'Editar', icon: <Pencil />, action: id => form{{pascalCase entity}}.set(id) },
+                { label: 'Eliminar', icon: <Trash />, action: id => remove(id), destructive: true },
+              ]}
+              selectionActions={removeAll
+                ? [{
+                  icon: <Trash className='size-4'/>,
+                  mutation: removeAll,
+                  variant: 'destructive',
+                  onSuccess: () => toast.add({ title: '{{labelPlural}} eliminad{{#if (eq gender "f")}}as{{else}}os{{/if}}' })
+                }]
+                : []
+              }
+            />
+          </div>
+          <div className='lg:flex-1'>
+            <{{pascalCase entity}}Form
+              name='desktop-{{kebabCase entity}}'
+              className='hidden xl:block xl:flex-1'
+              {{camelCase entity}}={ form{{pascalCase entity}}.get() || {} }
+              onCancel={() => form{{pascalCase entity}}.set(null)}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default {{pascalCase plural}}Index

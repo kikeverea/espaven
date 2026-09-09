@@ -1,0 +1,9 @@
+import type { PersistedRecord } from '@/types'
+
+export type {{pascalCase entity}} =
+  PersistedRecord &
+  {
+    name: string
+  }
+
+export type Form{{pascalCase entity}} = Partial<{{pascalCase entity}}>

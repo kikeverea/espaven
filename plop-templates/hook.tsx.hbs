@@ -1,0 +1,17 @@
+import { type {{pascalCase entity}}, type Form{{pascalCase entity}} } from './types.ts'
+import api from '@/features/{{camelCase plural}}/data/{{camelCase entity}}.api.ts'
+import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import type { TableQuery } from '@/components/Table/hooks/useTableQuery'
+
+const {{camelCase entity}}Keys = resourceKeys('{{camelCase plural}}')
+
+export const use{{pascalCase entity}}Mutations = () =>
+  useMutations<{{pascalCase entity}}, Form{{pascalCase entity}}>({{camelCase entity}}Keys, api, { batchDelete: true })
+
+export const use{{pascalCase plural}} = (query?: TableQuery) =>
+  useQuery({
+    queryKey: [...{{camelCase entity}}Keys.all, query?.page ?? 1, query?.perPage ?? null, query?.search ?? '', query?.sort ?? null],
+    queryFn: () => api.getAll(query),
+    placeholderData: keepPreviousData,      // keep the current page on screen while the next one loads
+  })

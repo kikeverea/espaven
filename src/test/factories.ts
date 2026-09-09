@@ -1,3 +1,4 @@
+/* plop:imports */
 import type { Contact, Inquiry, User } from '@/features/inquiries/types'
 import type { UnitOfMeasure } from '@/features/unitsOfMeasure/types'
 import type { Comment } from '@/features/comments/types'
@@ -8,6 +9,7 @@ import type { GenericPart } from '@/features/genericParts/types.ts'
 
 export const createFactories = () => {
   const ids = {
+    /* plop:ids */
     user: 1,
     contact: 1,
     inquiry: 1,
@@ -20,6 +22,8 @@ export const createFactories = () => {
   }
 
   const now = () => new Date().toISOString()
+
+  /* plop:factories */
 
   const user = (args: Partial<User> = {}): User => ({
     id: ids.user++,
@@ -104,6 +108,7 @@ export const createFactories = () => {
   })
 
   return {
+    /* plop:exports */
     contact,
     comment,
     inquiry,

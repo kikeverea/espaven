@@ -1,0 +1,39 @@
+import type { {{pascalCase entity}} } from '@/features/{{camelCase plural}}/types'
+import { use{{pascalCase entity}}Mutations } from '@/features/{{camelCase plural}}/use{{pascalCase plural}}'
+import { config } from '@/features/{{camelCase plural}}/data/{{camelCase entity}}.form'
+import CardForm from '@/components/Form/CardForm'
+import type { FormCallbacks } from '@/components/Form/Form'
+import type { ComponentProps } from 'react'
+
+type {{pascalCase entity}}FormProps = FormCallbacks & ComponentProps<'div'> & {
+  name: string
+  {{camelCase entity}}: Partial<{{pascalCase entity}}> | null
+  className?: string
+}
+
+const {{pascalCase entity}}Form = ({
+  name='{{camelCase entity}}',
+  {{camelCase entity}},
+  onCreate,
+  onUpdate,
+  onCancel,
+  className
+}: {{pascalCase entity}}FormProps) => {
+
+  return (
+    <CardForm
+      name={ name }
+      className={ className }
+      itemName={[ '{{label}}', '{{gender}}' ]}
+      justify='fluid'
+      config={ config }
+      item={ {{camelCase entity}} }
+      mutations={ use{{pascalCase entity}}Mutations() }
+      onCreate={ onCreate }
+      onUpdate={ onUpdate }
+      onCancel={ onCancel }
+    />
+  )
+}
+
+export default {{pascalCase entity}}Form

@@ -1,0 +1,4 @@
+import type { Form{{pascalCase entity}}, {{pascalCase entity}} } from '../types'
+import { createResource } from '@/api/resource.ts'
+
+export default createResource<{{pascalCase entity}}, Form{{pascalCase entity}}>('/{{path}}')

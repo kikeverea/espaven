@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "scaffold": "plop",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -47,6 +48,7 @@
     "@vitejs/plugin-react": "^6.0.4",
     "jsdom": "^29.1.1",
     "oxlint": "^1.75.0",
+    "plop": "^4.0.5",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vite-plugin-svgr": "^5.2.0",
