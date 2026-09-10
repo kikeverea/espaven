@@ -11,7 +11,7 @@ import { extractSchema, getFieldInfo } from '@/components/Form/util.ts'
 import FormSelect from '@/components/Form/FormSelect.tsx'
 import FormCheckbox from '@/components/Form/FormCheckbox.tsx'
 import FormDatePicker from '@/components/Form/FormDatePicker.tsx'
-import { type ComponentType, type PropsWithChildren, useEffect, useRef } from 'react'
+import { type ComponentType, type PropsWithChildren } from 'react'
 import type { Mutations } from '@/lib/mutations.tsx'
 import type { FormConfig, FormFields, InferSchema } from '@/components/Form/types.ts'
 import type { Entity } from '@/types.ts'
@@ -61,28 +61,19 @@ const Form = <T extends Entity, TSubmit extends Record<string, unknown>, F exten
   const formName = `${name}-form`
   const schema = extractSchema(config)
 
+  /*
+   * 'values' keeps the form in step with the item. It is compared by value, so rebuilding this
+   * object on every render costs nothing, and typing is only ever discarded when the item itself
+   * changes. A manual `reset` is not undone by it either: it tracks the last values it applied
+   */
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     disabled: status.pending.any,
-    defaultValues: config.defaultValues
+    defaultValues: config.defaultValues,
+    values: item && Object.keys(item).length
+      ? config.toFormData(item as T)
+      : config.defaultValues,
   })
-
-  /* Item being edited, if any. Kept on a ref to tell 'switched to a new item' from a plain re-render */
-  const editedItem = useRef<Entity['id'] | null>(null)
-
-  useEffect(() => {
-    if (item && Object.keys(item).length) {
-      form.reset(config.toFormData(item as T))
-      editedItem.current = item.id ?? null
-      return
-    }
-
-    /* New item. Only clear the form when coming from an edit, so typing is not wiped on every render */
-    if (editedItem.current !== null) {
-      form.reset(config.defaultValues)
-      editedItem.current = null
-    }
-  }, [item, form])
 
   const handleSubmit = (formData: z.infer<typeof schema>) => {
     if (item === null) return
