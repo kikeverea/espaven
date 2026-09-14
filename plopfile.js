@@ -1,5 +1,5 @@
 /*
- * `npm run scaffold` -- builds a feature the way features/genericParts is built.
+ * `npm run scaffold` -- builds a feature the way features/inventoryItems is built.
  * The generated files compile and their tests pass as they are: fill in the fields of
  * types.ts and <entity>.form.ts, and the columns of the index, and the feature is done.
  */
@@ -20,13 +20,13 @@ export default function (plop) {
         /* asked, never derived: unitOfMeasure pluralises to unitsOfMeasure */
         type: 'input',
         name: 'plural',
-        message: 'Plural, camelCase (genericParts):',
+        message: 'Plural, camelCase (inventoryItems):',
         validate: value => /^[a-z][A-Za-z0-9]*$/.test(value) || 'camelCase, starting lower case',
       },
       {
         type: 'input',
         name: 'path',
-        message: 'Api path and route, snake_case plural (generic_parts):',
+        message: 'Api path and route, snake_case plural (inventory_items):',
         validate: value => /^[a-z][a-z0-9_]*$/.test(value) || 'snake_case, starting lower case',
       },
       {

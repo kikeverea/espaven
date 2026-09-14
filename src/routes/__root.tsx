@@ -30,7 +30,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
               Inventario: [
                 { label: 'Inventario', path: '/inventory', icon: <CirclePile /> },
                 { label: 'Categorías', path: '/inventory_categories', icon: <ChartBarStacked /> },
-                { label: 'Partes y consumibles', path: '/generic_parts', icon: <Cog /> },
+                { label: 'Partes y consumibles', path: '/inventory_items', icon: <Cog /> },
                 { label: 'Uds. de medida', path: '/units_of_measure', icon: <Scale /> },
               ],
             }}/>

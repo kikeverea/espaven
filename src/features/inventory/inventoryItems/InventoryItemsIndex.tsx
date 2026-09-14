@@ -1,21 +1,21 @@
-import { useGenericParts, useGenericPartMutations } from '@/features/genericParts/useGenericParts'
-import type { TableColumn } from '@/components/Table/types'
-import type { GenericPart } from '@/features/genericParts/types.ts'
-import Table from '@/components/Table/Table'
+import { useInventoryItems, useInventoryItemMutations } from '@/features/inventory/inventoryItems/useInventoryItems.tsx'
+import type { TableColumn } from '@/components/Table/types.ts'
+import type { InventoryItem } from '@/features/inventory/inventoryItems/types.ts'
+import Table from '@/components/Table/Table.tsx'
 import { Pencil, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { Plus, X } from 'lucide-react'
 import NavBar from '@/components/NavBar/NavBar.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
-import useTableQuery from '@/components/Table/hooks/useTableQuery'
-import GenericPartForm from '@/features/genericParts/GenericPartForm.tsx'
+import useTableQuery from '@/components/Table/hooks/useTableQuery.ts'
+import InventoryItemForm from '@/features/inventory/inventoryItems/InventoryItemForm.tsx'
 import { batchDelete } from '@/components/Table/util.tsx'
 
-const GenericPartsIndex = () => {
+const InventoryItemsIndex = () => {
   const query = useTableQuery()
 
   const {
-    collection: genericParts = [],
+    collection: inventoryItems = [],
     server,
     formItem: formPart,
     isLoading,
@@ -23,15 +23,15 @@ const GenericPartsIndex = () => {
     removeAll
   } = useCollection(
     'Parte',
-    useGenericParts(query),
-    useGenericPartMutations(),
+    useInventoryItems(query),
+    useInventoryItemMutations(),
     query
   )
 
 
-  const columns: TableColumn<GenericPart>[] = [
+  const columns: TableColumn<InventoryItem>[] = [
     { name: 'Nombre', accessor: 'name', sortKey: 'name' },
-    { name: 'Categoría', accessor: genericPart => genericPart.inventoryCategory.name, sortKey: 'category' }
+    { name: 'Categoría', accessor: inventoryItem => inventoryItem.inventoryCategory.name, sortKey: 'category' }
   ]
 
   return (
@@ -44,7 +44,7 @@ const GenericPartsIndex = () => {
               ? <Button
                 variant='primary'
                 className='me-2 px-4 py-4 lg:hidden'
-                onClick={() => formPart.set({} as GenericPart)}
+                onClick={() => formPart.set({} as InventoryItem)}
               >
                 <Plus className='size-4' /> Crear parte
               </Button>
@@ -54,16 +54,16 @@ const GenericPartsIndex = () => {
             }
           />
 
-          <GenericPartForm
-            name='mobile-generic-part'
+          <InventoryItemForm
+            name='mobile-inventory-item'
             className="xl:hidden"
-            genericPart={ formPart.get() || {}} onCancel={() => formPart.set(null)}
+            inventoryItem={ formPart.get() || {}} onCancel={() => formPart.set(null)}
           />
 
           <div className='py-3 flex-1 flex gap-6 my-4 items-start'>
             <div className='lg:flex-1'>
               <Table
-                collection={ genericParts }
+                collection={ inventoryItems }
                 server={ server }
                 isLoading={ isLoading }
                 columns={ columns }
@@ -73,14 +73,14 @@ const GenericPartsIndex = () => {
                   { label: "Editar", icon: <Pencil />, action: id => formPart.set(id) },
                   { label: "Eliminar", icon: <Trash />, action: id => remove(id), destructive: true },
                 ]}
-                selectionActions={ removeAll ? [ batchDelete<GenericPart>(removeAll, 'Partes eliminadas') ] : []}
+                selectionActions={ removeAll ? [ batchDelete<InventoryItem>(removeAll, 'Partes eliminadas') ] : []}
               />
             </div>
             <div className='lg:flex-1'>
-              <GenericPartForm
-                name='desktop-generic-part'
+              <InventoryItemForm
+                name='desktop-inventory-item'
                 className="hidden xl:block xl:flex-1"
-                genericPart={ formPart.get() || {}} onCancel={() => formPart.set(null)}
+                inventoryItem={ formPart.get() || {}} onCancel={() => formPart.set(null)}
               />
             </div>
           </div>
@@ -90,4 +90,4 @@ const GenericPartsIndex = () => {
   )
 }
 
-export default GenericPartsIndex
+export default InventoryItemsIndex

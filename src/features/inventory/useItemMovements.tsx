@@ -1,10 +1,10 @@
 import {
-  type InventoryItem,
   type InventoryMovement,
   type FormInventoryMovement
-} from './types.ts'
+} from './types'
+import { type InventoryItem } from './inventoryItems/types'
 import api from '@/features/inventory/movements/data/movement.api'
-import { useMutations } from '@/lib/mutations.tsx'
+import { useMutations } from '@/lib/mutations'
 import { useQuery } from '@tanstack/react-query'
 
 const movementsKeys = {

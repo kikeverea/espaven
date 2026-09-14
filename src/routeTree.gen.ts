@@ -12,12 +12,13 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
 
-const Generic_partsIndexLazyRouteImport = createFileRoute('/generic_parts/')()
 const InquiriesIndexLazyRouteImport = createFileRoute('/inquiries/')()
 const InventoryIndexLazyRouteImport = createFileRoute('/inventory/')()
 const Inventory_categoriesIndexLazyRouteImport = createFileRoute(
   '/inventory_categories/',
 )()
+const Inventory_itemsIndexLazyRouteImport =
+  createFileRoute('/inventory_items/')()
 const Service_templatesIndexLazyRouteImport = createFileRoute(
   '/service_templates/',
 )()
@@ -30,13 +31,6 @@ const Service_templatesNewIndexLazyRouteImport = createFileRoute(
   '/service_templates/new/',
 )()
 
-const Generic_partsIndexLazyRoute = Generic_partsIndexLazyRouteImport.update({
-  id: '/generic_parts/',
-  path: '/generic_parts/',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/generic_parts/index.lazy').then((d) => d.Route),
-)
 const InquiriesIndexLazyRoute = InquiriesIndexLazyRouteImport.update({
   id: '/inquiries/',
   path: '/inquiries/',
@@ -58,6 +52,14 @@ const Inventory_categoriesIndexLazyRoute =
     getParentRoute: () => rootRouteImport,
   } as any).lazy(() =>
     import('./routes/inventory_categories/index.lazy').then((d) => d.Route),
+  )
+const Inventory_itemsIndexLazyRoute =
+  Inventory_itemsIndexLazyRouteImport.update({
+    id: '/inventory_items/',
+    path: '/inventory_items/',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/inventory_items/index.lazy').then((d) => d.Route),
   )
 const Service_templatesIndexLazyRoute =
   Service_templatesIndexLazyRouteImport.update({
@@ -93,20 +95,20 @@ const Service_templatesNewIndexLazyRoute =
   )
 
 export interface FileRoutesByFullPath {
-  '/generic_parts/': typeof Generic_partsIndexLazyRoute
   '/inquiries/': typeof InquiriesIndexLazyRoute
   '/inventory/': typeof InventoryIndexLazyRoute
   '/inventory_categories/': typeof Inventory_categoriesIndexLazyRoute
+  '/inventory_items/': typeof Inventory_itemsIndexLazyRoute
   '/service_templates/': typeof Service_templatesIndexLazyRoute
   '/units_of_measure/': typeof Units_of_measureIndexLazyRoute
   '/service_templates/$id/': typeof Service_templatesIdIndexLazyRoute
   '/service_templates/new/': typeof Service_templatesNewIndexLazyRoute
 }
 export interface FileRoutesByTo {
-  '/generic_parts': typeof Generic_partsIndexLazyRoute
   '/inquiries': typeof InquiriesIndexLazyRoute
   '/inventory': typeof InventoryIndexLazyRoute
   '/inventory_categories': typeof Inventory_categoriesIndexLazyRoute
+  '/inventory_items': typeof Inventory_itemsIndexLazyRoute
   '/service_templates': typeof Service_templatesIndexLazyRoute
   '/units_of_measure': typeof Units_of_measureIndexLazyRoute
   '/service_templates/$id': typeof Service_templatesIdIndexLazyRoute
@@ -114,10 +116,10 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/generic_parts/': typeof Generic_partsIndexLazyRoute
   '/inquiries/': typeof InquiriesIndexLazyRoute
   '/inventory/': typeof InventoryIndexLazyRoute
   '/inventory_categories/': typeof Inventory_categoriesIndexLazyRoute
+  '/inventory_items/': typeof Inventory_itemsIndexLazyRoute
   '/service_templates/': typeof Service_templatesIndexLazyRoute
   '/units_of_measure/': typeof Units_of_measureIndexLazyRoute
   '/service_templates/$id/': typeof Service_templatesIdIndexLazyRoute
@@ -126,30 +128,30 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/generic_parts/'
     | '/inquiries/'
     | '/inventory/'
     | '/inventory_categories/'
+    | '/inventory_items/'
     | '/service_templates/'
     | '/units_of_measure/'
     | '/service_templates/$id/'
     | '/service_templates/new/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/generic_parts'
     | '/inquiries'
     | '/inventory'
     | '/inventory_categories'
+    | '/inventory_items'
     | '/service_templates'
     | '/units_of_measure'
     | '/service_templates/$id'
     | '/service_templates/new'
   id:
     | '__root__'
-    | '/generic_parts/'
     | '/inquiries/'
     | '/inventory/'
     | '/inventory_categories/'
+    | '/inventory_items/'
     | '/service_templates/'
     | '/units_of_measure/'
     | '/service_templates/$id/'
@@ -157,10 +159,10 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  Generic_partsIndexLazyRoute: typeof Generic_partsIndexLazyRoute
   InquiriesIndexLazyRoute: typeof InquiriesIndexLazyRoute
   InventoryIndexLazyRoute: typeof InventoryIndexLazyRoute
   Inventory_categoriesIndexLazyRoute: typeof Inventory_categoriesIndexLazyRoute
+  Inventory_itemsIndexLazyRoute: typeof Inventory_itemsIndexLazyRoute
   Service_templatesIndexLazyRoute: typeof Service_templatesIndexLazyRoute
   Units_of_measureIndexLazyRoute: typeof Units_of_measureIndexLazyRoute
   Service_templatesIdIndexLazyRoute: typeof Service_templatesIdIndexLazyRoute
@@ -169,13 +171,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/generic_parts/': {
-      id: '/generic_parts/'
-      path: '/generic_parts'
-      fullPath: '/generic_parts/'
-      preLoaderRoute: typeof Generic_partsIndexLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/inquiries/': {
       id: '/inquiries/'
       path: '/inquiries'
@@ -195,6 +190,13 @@ declare module '@tanstack/react-router' {
       path: '/inventory_categories'
       fullPath: '/inventory_categories/'
       preLoaderRoute: typeof Inventory_categoriesIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory_items/': {
+      id: '/inventory_items/'
+      path: '/inventory_items'
+      fullPath: '/inventory_items/'
+      preLoaderRoute: typeof Inventory_itemsIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/service_templates/': {
@@ -229,10 +231,10 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  Generic_partsIndexLazyRoute: Generic_partsIndexLazyRoute,
   InquiriesIndexLazyRoute: InquiriesIndexLazyRoute,
   InventoryIndexLazyRoute: InventoryIndexLazyRoute,
   Inventory_categoriesIndexLazyRoute: Inventory_categoriesIndexLazyRoute,
+  Inventory_itemsIndexLazyRoute: Inventory_itemsIndexLazyRoute,
   Service_templatesIndexLazyRoute: Service_templatesIndexLazyRoute,
   Units_of_measureIndexLazyRoute: Units_of_measureIndexLazyRoute,
   Service_templatesIdIndexLazyRoute: Service_templatesIdIndexLazyRoute,

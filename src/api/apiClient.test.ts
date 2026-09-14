@@ -59,7 +59,7 @@ describe('apiFetch', () => {
   test('does not mistake a single entity with a collection field for a collection', async () => {
     respondWith({ id: 1, name: 'Kit', collection: 'invierno' })
 
-    const part = await apiFetch<Part>('/generic_parts/1')
+    const part = await apiFetch<Part>('/inventory_items/1')
 
     expect(part).toEqual({ id: 1, name: 'Kit', collection: 'invierno' })
   })
@@ -117,7 +117,7 @@ describe('genericPart.api', () => {
         { status: 200, headers: { 'Content-Type': 'application/json' } })
     )
 
-    const service = (await import('@/features/genericParts/data/genericPart.api')).default
+    const service = (await import('@/features/inventory/inventoryItems/data/inventoryItem.api.ts')).default
     await service.getAll({ page: 3, perPage: 25, sort: { column: 'categoría', key: 'category' } })
 
     expect(fetchSpy.mock.calls[0][0])

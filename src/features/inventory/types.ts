@@ -1,15 +1,5 @@
-import type { UnitOfMeasure } from '@/features/unitsOfMeasure/types'
 import type { PersistedRecord } from '@/types'
-
-export type InventoryItem = PersistedRecord & {
-  name: string
-  stock: number
-  sku?: string
-  unitOfMeasure: UnitOfMeasure
-  priceCents: number
-  observations?: string
-}
-export type FormInventoryItem = Partial<InventoryItem> & Record<string, unknown>
+import type { InventoryItem } from '@/features/inventory/inventoryItems/types.ts'
 
 export type InventoryMovement = PersistedRecord & {
   movement: 'in' | 'out'

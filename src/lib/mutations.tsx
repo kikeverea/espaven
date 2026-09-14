@@ -42,7 +42,7 @@ export type MutationKeys = {
   delete: readonly [...MutationKey[], 'delete']
 }
 
-/* The four keys a resource mutates under. `name` is what it is called in the cache ('genericParts') */
+/* The four keys a resource mutates under. `name` is what it is called in the cache ('inventoryItems') */
 export const resourceKeys = (name: string): MutationKeys => ({
   all: [name] as const,
   create: [name, 'create'] as const,

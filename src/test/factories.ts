@@ -5,7 +5,6 @@ import type { Comment } from '@/features/comments/types'
 import type { ServiceTemplate } from '@/features/serviceTemplates/types.ts'
 import type { InventoryItem } from '@/features/inventory/types.ts'
 import type { InventoryCategory } from '@/features/inventoryCategories/types.ts'
-import type { GenericPart } from '@/features/genericParts/types.ts'
 
 export const createFactories = () => {
   const ids = {
@@ -17,8 +16,7 @@ export const createFactories = () => {
     unitOfMeasure: 1,
     serviceTemplate: 1,
     inventoryItem: 1,
-    inventoryCategory: 1,
-    genericPart: 1,
+    inventoryCategory: 1
   }
 
   const now = () => new Date().toISOString()
@@ -90,14 +88,6 @@ export const createFactories = () => {
     ...args
   })
 
-  const genericPart = (args: Partial<GenericPart> = {}): GenericPart => ({
-    id: ids.genericPart++,
-    name: 'Test item 1',
-    inventoryCategory: inventoryCategory(),
-    createdAt: now(),
-    ...args
-  })
-
   const serviceTemplate = (args: Partial<ServiceTemplate> = {}): ServiceTemplate => ({
     id: ids.serviceTemplate++,
     name: 'Template 1',
@@ -113,7 +103,6 @@ export const createFactories = () => {
     comment,
     inquiry,
     user,
-    genericPart,
     inventoryItem,
     inventoryCategory,
     unitOfMeasure,

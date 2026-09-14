@@ -1,7 +1,7 @@
-import { config } from '@/features/inventory/data/inventory.form'
+import { config } from '@/features/inventory/inventoryItems/data/inventoryItem.form'
 import { extractSchema } from '@/components/Form/util'
 import { createFactories } from '@/test/factories'
-import type { InventoryItem } from '@/features/inventory/types.ts'
+import type { InventoryItem } from '@/features/inventory/inventoryItems/types'
 
 const { unitOfMeasure } = createFactories()
 

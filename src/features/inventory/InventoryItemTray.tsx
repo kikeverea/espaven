@@ -1,5 +1,6 @@
 import * as z from 'zod'
-import type { FormInventoryMovement, InventoryItem, InventoryMovement } from '@/features/inventory/types'
+import type { FormInventoryMovement, InventoryMovement } from '@/features/inventory/types'
+import type { InventoryItem } from '@/features/inventory/inventoryItems/types'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'

@@ -1,6 +1,6 @@
-import { useInventory, useInventoryItemMutations } from '@/features/inventory/useInventory'
-import type { InventoryItem } from '@/features/inventory/types'
-import InventoryItemForm from '@/features/inventory/InventoryItemForm'
+import { useInventoryItems, useInventoryItemMutations } from '@/features/inventory/inventoryItems/useInventoryItems'
+import type { InventoryItem } from '@/features/inventory/inventoryItems/types'
+import InventoryItemForm from '@/features/inventory/inventoryItems/InventoryItemForm'
 import InventoryItemTray from '@/features/inventory/InventoryItemTray'
 import type { TableColumn } from '@/components/Table/types'
 import Table from '@/components/Table/Table'
@@ -17,7 +17,7 @@ import { batchDelete } from '@/components/Table/util.tsx'
 const InventoryIndex = () => {
 
   const { collection: inventory = [], formItem, selectedItem, remove, removeAll } =
-    useCollection('Artículo', useInventory(), useInventoryItemMutations())
+    useCollection('Artículo', useInventoryItems(), useInventoryItemMutations())
 
   const columns: TableColumn<InventoryItem>[] = [
     { name: 'Nombre',
@@ -52,7 +52,8 @@ const InventoryIndex = () => {
           />
 
           <InventoryItemForm
-            item={ formItem.get() }
+            name='inventory-item-form'
+            inventoryItem={ formItem.get() }
             onUpdate={ () => formItem.set(null)}
             onCancel={ () => formItem.set(null)}
           />
