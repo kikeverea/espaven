@@ -72,12 +72,7 @@ const {{pascalCase plural}}Index = () => {
                 { label: 'Eliminar', icon: <Trash />, action: id => remove(id), destructive: true },
               ]}
               selectionActions={removeAll
-                ? [{
-                  icon: <Trash className='size-4'/>,
-                  mutation: removeAll,
-                  variant: 'destructive',
-                  onSuccess: () => toast.add({ title: '{{labelPlural}} eliminad{{#if (eq gender "f")}}as{{else}}os{{/if}}' })
-                }]
+                ? [batchDelete<{{pascalCase entity}}>(removeAll, '{{capitalize labelPlural}} eliminadas')]
                 : []
               }
             />

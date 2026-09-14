@@ -58,13 +58,13 @@ const Table = <T extends Entity>(
     [collection, columns]
   )
 
-  // in server mode the api already searched: re-filtering here would only match the current page
+  // in server mode the api already searched
   const filteredData = useMemo<TableData<T>>(
     () => server ? tableData : filterData(tableData, { search: searchTerm, filter }),
     [tableData, searchTerm, filter, server]
   )
 
-  // in server mode the api sorted and sliced the rows already, the header only reports the change
+  // in server mode the api sorted and sliced the rows already
   const sort = server ? server.sort : internalSort
 
   const setSortColumn = server
@@ -74,7 +74,6 @@ const Table = <T extends Entity>(
   // typing stays instant; only the request waits for the term to settle
   useDebouncedCallback(searchTerm, SEARCH_DEBOUNCE_MS, term => server?.setSearch(term))
 
-  /* Below every hook: returning above them remounts all of them on each flip, emptying the table state */
   if (isLoading)
     return <TableSkeleton colCount={ columns.length }/>
 

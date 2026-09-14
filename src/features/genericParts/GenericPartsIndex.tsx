@@ -6,10 +6,10 @@ import { Pencil, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { Plus, X } from 'lucide-react'
 import NavBar from '@/components/NavBar/NavBar.tsx'
-import { toast } from '@/components/ui/toast.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
 import useTableQuery from '@/components/Table/hooks/useTableQuery'
 import GenericPartForm from '@/features/genericParts/GenericPartForm.tsx'
+import { batchDelete } from '@/components/Table/util.tsx'
 
 const GenericPartsIndex = () => {
   const query = useTableQuery()
@@ -73,15 +73,7 @@ const GenericPartsIndex = () => {
                   { label: "Editar", icon: <Pencil />, action: id => formPart.set(id) },
                   { label: "Eliminar", icon: <Trash />, action: id => remove(id), destructive: true },
                 ]}
-                selectionActions={removeAll
-                  ? [{
-                    icon: <Trash className='size-4'/>,
-                    mutation: removeAll,
-                    variant: 'destructive',
-                    onSuccess: () => toast.add({ title: 'Unidades eliminadas' })
-                  }]
-                  : []
-                }
+                selectionActions={ removeAll ? [ batchDelete<GenericPart>(removeAll, 'Partes eliminadas') ] : []}
               />
             </div>
             <div className='lg:flex-1'>

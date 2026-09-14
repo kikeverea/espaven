@@ -6,10 +6,10 @@ import { Pencil, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { Plus, X } from 'lucide-react'
 import NavBar from '@/components/NavBar/NavBar.tsx'
-import { toast } from '@/components/ui/toast.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
 import InventoryCategoryForm from '@/features/inventoryCategories/InventoryCategoryForm.tsx'
 import BooleanBadge from '@/components/BooleanBadge/BooleanBadge.tsx'
+import { batchDelete } from '@/components/Table/util.tsx'
 
 const InventoryCategoriesIndex = () => {
 
@@ -67,15 +67,7 @@ const InventoryCategoriesIndex = () => {
                   { label: "Editar", icon: <Pencil />, action: id => formCategory.set(id) },
                   { label: "Eliminar", icon: <Trash />, action: id => remove(id), destructive: true },
                 ]}
-                selectionActions={removeAll
-                  ? [{
-                    icon: <Trash className='size-4'/>,
-                    mutation: removeAll,
-                    variant: 'destructive',
-                    onSuccess: () => toast.add({ title: 'Unidades eliminadas' })
-                  }]
-                  : []
-                }
+                selectionActions={ removeAll ? [ batchDelete<InventoryCategory>(removeAll, 'Categorías eliminadas') ] : []}
               />
             </div>
             <div className='lg:flex-1'>

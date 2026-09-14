@@ -8,11 +8,11 @@ import { Pencil, Trash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Plus, X } from 'lucide-react'
 import NavBar from '@/components/NavBar/NavBar'
-import { toast } from '@/components/ui/toast'
 import { toDecimal } from '@/lib/numbers.ts'
 import { useCollection } from '@/components/Table/useCollection.tsx'
 import MovementList from '@/features/inventory/movements/MovementList.tsx'
 import SideTray from '@/components/SideTray/SideTray.tsx'
+import { batchDelete } from '@/components/Table/util.tsx'
 
 const InventoryIndex = () => {
 
@@ -70,15 +70,7 @@ const InventoryIndex = () => {
                 { label: "Editar", icon: <Pencil />, action: itemId => formItem.set(itemId) },
                 { label: "Eliminar", icon: <Trash />, action: itemId => remove(itemId), destructive: true },
               ]}
-              selectionActions={removeAll
-                ? [{
-                  icon: <Trash className='size-4'/>,
-                  mutation: removeAll,
-                  variant: 'destructive',
-                  onSuccess: () => toast.add({ title: 'Artículos eliminadas' })
-                }]
-                : []
-              }
+              selectionActions={ removeAll ? [ batchDelete<InventoryItem>(removeAll, 'Artículos eliminadas') ] : []}
             />
           </div>
         </div>

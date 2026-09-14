@@ -10,8 +10,8 @@ import { Button } from '@/components/ui/button.tsx'
 import { Plus, X } from 'lucide-react'
 import InquiryForm from '@/features/inquiries/InquiryForm.tsx'
 import NavBar from '@/components/NavBar/NavBar.tsx'
-import { toast } from '@/components/ui/toast.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
+import { batchDelete } from '@/components/Table/util.tsx'
 
 const InquiriesIndex = () => {
 
@@ -71,15 +71,7 @@ const InquiriesIndex = () => {
                 { label: "Editar", icon: <Pencil />, action: itemId => formItem.set(itemId) },
                 { label: "Eliminar", icon: <Trash />, action: itemId => remove(itemId), destructive: true },
               ]}
-              selectionActions={removeAll
-                ? [{
-                    icon: <Trash className='size-4'/>,
-                    mutation: removeAll,
-                    variant: 'destructive',
-                    onSuccess: () => toast.add({ title: 'Solicitudes eliminadas' })
-                  }]
-                : []
-              }
+              selectionActions={ removeAll ? [ batchDelete<Inquiry>(removeAll, 'Solicitudes eliminadas') ] : []}
             />
           </div>
         </div>

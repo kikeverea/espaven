@@ -10,6 +10,7 @@ import { Plus, X } from 'lucide-react'
 import NavBar from '@/components/NavBar/NavBar.tsx'
 import { toast } from '@/components/ui/toast.tsx'
 import { findById } from '@/lib/utils.ts'
+import { batchDelete } from '@/components/Table/util.tsx'
 
 const UnitsOfMeasureIndex = () => {
 
@@ -67,15 +68,7 @@ const UnitsOfMeasureIndex = () => {
                 { label: "Editar", icon: <Pencil />, action: id => setFormUnitOfMeasure(findById(unitsOfMeasure, id)) },
                 { label: "Eliminar", icon: <Trash />, action: id => removeUnitOfMeasure(id), destructive: true },
               ]}
-              selectionActions={removeAll
-                ? [{
-                  icon: <Trash className='size-4'/>,
-                  mutation: removeAll,
-                  variant: 'destructive',
-                  onSuccess: () => toast.add({ title: 'Unidades eliminadas' })
-                }]
-                : []
-              }
+              selectionActions={ removeAll ? [ batchDelete<UnitOfMeasure>(removeAll, 'Unidades eliminadas') ] : []}
             />
             <UnitOfMeasureForm
               className="hidden lg:block lg:flex-1"
