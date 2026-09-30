@@ -3,7 +3,9 @@ import type { PersistedRecord } from '@/types'
 export type {{pascalCase entity}} =
   PersistedRecord &
   {
-    name: string
+{{#each fields}}
+    {{name}}{{#if optional}}?{{/if}}: {{tsType}}
+{{/each}}
   }
 
 export type Form{{pascalCase entity}} = Partial<{{pascalCase entity}}>

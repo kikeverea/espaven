@@ -5,9 +5,9 @@ import Table from '@/components/Table/Table'
 import { Pencil, Plus, Trash, X } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import NavBar from '@/components/NavBar/NavBar.tsx'
-import { toast } from '@/components/ui/toast.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
 import useTableQuery from '@/components/Table/hooks/useTableQuery'
+import { batchDelete } from '@/components/Table/util.tsx'
 import {{pascalCase entity}}Form from '@/features/{{camelCase plural}}/{{pascalCase entity}}Form.tsx'
 
 const {{pascalCase plural}}Index = () => {
@@ -27,9 +27,11 @@ const {{pascalCase plural}}Index = () => {
     query
   )
 
-  // TODO: the columns of this table. `sortKey` is what the api calls the column
+  // TODO: check the columns. `sortKey` is what the api calls the column
   const columns: TableColumn<{{pascalCase entity}}>[] = [
-    { name: 'Nombre', accessor: 'name', sortKey: 'name' },
+{{#each columns}}
+    { name: '{{{label}}}', accessor: '{{name}}', sortKey: '{{snakeCase name}}' },
+{{/each}}
   ]
 
   return (
@@ -72,7 +74,7 @@ const {{pascalCase plural}}Index = () => {
                 { label: 'Eliminar', icon: <Trash />, action: id => remove(id), destructive: true },
               ]}
               selectionActions={removeAll
-                ? [batchDelete<{{pascalCase entity}}>(removeAll, '{{capitalize labelPlural}} eliminadas')]
+                ? [batchDelete<{{pascalCase entity}}>(removeAll, '{{capitalize labelPlural}} {{#if (eq gender 'f')}}eliminadas{{else}}eliminados{{/if}}')]
                 : []
               }
             />

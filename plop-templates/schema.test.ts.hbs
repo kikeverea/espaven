@@ -10,15 +10,20 @@ describe('{{camelCase entity}}FormSchema', () => {
     const result = formSchema.safeParse({{camelCase entity}}())
     expect(result.success).toBe(true)
   })
+{{#if requiredFields.length}}
 
   it.each([
-    'name',
+{{#each requiredFields}}
+    '{{name}}',
+{{/each}}
   ])('rejects if %s not present', field => {
     const result = formSchema.safeParse({{camelCase entity}}({ [field]: null }))
     expect(result.success).toBe(false)
   })
+{{/if}}
+{{#if lengthFields.length}}
 
-  it.each([ 'name' ])('rejects if %s length less than min length, passes if not', field => {
+  it.each([ {{#each lengthFields}}'{{name}}'{{#unless @last}}, {{/unless}}{{/each}} ])('rejects if %s length less than min length, passes if not', field => {
     const invalid = formSchema.safeParse({{camelCase entity}}({ [field]: '1' }))
     const valid = formSchema.safeParse({{camelCase entity}}({ [field]: '11' }))
 
@@ -26,15 +31,26 @@ describe('{{camelCase entity}}FormSchema', () => {
     expect(invalid.success).toBe(false)
   })
 
-  it.each([ [ 'name', 48 ] ])('rejects if %s length more than max length, passes if not', (field, maxLength) => {
+  it.each([ {{#each lengthFields}}[ '{{name}}', {{maxLength}} ]{{#unless @last}}, {{/unless}}{{/each}} ])('rejects if %s length more than max length, passes if not', (field, maxLength) => {
     const valid = formSchema.safeParse({{camelCase entity}}({ [field]: '1'.repeat(maxLength) }))
     const invalid = formSchema.safeParse({{camelCase entity}}({ [field]: '1'.repeat(maxLength + 1) }))
 
     expect(valid.success).toBe(true)
     expect(invalid.success).toBe(false)
   })
+{{/if}}
+{{#if minFields.length}}
+
+  it.each([ {{#each minFields}}[ '{{name}}', {{min}} ]{{#unless @last}}, {{/unless}}{{/each}} ])('rejects if %s is less than minimum, passes if not', (field, min) => {
+    const valid = formSchema.safeParse({{camelCase entity}}({ [field]: min }))
+    const invalid = formSchema.safeParse({{camelCase entity}}({ [field]: min - 1 }))
+
+    expect(valid.success).toBe(true)
+    expect(invalid.success).toBe(false)
+  })
+{{/if}}
 })
 
 const {{camelCase entity}} = (customFields: Partial<z.infer<typeof formSchema>> = {}) => {
-  return { name: 'Name', ...customFields }
+  return { {{#each fields}}{{name}}: {{{sample}}}, {{/each}}...customFields }
 }

@@ -3,11 +3,20 @@ import { defineFormConfig } from '@/components/Form/util.ts'
 import type { Form{{pascalCase entity}}, {{pascalCase entity}} } from '@/features/{{camelCase plural}}/types.ts'
 
 const fields = {
-  name: {
-    label: 'Nombre',
-    schema: z.string().min(2, 'Mínimo 2 caracteres').max(48, 'Máximo 48 caracteres'),
+{{#each fields}}
+  {{name}}: {
+    label: '{{{label}}}',
+    schema: {{{schema}}},
+{{#if variation}}
+    variation: '{{variation}}' as const,
+{{/if}}
   },
+{{/each}}
 }
 
-export const config =
-  defineFormConfig<{{pascalCase entity}}, Form{{pascalCase entity}}, typeof fields>({ fields })
+export const config = defineFormConfig<{{pascalCase entity}}, Form{{pascalCase entity}}, typeof fields>({
+  fields,
+{{#if defaults.length}}
+  defaultValues: { {{#each defaults}}{{name}}: {{{default}}}{{#unless @last}}, {{/unless}}{{/each}} },
+{{/if}}
+})
