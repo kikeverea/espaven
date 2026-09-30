@@ -1,3 +1,6 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
 /*
  * `npm run scaffold` -- builds a feature the way features/inventory/inventoryItems is built.
  * The generated files compile and their tests pass as they are: the fields asked for become the
@@ -43,14 +46,20 @@ const fieldTypes = {
   },
 }
 
-const fieldPattern = new RegExp(`^([a-z][A-Za-z0-9]*)(\\?)?:(${Object.keys(fieldTypes).join('|')})$`)
+const fieldPattern =
+  new RegExp(`^([a-z][A-Za-z0-9_]*)(\\?)?:(${Object.keys(fieldTypes).join('|')})(?::([A-Z][A-Za-z0-9]*))?$`)
 const reservedFields = [ 'id', 'createdAt' ]
 
-/* `name:string, notes?:text` -> [{ name: 'name', type: 'string', optional: false }, ...] */
+const camelize = name => name.replace(/_([a-z0-9])/g, (_, char) => char.toUpperCase())
+
+/*
+ * `name:string, notes?:text, technician_id:number:Technician` ->
+ *   [{ name: 'name', type: 'string', optional: false }, ..., { name: 'technicianId', reference: 'Technician' }]
+ */
 const parseFields = value =>
   value.split(/[\s,]+/).filter(Boolean).map(token => {
-    const [ , name, optional, type ] = token.match(fieldPattern) || []
-    return { token, name, type, optional: !!optional }
+    const [ , name, optional, type, reference ] = token.match(fieldPattern) || []
+    return { token, name: name && camelize(name), type, optional: !!optional, reference }
   })
 
 const validateFields = value => {
@@ -68,7 +77,37 @@ const validateFields = value => {
   const repeated = names.find((name, index) => names.indexOf(name) !== index)
   if (repeated) return `'${repeated}' is repeated`
 
+  const unreferenced = fields.find(field => field.reference && !/.Id$/.test(field.name))
+  if (unreferenced) return `'${unreferenced.token}' references a type, so its name ends in _id`
+
   return true
+}
+
+/* where a referenced type is exported from, as an @/ import. Undefined if nowhere in src */
+const findTypeImport = type => {
+  const declaration = new RegExp(`^export type ${type}\\b`, 'm')
+
+  const file = fs.readdirSync('src', { recursive: true })
+    .filter(file => /\.tsx?$/.test(file) && !file.endsWith('.gen.ts'))
+    .find(file => declaration.test(fs.readFileSync(path.join('src', file), 'utf8')))
+
+  return file && `@/${file.replace(/\.tsx?$/, '')}`
+}
+
+const hasFactory = name =>
+  new RegExp(`const ${name} = `).test(fs.readFileSync('src/test/factories.ts', 'utf8'))
+
+/* the reference's type asks where it lives only when it cannot be found */
+const resolveReference = async (inquirer, field) => {
+  const object = field.name.replace(/Id$/, '')
+  const from = findTypeImport(field.reference) || (await inquirer.prompt({
+    type: 'input',
+    name: 'from',
+    message: `No 'export type ${field.reference}' in src. Import it from:`,
+    default: `@/features/${object}s/types`,
+  })).from
+
+  return { type: field.reference, object, from, factory: hasFactory(object) }
 }
 
 const defaultLabels = { name: 'Nombre', description: 'Descripción', type: 'Tipo', price: 'Precio' }
@@ -86,12 +125,25 @@ const describeField = field => {
     maxLength: type.maxLength,
     min: type.min,
     default: type.default,
-    column: !!type.column,
+    /* a reference is an id in the form and the whole record in the type, which has no column for it */
+    column: !!type.column && !field.reference,
+    typeName: field.reference ? field.reference.object : field.name,
+    typeType: field.reference ? field.reference.type : type.tsType,
   }
+}
+
+/* a referenced record without a factory of its own gets the fields every record has */
+const factoryValue = (field, entityType) => {
+  if (!field.reference)
+    return field.sample
+
+  const { object, factory } = field.reference
+  return factory ? `${object}()` : `{ id: 1, createdAt: now() } as ${entityType}['${object}']`
 }
 
 const describeFeature = answers => {
   const fields = answers.fields
+  const entityType = answers.entity[0].toUpperCase() + answers.entity.slice(1)
   const display = fields.find(field => field.column && field.tsType === 'string') ||
                   fields.find(field => field.column)
 
@@ -103,7 +155,11 @@ const describeFeature = answers => {
     columns: fields.filter(field => field.column),
     defaults: fields.filter(field => field.default != null),
     display: display && { name: display.name, isString: display.tsType === 'string' },
-    factoryFields: fields.map(field => `    ${field.name}: ${field.sample},`).join('\n'),
+    references: fields.filter(field => field.reference),
+    referenceImports: [ ...new Map(
+      fields.filter(field => field.reference).map(({ reference }) => [ reference.type, reference ])
+    ).values() ],
+    factoryFields: fields.map(field => `    ${field.typeName}: ${factoryValue(field, entityType)},`).join('\n'),
   }
 }
 
@@ -160,7 +216,7 @@ export default function (plop) {
         {
           type: 'input',
           name: 'fields',
-          message: 'Fields, name:type with ? if optional (name:string, notes?:text, price:number):',
+          message: 'Fields, name:type with ? if optional, :Type for a reference (name:string, notes?:text, technician_id:number:Technician):',
           default: 'name:string',
           validate: validateFields,
         },
@@ -177,7 +233,8 @@ export default function (plop) {
           validate: value => value.length > 0 || 'required',
         })
 
-        fields.push(describeField({ ...field, label }))
+        const reference = field.reference && await resolveReference(inquirer, field)
+        fields.push(describeField({ ...field, label, reference }))
       }
 
       return describeFeature({ ...answers, fields })

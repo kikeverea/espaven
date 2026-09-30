@@ -1,10 +1,13 @@
 import type { PersistedRecord } from '@/types'
+{{#each referenceImports}}
+import type { {{type}} } from '{{from}}'
+{{/each}}
 
 export type {{pascalCase entity}} =
   PersistedRecord &
   {
 {{#each fields}}
-    {{name}}{{#if optional}}?{{/if}}: {{tsType}}
+    {{typeName}}{{#if optional}}?{{/if}}: {{typeType}}
 {{/each}}
   }
 
