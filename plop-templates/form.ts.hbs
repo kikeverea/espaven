@@ -1,7 +1,7 @@
 import * as z from 'zod'
 import { defineFormConfig } from '@/components/Form/util.ts'
 import type { Form{{pascalCase entity}}, {{pascalCase entity}} } from '@/features/{{camelCase plural}}/types.ts'
-{{#if references.length}}
+{{#if converted}}
 import type { InferSchema } from '@/components/Form/types.ts'
 {{/if}}
 
@@ -22,11 +22,20 @@ export const config = defineFormConfig<{{pascalCase entity}}, Form{{pascalCase e
 {{#if defaults.length}}
   defaultValues: { {{#each defaults}}{{name}}: {{{default}}}{{#unless @last}}, {{/unless}}{{/each}} },
 {{/if}}
-{{#if references.length}}
-  /* the form holds the ids of the records the {{camelCase entity}} references */
+{{#if converted}}
+  /* the form holds the ids of the records the {{camelCase entity}} references, and Dates for its date strings */
   toFormData: ({{camelCase entity}}: {{pascalCase entity}}): InferSchema<typeof fields> => {
-    const { {{#each references}}{{reference.object}}, {{/each}}...rest } = {{camelCase entity}}
-    return { ...rest, {{#each references}}{{name}}: {{reference.object}}?.id{{#unless @last}}, {{/unless}}{{/each}} }
+    const { {{#each references}}{{reference.object}}, {{/each}}{{#each dates}}{{name}}, {{/each}}...rest } = {{camelCase entity}}
+
+    return {
+      ...rest,
+{{#each references}}
+      {{name}}: {{reference.object}}?.id,
+{{/each}}
+{{#each dates}}
+      {{name}}: {{name}} ? new Date({{name}}) : undefined,
+{{/each}}
+    }
   },
 {{/if}}
 })

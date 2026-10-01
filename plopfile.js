@@ -44,6 +44,15 @@ const fieldTypes = {
     default: 'false',
     sample: () => 'false',
   },
+  date: {
+    /* a string in the type, like createdAt, and a Date in the picker: toFormData converts it */
+    tsType: 'string',
+    schema: '.date()',
+    optionalSchema: '.date().optional()',
+    sample: () => 'new Date()',
+    factorySample: () => 'now()',
+    date: true,
+  },
 }
 
 const fieldPattern =
@@ -122,6 +131,8 @@ const describeField = field => {
     schema: `z${field.optional ? type.optionalSchema : type.schema}`,
     variation: type.variation,
     sample: type.sample(field.name),
+    factorySample: (type.factorySample || type.sample)(field.name),
+    date: !!type.date,
     maxLength: type.maxLength,
     min: type.min,
     default: type.default,
@@ -135,7 +146,7 @@ const describeField = field => {
 /* a referenced record without a factory of its own gets the fields every record has */
 const factoryValue = (field, entityType) => {
   if (!field.reference)
-    return field.sample
+    return field.factorySample
 
   const { object, factory } = field.reference
   return factory ? `${object}()` : `{ id: 1, createdAt: now() } as ${entityType}['${object}']`
@@ -144,7 +155,9 @@ const factoryValue = (field, entityType) => {
 const describeFeature = answers => {
   const fields = answers.fields
   const entityType = answers.entity[0].toUpperCase() + answers.entity.slice(1)
-  const display = fields.find(field => field.column && field.tsType === 'string') ||
+  /* the column the index test finds its rows by: a required string when there is one */
+  const display = fields.find(field => field.column && field.tsType === 'string' && !field.optional) ||
+                  fields.find(field => field.column && field.tsType === 'string') ||
                   fields.find(field => field.column)
 
   return {
@@ -154,8 +167,10 @@ const describeFeature = answers => {
     minFields: fields.filter(field => field.min != null),
     columns: fields.filter(field => field.column),
     defaults: fields.filter(field => field.default != null),
-    display: display && { name: display.name, isString: display.tsType === 'string' },
+    display: display && { name: display.name, isString: display.tsType === 'string', optional: display.optional },
     references: fields.filter(field => field.reference),
+    dates: fields.filter(field => field.date),
+    converted: fields.some(field => field.reference || field.date),
     referenceImports: [ ...new Map(
       fields.filter(field => field.reference).map(({ reference }) => [ reference.type, reference ])
     ).values() ],

@@ -27,7 +27,7 @@ describe('{{pascalCase plural}}Index', () => {
 
     dataRows.forEach((row, ind) => {
 {{#if display.isString}}
-      expect(within(row).getByText({{camelCase plural}}[ind].{{display.name}})).toBeInTheDocument()
+      expect(within(row).getByText({{camelCase plural}}[ind].{{display.name}}{{#if display.optional}}!{{/if}})).toBeInTheDocument()
 {{else}}
       expect(within(row).getByText(String({{camelCase plural}}[ind].{{display.name}}))).toBeInTheDocument()
 {{/if}}
