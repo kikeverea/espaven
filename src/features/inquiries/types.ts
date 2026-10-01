@@ -32,9 +32,3 @@ export type InquiryStatus =
 export type InquiryComment = Comment & { inquiry: Inquiry }
 /* Partial, not Omit: Omit over an Entity strips the property types along with the key */
 export type FormInquiryComment = Partial<InquiryComment>
-
-export type User = PersistedRecord & {
-  fullName: string
-  lastName?: string
-  email: string
-}
