@@ -1,11 +1,11 @@
 import { QueryClient } from '@tanstack/react-query'
 import { createMemoryHistory, createRouter } from '@tanstack/react-router'
-import { createMongoAbility } from '@casl/ability'
+import { createMongoAbility, ForbiddenError } from '@casl/ability'
 import { routeTree } from '@/routeTree.gen'
 import { rulesFor, type AppAbility } from '@/lib/ability'
 import type { Role } from '@/features/users/types'
 
-/* loads `path` as `role` would, and tells whether the route turned out not found */
+/* loads `path` as `role` would, and tells whether a guard turned it away */
 const isDenied = async (role: Role, path: string) => {
   const router = createRouter({
     routeTree,
@@ -14,7 +14,7 @@ const isDenied = async (role: Role, path: string) => {
   })
 
   await router.load()
-  return router.state.matches.some(match => match.status === 'notFound')
+  return router.state.matches.some(match => match.error instanceof ForbiddenError)
 }
 
 describe('route guards', () => {
