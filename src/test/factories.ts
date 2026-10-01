@@ -1,14 +1,19 @@
 /* plop:imports */
-import type { Contact, Inquiry, User } from '@/features/inquiries/types'
+import type { Vehicle } from '@/features/vehicles/types'
+import type { User } from '@/features/users/types'
+import type { WorkOrder } from '@/features/workOrders/types'
+import type { Contact, Inquiry } from '@/features/inquiries/types'
 import type { UnitOfMeasure } from '@/features/unitsOfMeasure/types'
 import type { Comment } from '@/features/comments/types'
 import type { ServiceTemplate } from '@/features/serviceTemplates/types.ts'
-import type { InventoryItem } from '@/features/inventory/types.ts'
+import type { InventoryItem } from '@/features/inventory/inventoryItems/types'
 import type { InventoryCategory } from '@/features/inventoryCategories/types.ts'
 
 export const createFactories = () => {
   const ids = {
     /* plop:ids */
+    vehicle: 1,
+    workOrder: 1,
     user: 1,
     contact: 1,
     inquiry: 1,
@@ -23,11 +28,50 @@ export const createFactories = () => {
 
   /* plop:factories */
 
+  const vehicle = (args: Partial<Vehicle> = {}): Vehicle => ({
+    id: ids.vehicle++,
+    client: contact(),
+    plateNumber: 'Test plateNumber',
+    description: 'Test description',
+    make: 'Test make',
+    makeDescription: 'Test makeDescription',
+    model: 'Test model',
+    modelDescription: 'Test modelDescription',
+    engineSize: 'Test engineSize',
+    registrationDate: now(),
+    variation: 'Test variation',
+    variantType: 'Test variantType',
+    vehicleType: 'Test vehicleType',
+    seats: 1,
+    fuel: 'Test fuel',
+    doors: 1,
+    dynamicPower: 1,
+    imageUrl: 'Test imageUrl',
+    kType: 'Test kType',
+    indicativePrice: 1,
+    allTerrain: false,
+    stolen: 'Test stolen',
+    createdAt: now(),
+    ...args,
+  })
+
+  const workOrder = (args: Partial<WorkOrder> = {}): WorkOrder => ({
+    id: ids.workOrder++,
+    number: 'Test number',
+    stage: 'Test stage',
+    status: 'Test status',
+    technician: user({ roles: [ 'technician' ] }) as WorkOrder['technician'],
+    vehicle: vehicle(),
+    totalMinutes: 1,
+    createdAt: now(),
+    ...args,
+  })
+
   const user = (args: Partial<User> = {}): User => ({
     id: ids.user++,
     fullName: 'Test',
-    lastName: 'User',
     email: 'test@user.com',
+    roles: [ 'office' ],
     createdAt: now(),
     ...args,
   })
@@ -69,6 +113,14 @@ export const createFactories = () => {
     ...args
   })
 
+  const inventoryCategory = (args: Partial<InventoryCategory> = {}): InventoryCategory => ({
+    id: ids.inventoryCategory++,
+    name: 'Test item 1',
+    appliesSigaus: false,
+    createdAt: now(),
+    ...args
+  })
+
   const inventoryItem = (args: Partial<InventoryItem> = {}): InventoryItem => ({
     id: ids.inventoryItem++,
     name: 'Test item 1',
@@ -77,14 +129,7 @@ export const createFactories = () => {
     unitOfMeasure: unitOfMeasure(),
     priceCents: 2000,
     createdAt: now(),
-    ...args
-  })
-
-  const inventoryCategory = (args: Partial<InventoryCategory> = {}): InventoryCategory => ({
-    id: ids.inventoryCategory++,
-    name: 'Test item 1',
-    appliesSigaus: false,
-    createdAt: now(),
+    inventoryCategory: inventoryCategory(),
     ...args
   })
 
@@ -99,10 +144,12 @@ export const createFactories = () => {
 
   return {
     /* plop:exports */
+    vehicle,
+    user,
+    workOrder,
     contact,
     comment,
     inquiry,
-    user,
     inventoryItem,
     inventoryCategory,
     unitOfMeasure,
