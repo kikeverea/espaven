@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -11,7 +12,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem,
 } from '@/components/ui/sidebar.tsx'
-import { type ReactNode } from 'react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx'
+import type { Role } from '@/features/users/types.ts'
+import { rulesFor, type AppAbility, type Subject } from '@/lib/ability.ts'
+import { visibleSidebarStruct } from '@/components/AppSidebar/util.ts'
+import { useAbility } from '@casl/react'
+import { type ReactNode, useState } from 'react'
 
 export type AppSidebarStruct = Record<string, AppSidebarLink[]>
 
@@ -20,9 +26,28 @@ export type AppSidebarLink = {
   icon: ReactNode
   label: string
   links?: AppSidebarLink[]
+  subject?: Subject
 }
 
+const roles: { label: string, value: Role }[] = [
+  { label: 'Administrador', value: 'admin' },
+  { label: 'Oficina', value: 'office' },
+  { label: 'Técnico', value: 'technician' },
+]
+
 export function AppSidebar({ struct }: { struct: AppSidebarStruct }) {
+  const ability = useAbility<AppAbility>()
+
+  /* TODO: the signed in user's rules, once there is one. The role is switched by hand for now */
+  const [ role, setRole ] = useState<Role>('admin')
+
+  const switchRole = (role: Role) => {
+    setRole(role)
+    ability.update(rulesFor(role))
+  }
+
+  const visibleLinks = visibleSidebarStruct(struct, ability)
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -32,7 +57,7 @@ export function AppSidebar({ struct }: { struct: AppSidebarStruct }) {
       </SidebarHeader>
 
       <SidebarContent>
-        {Object.entries(struct).map(([label, links], ind) =>
+        {Object.entries(visibleLinks).map(([label, links], ind) =>
           <SidebarGroup key={`${label}-group-${ind}`}>
             <SidebarGroupLabel>{ label }</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -68,6 +93,19 @@ export function AppSidebar({ struct }: { struct: AppSidebarStruct }) {
           </SidebarGroup>
         )}
       </SidebarContent>
+
+      <SidebarFooter className='group-data-[collapsible=icon]:hidden pb-48'>
+        <Select items={ roles } value={ role } onValueChange={ value => value && switchRole(value) }>
+          <SelectTrigger aria-label='Rol' className='w-full'>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            { roles.map(({ label, value }) =>
+              <SelectItem key={ value } value={ value }>{ label }</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+      </SidebarFooter>
     </Sidebar>
   )
 }
