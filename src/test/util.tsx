@@ -7,6 +7,8 @@ import {
 } from '@tanstack/react-router'
 import { render as rtlRender } from '@testing-library/react'
 import { routeTree } from '@/routeTree.gen'
+import { createMongoAbility } from '@casl/ability'
+import { rulesFor, type AppAbility } from '@/lib/ability'
 
 export function render(children: ReactNode) {
   const queryClient = new QueryClient({
@@ -26,7 +28,7 @@ export function render(children: ReactNode) {
 
   const router = createRouter({
     routeTree,
-    context: { queryClient },
+    context: { queryClient, ability: createMongoAbility<AppAbility>(rulesFor('admin')) },
     history: createMemoryHistory({
       initialEntries: ['/'],
     }),

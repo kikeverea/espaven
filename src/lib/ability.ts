@@ -1,4 +1,5 @@
 import { AbilityBuilder, createMongoAbility, type MongoAbility } from '@casl/ability'
+import { notFound } from '@tanstack/react-router'
 import type { Role } from '@/features/users/types.ts'
 
 export type Action = 'manage' | 'create' | 'read' | 'update' | 'delete'
@@ -40,3 +41,10 @@ export const rulesFor = (role: Role) => {
 
 /* The one ability the app checks against, through AbilityProvider / useAbility */
 export const ability = createMongoAbility<AppAbility>(rulesFor('admin'))
+
+/* A route's beforeLoad: only who can `action` the `subject` gets in. Everyone else, a not found */
+export const authorize = (action: Action, subject: Subject) =>
+  ({ context }: { context: { ability: AppAbility } }) => {
+    if (context.ability.cannot(action, subject))
+      throw notFound()
+  }

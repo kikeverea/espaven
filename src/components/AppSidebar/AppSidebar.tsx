@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useRouter } from '@tanstack/react-router'
 
 import {
   Sidebar,
@@ -37,6 +37,7 @@ const roles: { label: string, value: Role }[] = [
 
 export function AppSidebar({ struct }: { struct: AppSidebarStruct }) {
   const ability = useAbility<AppAbility>()
+  const router = useRouter()
 
   /* TODO: the signed in user's rules, once there is one. The role is switched by hand for now */
   const [ role, setRole ] = useState<Role>('admin')
@@ -44,6 +45,7 @@ export function AppSidebar({ struct }: { struct: AppSidebarStruct }) {
   const switchRole = (role: Role) => {
     setRole(role)
     ability.update(rulesFor(role))
+    router.invalidate()        // the routes' beforeLoad check the open page against the new rules
   }
 
   const visibleLinks = visibleSidebarStruct(struct, ability)

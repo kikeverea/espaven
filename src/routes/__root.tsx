@@ -7,11 +7,12 @@ import { queryClient } from '@/queryClient'
 import { Toaster } from "@/components/ui/toast"
 import { BlinkProvider } from '@/components/Blinker/BlinkContext.tsx'
 import { AbilityProvider } from '@casl/react'
-import { ability } from '@/lib/ability.ts'
+import { ability, type AppAbility } from '@/lib/ability.ts'
 import { Inbox, User, CirclePile, Scale, NotepadTextDashed, Wrench, ChartBarStacked, Cog } from 'lucide-react'
 
 export type RouterContext = {
   queryClient: QueryClient
+  ability: AppAbility
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
