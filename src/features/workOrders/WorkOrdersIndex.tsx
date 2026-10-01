@@ -2,9 +2,8 @@ import { useWorkOrders, useWorkOrderMutations } from '@/features/workOrders/useW
 import type { TableColumn } from '@/components/Table/types'
 import type { WorkOrder } from '@/features/workOrders/types.ts'
 import Table from '@/components/Table/Table'
-import { Pencil, Plus, Trash, X } from 'lucide-react'
-import { Button } from '@/components/ui/button.tsx'
-import NavBar from '@/components/NavBar/NavBar.tsx'
+import { Pencil, Trash } from 'lucide-react'
+import IndexNavBar from '@/components/NavBar/IndexNavBar.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
 import useTableQuery from '@/components/Table/hooks/useTableQuery'
 import { batchDelete } from '@/components/Table/util.tsx'
@@ -38,21 +37,7 @@ const WorkOrdersIndex = () => {
   return (
     <div className='flex w-full h-full'>
       <div className='min-w-0 flex-1 px-5 pb-8'>
-        <NavBar
-          label='Órdenes de trabajo'
-          action={!formWorkOrder.get()
-            ? <Button
-              variant='primary'
-              className='me-2 px-4 py-4 lg:hidden'
-              onClick={() => formWorkOrder.set({} as WorkOrder)}
-            >
-              <Plus className='size-4' /> Crear orden de trabajo
-            </Button>
-            : <Button className='me-2 text-[13px] py-4 lg:hidden' onClick={() => formWorkOrder.set(null) }>
-              <X className='size-4' /> Cerrar
-            </Button>
-          }
-        />
+        <IndexNavBar label='Órdenes de trabajo' createLabel='Crear orden de trabajo' form={ formWorkOrder } className='xl:hidden' />
 
         <WorkOrderForm
           name='mobile-work-order'

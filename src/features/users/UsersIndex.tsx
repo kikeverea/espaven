@@ -2,9 +2,8 @@ import { useUsers, useUserMutations } from '@/features/users/useUsers'
 import type { TableColumn } from '@/components/Table/types'
 import type { User } from '@/features/users/types.ts'
 import Table from '@/components/Table/Table'
-import { Pencil, Plus, Trash, X } from 'lucide-react'
-import { Button } from '@/components/ui/button.tsx'
-import NavBar from '@/components/NavBar/NavBar.tsx'
+import { Pencil, Trash } from 'lucide-react'
+import IndexNavBar from '@/components/NavBar/IndexNavBar.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
 import useTableQuery from '@/components/Table/hooks/useTableQuery'
 import { batchDelete } from '@/components/Table/util.tsx'
@@ -37,21 +36,7 @@ const UsersIndex = () => {
   return (
     <div className='flex w-full h-full'>
       <div className='min-w-0 flex-1 px-5 pb-8'>
-        <NavBar
-          label='Usuarios'
-          action={!formUser.get()
-            ? <Button
-              variant='primary'
-              className='me-2 px-4 py-4 lg:hidden'
-              onClick={() => formUser.set({} as User)}
-            >
-              <Plus className='size-4' /> Crear usuario
-            </Button>
-            : <Button className='me-2 text-[13px] py-4 lg:hidden' onClick={() => formUser.set(null) }>
-              <X className='size-4' /> Cerrar
-            </Button>
-          }
-        />
+        <IndexNavBar label='Usuarios' createLabel='Crear usuario' form={ formUser } className='xl:hidden' />
 
         <UserForm
           name='mobile-user'

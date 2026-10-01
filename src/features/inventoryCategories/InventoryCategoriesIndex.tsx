@@ -3,9 +3,7 @@ import type { TableColumn } from '@/components/Table/types'
 import type { InventoryCategory } from '@/features/inventoryCategories/types.ts'
 import Table from '@/components/Table/Table'
 import { Pencil, Trash } from 'lucide-react'
-import { Button } from '@/components/ui/button.tsx'
-import { Plus, X } from 'lucide-react'
-import NavBar from '@/components/NavBar/NavBar.tsx'
+import IndexNavBar from '@/components/NavBar/IndexNavBar.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
 import InventoryCategoryForm from '@/features/inventoryCategories/InventoryCategoryForm.tsx'
 import BooleanBadge from '@/components/BooleanBadge/BooleanBadge.tsx'
@@ -40,21 +38,7 @@ const InventoryCategoriesIndex = () => {
     <>
       <div className='flex w-full h-full'>
         <div className='min-w-0 flex-1 px-5 pb-8'>
-          <NavBar
-            label='Categorías de inventario'
-            action={!formCategory.get()
-              ? <Button
-                variant='primary'
-                className='me-2 px-4 py-4 lg:hidden'
-                onClick={() => formCategory.set({} as InventoryCategory)}
-              >
-                <Plus className='size-4' /> Crear unidad
-              </Button>
-              : <Button className='me-2 text-[13px] py-4 lg:hidden' onClick={() => formCategory.set(null) }>
-                <X className='size-4' /> Cerrar
-              </Button>
-            }
-          />
+          <IndexNavBar label='Categorías de inventario' createLabel='Crear categoría' form={ formCategory } className='xl:hidden' />
 
           <div className='py-3 flex-1 flex gap-6 my-4 items-start'>
             <div className='lg:flex-1'>

@@ -2,9 +2,8 @@ import { useVehicles, useVehicleMutations } from '@/features/vehicles/useVehicle
 import type { TableColumn } from '@/components/Table/types'
 import type { Vehicle } from '@/features/vehicles/types.ts'
 import Table from '@/components/Table/Table'
-import { Pencil, Plus, Trash, X } from 'lucide-react'
-import { Button } from '@/components/ui/button.tsx'
-import NavBar from '@/components/NavBar/NavBar.tsx'
+import { Pencil, Trash } from 'lucide-react'
+import IndexNavBar from '@/components/NavBar/IndexNavBar.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
 import useTableQuery from '@/components/Table/hooks/useTableQuery'
 import { batchDelete } from '@/components/Table/util.tsx'
@@ -48,21 +47,7 @@ const VehiclesIndex = () => {
   return (
     <div className='flex w-full h-full'>
       <div className='min-w-0 flex-1 px-5 pb-8'>
-        <NavBar
-          label='Vehículos'
-          action={!formVehicle.get()
-            ? <Button
-              variant='primary'
-              className='me-2 px-4 py-4 lg:hidden'
-              onClick={() => formVehicle.set({} as Vehicle)}
-            >
-              <Plus className='size-4' /> Crear vehículo
-            </Button>
-            : <Button className='me-2 text-[13px] py-4 lg:hidden' onClick={() => formVehicle.set(null) }>
-              <X className='size-4' /> Cerrar
-            </Button>
-          }
-        />
+        <IndexNavBar label='Vehículos' createLabel='Crear vehículo' form={ formVehicle } className='xl:hidden' />
 
         <VehicleForm
           name='mobile-vehicle'

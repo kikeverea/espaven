@@ -5,9 +5,7 @@ import InventoryItemTray from '@/features/inventory/InventoryItemTray'
 import type { TableColumn } from '@/components/Table/types'
 import Table from '@/components/Table/Table'
 import { Pencil, Trash } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Plus, X } from 'lucide-react'
-import NavBar from '@/components/NavBar/NavBar'
+import IndexNavBar from '@/components/NavBar/IndexNavBar.tsx'
 import { toDecimal } from '@/lib/numbers.ts'
 import { useCollection } from '@/components/Table/useCollection.tsx'
 import MovementList from '@/features/inventory/movements/MovementList.tsx'
@@ -35,21 +33,7 @@ const InventoryIndex = () => {
     <>
       <div className='flex w-full h-full'>
         <div className='min-w-0 flex-1 px-5 pb-8'>
-          <NavBar
-            label='Inventario'
-            action={formItem.id() == null
-              ? <Button
-                variant='primary'
-                className='me-2 px-4 py-4'
-                onClick={() => formItem.set({} as InventoryItem)}
-              >
-                <Plus className='size-4' /> Crear artículo
-              </Button>
-              : <Button className='me-2 text-[13px] py-4' onClick={() => formItem.set(null) }>
-                <X className='size-4' /> Cerrar
-              </Button>
-            }
-          />
+          <IndexNavBar label='Inventario' createLabel='Crear artículo' form={ formItem } />
 
           <InventoryItemForm
             name='inventory-item-form'
