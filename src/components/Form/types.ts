@@ -28,6 +28,7 @@ export type FormConfig<
   FData extends InferSchema<F> = InferSchema<F>,
 > = {
   fields: F
+  layout?: FormLayout<F>
   defaultValues?: DefaultValues<FData>
   refine?: {
     fn: (data: { [x: string]: any }) => boolean
@@ -46,7 +47,11 @@ export type FormField = {
   placeholder?: string
   options?: { value: string | Entity['id'], label: string }[]
   feedback?: (value: string) => ReactNode
+  /* Runs when the user edits the field, never when it is set: so it can set other fields without looping */
+  onChange?: (value: string, set: FieldSetter) => void
 }
+
+export type FieldSetter = (name: string, value: unknown) => void
 
 type FieldInfoBase = {
   required?: boolean
@@ -60,6 +65,11 @@ export type FieldInfo =
   | FieldInfoBase & { kind: 'array', element: () => ReactNode }
 
 export type FormFields = Record<string, FormField>
+
+/* Rows of field names: a name alone takes a line of its own, the names of an array share one */
+export type FormLayout<F extends FormFields> = (FieldName<F> | FieldName<F>[])[]
+
+type FieldName<F extends FormFields> = keyof F & string
 
 export type FieldVariation =
   | 'email'

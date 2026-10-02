@@ -4,6 +4,7 @@ import { render } from '@/test/util.tsx'
 import { defineFormConfig } from '@/components/Form/util.ts'
 import type { Mutations } from '@/lib/mutations.tsx'
 import type { Entity } from '@/types.ts'
+import type { FormField } from '@/components/Form/types.ts'
 import { afterEach, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 import { useState } from 'react'
@@ -32,7 +33,7 @@ describe('Form', () => {
     item: {}
   }
 
-  type TestFields = Record<string, { schema: z.ZodType, variation?: 'textarea', label?: string, feedback?: (value: string) => string }>
+  type TestFields = Record<string, { schema: z.ZodType, variation?: 'textarea', label?: string, feedback?: (value: string) => string, onChange?: FormField['onChange'] }>
 
   const configOf = <F extends TestFields>(fields: F) =>
     defineFormConfig<TestEntity, NewEntity, F>({ fields })
@@ -80,6 +81,25 @@ describe('Form', () => {
     const checkbox = screen.getByRole('checkbox')
 
     expect(checkbox).toBeInTheDocument()
+  })
+
+  test('renders the fields of a layout row on the same line', () => {
+    const config = {
+      ...configOf({
+        name: { schema: z.string() },
+        hours: { schema: z.number() },
+        minutes: { schema: z.number() },
+      }),
+      layout: [ 'name', [ 'hours', 'minutes' ] ] as [ 'name', [ 'hours', 'minutes' ] ],
+    }
+
+    render(<Form {...props} config={config} />)
+
+    const [ hours, minutes ] = screen.getAllByRole('spinbutton')
+    const row = hours.closest('.flex.gap-4')
+
+    expect(row).toContainElement(minutes)
+    expect(row).not.toContainElement(screen.getByRole('textbox'))
   })
 
   test('labels the input without leaking the label onto it', () => {
@@ -196,6 +216,46 @@ describe('Form', () => {
     await user.click(screen.getByRole('button', { name: 'Cancelar' }))
 
     expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe('')
+  })
+
+  describe('onChange', () => {
+
+    /* hours and minutes, each setting the other */
+    const config = configOf({
+      hours: {
+        schema: z.coerce.number().min(0).max(10),
+        onChange: (hours, set) => set('minutes', Number(hours) * 60),
+      },
+      minutes: {
+        schema: z.coerce.number().min(0),
+        onChange: (minutes, set) => set('hours', Number(minutes) / 60),
+      },
+    })
+
+    const inputs = () => screen.getAllByRole('spinbutton') as HTMLInputElement[]
+
+    test('sets the other field as the user edits one, without looping back', async () => {
+      const user = userEvent.setup()
+      render(<Form {...props} config={config} />)
+
+      await user.type(inputs()[1], '90')
+      expect(inputs().map(input => input.value)).toEqual([ '1.5', '90' ])
+
+      await user.clear(inputs()[0])
+      await user.type(inputs()[0], '2')
+      expect(inputs().map(input => input.value)).toEqual([ '2', '120' ])
+    })
+
+    test('does not set the other field from a value the schema rejects', async () => {
+      const user = userEvent.setup()
+      render(<Form {...props} config={config} />)
+
+      /* '1' is set along, '12' is over the maximum */
+      await user.type(inputs()[0], '12')
+
+      expect(inputs()[0].value).toBe('12')
+      expect(inputs()[1].value).toBe('60')
+    })
   })
 
   describe('feedback', () => {

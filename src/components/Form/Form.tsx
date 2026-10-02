@@ -7,7 +7,7 @@ import FormMultiInput from '@/components/Form/FormMultiInput.tsx'
 import { Button, type ButtonVariants } from '@/components/ui/button.tsx'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import FormTextarea from '@/components/Form/FormTextarea.tsx'
-import { extractSchema, getFieldInfo } from '@/components/Form/util.ts'
+import { extractSchema, getFieldInfo, layoutRows } from '@/components/Form/util.ts'
 import FormSelect from '@/components/Form/FormSelect.tsx'
 import FormCheckbox from '@/components/Form/FormCheckbox.tsx'
 import FormDatePicker from '@/components/Form/FormDatePicker.tsx'
@@ -102,6 +102,31 @@ const Form = <T extends Entity, TSubmit extends Record<string, unknown>, F exten
     onCancel?.()
   }
 
+  const renderField = (name: string) => {
+    const field = config.fields[name]
+    const fieldInfo = getFieldInfo(field)
+    const props = { form, name, label: field.label, required: fieldInfo.required }
+
+    switch (fieldInfo.kind) {
+      case 'string':
+        return field.variation === 'textarea' ?
+          <FormTextarea {...props } key={ name } field={field} /> :
+          <FormInput {...props } key={ name } type={ field.type || 'text' } field={field} />
+      case 'number':
+        return <FormInput {...props } key={ name } type='number' step={ fieldInfo.step || "any" } field={field}/>
+      case 'boolean':
+        return <FormCheckbox {...props } key={ name } field={field} />
+      case 'enum':
+        return <FormSelect{...props } key={ name } items={ fieldInfo.options } field={field} />
+      case 'date':
+        return <FormDatePicker {...props } key={ name } field={field} />
+      case 'array':
+        return <FormMultiInput{...props } key={ name } addMessage={ field.placeholder } field={field} />
+      default:
+        throw new Error(`Invalid field info: ${fieldInfo}`)
+    }
+  }
+
   const { label: confirmLabel, variant: confirmVariant } = confirmButton || {}
   const { label: cancelLabel, variant: cancelVariant } = cancelButton || {}
 
@@ -109,30 +134,13 @@ const Form = <T extends Entity, TSubmit extends Record<string, unknown>, F exten
     <>
       <FormContainer>
         <form id={ formName } onSubmit={form.handleSubmit(handleSubmit)} >
-          { Object.entries(config.fields).map(([ name, field ]) => {
-
-            const fieldInfo = getFieldInfo(field)
-            const props = { form, name, label: field.label, required: fieldInfo.required }
-
-            switch (fieldInfo.kind) {
-              case 'string':
-                return field.variation === 'textarea' ?
-                  <FormTextarea {...props } key={ name } field={field} /> :
-                  <FormInput {...props } key={ name } type={ field.type || 'text' } field={field} />
-              case 'number':
-                return <FormInput {...props } key={ name } type='number' step={ fieldInfo.step || "any" } field={field}/>
-              case 'boolean':
-                return <FormCheckbox {...props } key={ name } field={field} />
-              case 'enum':
-                return <FormSelect{...props } key={ name } items={ fieldInfo.options } field={field} />
-              case 'date':
-                return <FormDatePicker {...props } key={ name } field={field} />
-              case 'array':
-                return <FormMultiInput{...props } key={ name } addMessage={ field.placeholder } field={field} />
-              default:
-                throw new Error(`Invalid field info: ${fieldInfo}`)
-            }
-          })}
+          { layoutRows(config.fields, config.layout).map(row =>
+            row.length === 1
+              ? renderField(row[0])
+              : <div key={ row.join('-') } className='flex gap-4'>
+                  { row.map(name => <div key={ name } className='flex-1 min-w-0'>{ renderField(name) }</div>) }
+                </div>
+          )}
         </form>
       </FormContainer>
 

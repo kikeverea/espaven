@@ -1,6 +1,6 @@
 import * as z from 'zod'
 import type { DefaultValues } from 'react-hook-form'
-import type { FieldInfo, FormConfig, FormField, FormFields, InferSchema } from '@/components/Form/types.ts'
+import type { FieldInfo, FormConfig, FormField, FormFields, FormLayout, InferSchema } from '@/components/Form/types.ts'
 import type { Entity } from '@/types'
 
 type PartialConfig<P extends { toFormData: P['toFormData'], toSubmitData: P['toSubmitData'] }> =
@@ -38,6 +38,21 @@ export const defineFormConfig = <
     toSubmitData,
     ...rest
   }
+}
+
+/*
+ * The lines the form renders, each the names of the fields it holds. Without a layout, every
+ * field takes a line of its own. With one, the fields it leaves out follow it, a line each, so
+ * forgetting one never hides it
+ */
+export const layoutRows = <F extends FormFields>(fields: F, layout: FormLayout<F> = []): string[][] => {
+  const rows = layout.map(row => Array.isArray(row) ? row : [ row ])
+  const placed = new Set(rows.flat())
+
+  return [
+    ...rows,
+    ...Object.keys(fields).filter(name => !placed.has(name)).map(name => [ name ]),
+  ]
 }
 
 /**

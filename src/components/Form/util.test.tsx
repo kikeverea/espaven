@@ -1,6 +1,6 @@
 import type { TestData } from '@/lib/testUtils.ts'
 import * as z from 'zod'
-import { defineFormConfig, extractSchema, selectOptions, isValid } from '@/components/Form/util.ts'
+import { defineFormConfig, extractSchema, selectOptions, isValid, layoutRows } from '@/components/Form/util.ts'
 import type { FormFields } from '@/components/Form/types.ts'
 import type { Entity } from '@/types.ts'
 import { expect } from 'vitest'
@@ -142,5 +142,29 @@ describe('isValid', () => {
     [ 'not a number', 'abc' ],
   ])('rejects a value %s', (_, value) => {
     expect(isValid(value, quarters)).toBe(false)
+  })
+})
+
+describe('layoutRows', () => {
+
+  const fields = {
+    name: { schema: z.string() },
+    hours: { schema: z.number() },
+    minutes: { schema: z.number() },
+    notes: { schema: z.string() },
+  }
+
+  test('puts each field on a line of its own without a layout', () => {
+    expect(layoutRows(fields)).toEqual([ [ 'name' ], [ 'hours' ], [ 'minutes' ], [ 'notes' ] ])
+  })
+
+  test('puts the fields of an array on the same line', () => {
+    expect(layoutRows(fields, [ 'name', [ 'hours', 'minutes' ], 'notes' ]))
+      .toEqual([ [ 'name' ], [ 'hours', 'minutes' ], [ 'notes' ] ])
+  })
+
+  test('adds the fields the layout leaves out after it, a line each', () => {
+    expect(layoutRows(fields, [ [ 'hours', 'minutes' ] ]))
+      .toEqual([ [ 'hours', 'minutes' ], [ 'name' ], [ 'notes' ] ])
   })
 })
