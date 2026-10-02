@@ -5,6 +5,7 @@ import type { Vehicle } from '@/features/vehicles/types'
 export type WorkOrder =
   PersistedRecord &
   {
+    name: string
     number: string
     stage: string
     status: string

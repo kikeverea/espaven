@@ -57,6 +57,7 @@ export const createFactories = () => {
 
   const workOrder = (args: Partial<WorkOrder> = {}): WorkOrder => ({
     id: ids.workOrder++,
+    name: 'Test work order',
     number: 'Test number',
     stage: 'Test stage',
     status: 'Test status',
