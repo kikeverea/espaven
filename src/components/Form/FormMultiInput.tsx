@@ -17,7 +17,7 @@ const FormMultiInput = <T extends FieldValues>({
   form,
   name,
   label,
-  addMessage
+  addMessage,
 }: MultiInputProps<T>) => {
 
   const { error, invalid } = form.getFieldState(name as Path<T>, form.formState)

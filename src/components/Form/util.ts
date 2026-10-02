@@ -113,6 +113,11 @@ function validationSchema(field: FormField): z.ZodType {
     : z.preprocess(value => isBlank(value) ? undefined : value, field.schema)
 }
 
+export const isValid = <S extends z.ZodType>(value: unknown, schema: S): boolean => {
+  const parsed = schema.safeParse(value)
+  return parsed.success
+}
+
 export const pickValues = <T extends Entity, F extends FormFields>(item: T, fields: F): InferSchema<F> => {
   return Object.keys(fields).reduce((values, field) => {
     const key = field as keyof InferSchema<F>

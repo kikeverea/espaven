@@ -1,6 +1,6 @@
 import type { TestData } from '@/lib/testUtils.ts'
 import * as z from 'zod'
-import { defineFormConfig, extractSchema, selectOptions } from '@/components/Form/util.ts'
+import { defineFormConfig, extractSchema, selectOptions, isValid } from '@/components/Form/util.ts'
 import type { FormFields } from '@/components/Form/types.ts'
 import type { Entity } from '@/types.ts'
 import { expect } from 'vitest'
@@ -123,5 +123,24 @@ describe('extractSchema', () => {
 
     expect(result.success).toBe(false)
     expect(result.error?.issues[0].message).toBe('No puede ser menor de 0')
+  })
+})
+
+describe('isValid', () => {
+
+  const quarters = z.coerce.number().min(0).multipleOf(0.25)
+
+  it.each([
+    [ 'the typed value', '1.5' ],
+    [ 'the value the form was reset to', 0.25 ],
+  ])('accepts %s when its schema does', (_, value) => {
+    expect(isValid(value, quarters)).toBe(true)
+  })
+
+  it.each([
+    [ 'rejected by the schema', '0.3' ],
+    [ 'not a number', 'abc' ],
+  ])('rejects a value %s', (_, value) => {
+    expect(isValid(value, quarters)).toBe(false)
   })
 })

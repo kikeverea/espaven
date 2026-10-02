@@ -1,4 +1,4 @@
-import type { FieldPathByValue, FieldValues, PathValue } from 'react-hook-form'
+import { useWatch, type FieldPathByValue, type FieldValues, type PathValue } from 'react-hook-form'
 import type { FormFieldProps } from '@/components/Form/types'
 import FormLabel from '@/components/Form/FormLabel'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -25,7 +25,7 @@ const FormDatePicker = <T extends FieldValues>({
 
   const id = `form-${name}`
   const { error, invalid } = form.getFieldState(name, form.formState)
-  const value = form.watch(name)
+  const value = useWatch({ control: form.control, name })      // re-renders this field only
 
   return (
     <Field>

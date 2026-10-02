@@ -32,7 +32,7 @@ describe('Form', () => {
     item: {}
   }
 
-  type TestFields = Record<string, { schema: z.ZodType, variation?: 'textarea' }>
+  type TestFields = Record<string, { schema: z.ZodType, variation?: 'textarea', label?: string, feedback?: (value: string) => string }>
 
   const configOf = <F extends TestFields>(fields: F) =>
     defineFormConfig<TestEntity, NewEntity, F>({ fields })
@@ -80,6 +80,15 @@ describe('Form', () => {
     const checkbox = screen.getByRole('checkbox')
 
     expect(checkbox).toBeInTheDocument()
+  })
+
+  test('labels the input without leaking the label onto it', () => {
+    const config = configOf({ name: { schema: z.string(), label: 'Nombre' }})
+
+    render(<Form {...props} config={config} />)
+
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('label')
+    expect(screen.getByText('Nombre')).toBeInTheDocument()
   })
 
   /* Switches the edited item without unmounting the form, the way an index page does */
@@ -187,5 +196,72 @@ describe('Form', () => {
     await user.click(screen.getByRole('button', { name: 'Cancelar' }))
 
     expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe('')
+  })
+
+  describe('feedback', () => {
+
+    const length = (value: string) => `${value.length} caracteres`
+
+    test('shows the feedback of what is typed below the input', async () => {
+      const user = userEvent.setup()
+      const config = configOf({ name: { schema: z.string(), feedback: length }})
+
+      render(<Form {...props} config={config} />)
+      await user.type(screen.getByRole('textbox'), 'Hola')
+
+      expect(screen.getByText('4 caracteres')).toBeInTheDocument()
+    })
+
+    test('shows the feedback of the edited item, and follows it when the item changes', async () => {
+      const user = userEvent.setup()
+      const config = configOf({ name: { schema: z.string(), feedback: length }})
+
+      /* the value arrives through a form reset, not through typing */
+      render(<FormHarness config={config} items={[{ id: 1, name: 'Item' }]} />)
+      expect(screen.getByText('4 caracteres')).toBeInTheDocument()
+
+      await nextItem(user)
+      expect(screen.getByText('0 caracteres')).toBeInTheDocument()
+    })
+
+    test('shows the feedback of text areas', async () => {
+      const user = userEvent.setup()
+      const config = configOf({ notes: { schema: z.string(), variation: 'textarea' as const, feedback: length }})
+
+      render(<Form {...props} config={config} />)
+      await user.type(screen.getByRole('textbox'), 'Notas')
+
+      expect(screen.getByText('5 caracteres')).toBeInTheDocument()
+    })
+
+    test('shows the feedback of number inputs', async () => {
+      const user = userEvent.setup()
+      const config = configOf({ price: { schema: z.coerce.number(), feedback: value => `Total: ${value} €` }})
+
+      render(<Form {...props} config={config} />)
+      await user.type(screen.getByRole('spinbutton'), '12')
+
+      expect(screen.getByText('Total: 12 €')).toBeInTheDocument()
+    })
+
+    test('shows the error instead of the feedback while the field is invalid', async () => {
+      const user = userEvent.setup()
+      const config = configOf({ name: { schema: z.string().min(2, 'Mínimo 2 caracteres'), feedback: length }})
+
+      render(<Form {...props} config={config} />)
+      await user.type(screen.getByRole('textbox'), 'A')
+      await user.click(screen.getByRole('button', { name: 'Guardar' }))
+
+      expect(screen.getByText('Mínimo 2 caracteres')).toBeInTheDocument()
+      expect(screen.queryByText('1 caracteres')).not.toBeInTheDocument()
+    })
+
+    test('shows nothing below the input without a feedback', () => {
+      const config = configOf({ name: { schema: z.string() }})
+
+      const { container } = render(<Form {...props} config={config} />)
+
+      expect(container.querySelector('[data-slot="field-description"]')).not.toBeInTheDocument()
+    })
   })
 })

@@ -45,6 +45,7 @@ export type FormField = {
   step?: string
   placeholder?: string
   options?: { value: string | Entity['id'], label: string }[]
+  feedback?: (value: string) => ReactNode
 }
 
 type FieldInfoBase = {
@@ -71,4 +72,5 @@ export type FormFieldProps<T extends FieldValues, NPath> = {
   placeholder?: string
   name: NPath,
   required?: boolean
+  field: FormField
 }

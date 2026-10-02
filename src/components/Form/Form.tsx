@@ -117,18 +117,18 @@ const Form = <T extends Entity, TSubmit extends Record<string, unknown>, F exten
             switch (fieldInfo.kind) {
               case 'string':
                 return field.variation === 'textarea' ?
-                  <FormTextarea {...props } key={ name } /> :
-                  <FormInput {...props } key={ name } type={ field.type || 'text' } />
+                  <FormTextarea {...props } key={ name } field={field} /> :
+                  <FormInput {...props } key={ name } type={ field.type || 'text' } field={field} />
               case 'number':
-                return <FormInput {...props } key={ name } type='number' step={ fieldInfo.step || "any" }/>
+                return <FormInput {...props } key={ name } type='number' step={ fieldInfo.step || "any" } field={field}/>
               case 'boolean':
-                return <FormCheckbox {...props } key={ name } />
+                return <FormCheckbox {...props } key={ name } field={field} />
               case 'enum':
-                return <FormSelect{...props } key={ name } items={ fieldInfo.options }/>
+                return <FormSelect{...props } key={ name } items={ fieldInfo.options } field={field} />
               case 'date':
-                return <FormDatePicker {...props } key={ name } />
+                return <FormDatePicker {...props } key={ name } field={field} />
               case 'array':
-                return <FormMultiInput{...props } key={ name } addMessage={ field.placeholder }/>
+                return <FormMultiInput{...props } key={ name } addMessage={ field.placeholder } field={field} />
               default:
                 throw new Error(`Invalid field info: ${fieldInfo}`)
             }

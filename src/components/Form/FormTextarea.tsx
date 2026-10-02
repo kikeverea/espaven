@@ -1,10 +1,11 @@
-import { Field, FieldError } from '@/components/ui/field'
+import { Field, FieldDescription, FieldError } from '@/components/ui/field'
 import { Textarea } from '@/components/ui/textarea'
 
 import type { ComponentProps } from 'react'
-import type { FieldValues, Path } from 'react-hook-form'
+import { useWatch, type FieldValues, type Path } from 'react-hook-form'
 import type { FormFieldProps } from '@/components/Form/types'
 import FormLabel from '@/components/Form/FormLabel.tsx'
+import { isValid } from '@/components/Form/util.ts'
 
 type FormTextareaProps<T extends FieldValues> =
   FormFieldProps<T, Path<T>> &
@@ -16,6 +17,7 @@ type FormTextareaProps<T extends FieldValues> =
 
 const FormTextarea = <T extends FieldValues>({
   form,
+  field,
   name,
   maxLength,
   label,
@@ -26,7 +28,8 @@ const FormTextarea = <T extends FieldValues>({
 
   const id = `form-${name}`
   const { error, invalid } = form.getFieldState(name, form.formState)
-  const value = form.watch(name) ?? ''
+  const value = useWatch({ control: form.control, name }) ?? ''      // re-renders this field only
+  const feedback = field.feedback && isValid(value, field.schema) && field.feedback(value)
 
   return (
     <Field data-invalid={invalid} className='py-2'>
@@ -47,7 +50,10 @@ const FormTextarea = <T extends FieldValues>({
         </span>
       )}
 
-      { invalid && <FieldError errors={[error]} /> }
+      { invalid
+        ? <FieldError errors={[ error ]} />
+        : feedback && <FieldDescription>{ feedback }</FieldDescription>
+      }
     </Field>
   )
 }
