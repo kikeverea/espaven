@@ -7,7 +7,8 @@ type LanesProps = {
   paused: WorkOrder[]
   ppm: number             // px a minute
   width: number
-  onSelect?: (id: WorkOrder['id']) => void
+  selectedId?: WorkOrder['id'] | null
+  onSelect?: (order: WorkOrder) => void
   onHover: (order: WorkOrder, rect: DOMRect | null) => void
 }
 
@@ -18,6 +19,7 @@ const Lanes = ({ unscheduled, paused, ...props }: LanesProps) => {
       orders={ orders }
       ppm={ props.ppm }
       width={ props.width }
+      selectedId={ props.selectedId }
       onSelect={ props.onSelect }
       onHover={ props.onHover }
     />

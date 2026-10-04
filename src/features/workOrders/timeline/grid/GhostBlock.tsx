@@ -4,6 +4,7 @@ import { MONO } from '@/features/workOrders/timeline/util/styles'
 import { BLOCK_INSET } from '@/features/workOrders/timeline/util/layout'
 import type { Ghost } from '@/features/workOrders/timeline/util/types'
 import { clock } from '@/lib/time.ts'
+import { firstName } from '@/features/workOrders/timeline/TechnicianAvatar'
 
 type GhostBlockProps = {
   ghost: Ghost
@@ -33,14 +34,22 @@ const GhostBlock = ({ ghost, name, ppm }: GhostBlockProps) => {
           !conflict && MONO,
           conflict ? 'bg-[#E5484D]' : 'bg-[#3366E0]') }
       >
-        { conflict === 'order' ? 'Solapa con otra orden'
-          : conflict === 'unavailable' ? 'No disponible'
-          : `${clock(ghost.span.start)} – ${clock(ghost.span.end)}` }
+        { conflictLabel(ghost) ?? `${clock(ghost.span.start)} – ${clock(ghost.span.end)}` }
       </span>
 
       <span className='min-w-0 truncate text-[12.5px] leading-[1.25] font-semibold'>{ name }</span>
     </div>
   )
+}
+
+/* Why it cannot go there: the row's own clash, or which other of its technicians is busy then */
+const conflictLabel = ({ conflict, technicianId }: Ghost) => {
+  if (!conflict) return null
+
+  if (conflict.technician.id !== technicianId)
+    return `${firstName(conflict.technician)} está ocupado`
+
+  return conflict.reason === 'order' ? 'Solapa con otra orden' : 'No disponible'
 }
 
 export default GhostBlock

@@ -4,7 +4,7 @@ import type { Technician } from '@/features/users/types'
 import { END, overlaps, START } from '@/features/workOrders/timeline/func/timeline'
 import { isSameDay } from 'date-fns'
 import { minuteOfDay, spanOnDay, type TimeSpan } from '@/lib/time'
-import type { BlockStatus, Conflict } from '@/features/workOrders/timeline/util/types'
+import type { Availability, BlockStatus, Conflict, TeamConflict } from '@/features/workOrders/timeline/util/types'
 
 
 const BLOCK_STATUS: Partial<Record<WorkOrder['status'], BlockStatus>> = {
@@ -80,14 +80,17 @@ export const conflictOf = (
 
 /*
  * The technicians an order has once dropped on a row: the one whose row it leaves swapped for the
- * row's, the rest kept. From a lane, the row's joins them
+ * row's, in its place, the rest kept. From a lane, the row's leads them
  */
 export const swapTechnician = (technicians: Technician[] = [], from: Technician | null, to: Technician): Technician[] => {
-  const swapped = from ? technicians.map(technician => technician.id === from.id ? to : technician) : [ ...technicians, to ]
+  const swapped = from ? technicians.map(technician => technician.id === from.id ? to : technician) : [ to, ...technicians ]
   return swapped.filter((technician, index) => swapped.findIndex(({ id }) => id === technician.id) === index)
 }
 
-/* An order's time is all its technicians': the span has to be free on each of their rows */
+/*
+ * An order's time is all its technicians': the span has to be free on each of their rows. The
+ * first of them taken, and why: list the row it is dropped on first, for its clash to be the one told
+ */
 export const teamConflictOf = (
   span: TimeSpan,
   moving: WorkOrder['id'],
@@ -95,15 +98,48 @@ export const teamConflictOf = (
   scheduled: WorkOrder[],
   unavailabilities: ScheduleUnavailability[],
   day: Date
-): Conflict | null =>
-  technicians
-    .map(technician => conflictOf(
+): TeamConflict | null => {
+  for (const technician of technicians) {
+    const reason = conflictOf(
       span,
       moving,
       ordersOf(technician, scheduled),
       unavailableSpans(unavailabilities, technician.id, day).map(({ span }) => span)
-    ))
-    .find(conflict => conflict != null) ?? null
+    )
+
+    if (reason)
+      return { reason, technician }
+  }
+
+  return null
+}
+
+/*
+ * Whether a technician could join an order, at its time: free, or what they have on then. An order
+ * without a time has nothing to clash with
+ */
+export const availability = (
+  order: WorkOrder,
+  technician: Technician,
+  scheduled: WorkOrder[],
+  unavailabilities: ScheduleUnavailability[]
+): Availability => {
+  if (!order.scheduledAt)
+    return { free: true, span: null }
+
+  const span = spanOf(order)
+  const day = new Date(order.scheduledAt)
+
+  const clash = ordersOf(technician, scheduled).find(other => other.id !== order.id && overlaps(span, spanOf(other)))
+  if (clash)
+    return { free: false, title: clash.name, span: spanOf(clash) }
+
+  const out = unavailableSpans(unavailabilities, technician.id, day).find(({ span: stretch }) => overlaps(span, stretch))
+  if (out)
+    return { free: false, title: out.unavailability.reason || 'No disponible', span: out.span }
+
+  return { free: true, span }
+}
 
 export const load = (rowOrders: WorkOrder[], unavailable: TimeSpan[]) => {
   const withinHours = ({ start, end }: TimeSpan) => Math.max(Math.min(end, END) - Math.max(start, START), 0)

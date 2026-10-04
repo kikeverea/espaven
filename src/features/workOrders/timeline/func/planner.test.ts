@@ -1,7 +1,7 @@
 import { setHours, startOfDay } from 'date-fns'
 import { createFactories } from '@/test/factories.ts'
 import type { Technician } from '@/features/users/types.ts'
-import { conflictOf, load, dayPlan, ordersOf, swapTechnician, teamConflictOf, technicianRows, unavailableSpans } from '@/features/workOrders/timeline/func/planner.ts'
+import { availability, conflictOf, load, dayPlan, ordersOf, swapTechnician, teamConflictOf, technicianRows, unavailableSpans } from '@/features/workOrders/timeline/func/planner.ts'
 
 describe('planner', () => {
 
@@ -79,9 +79,10 @@ describe('planner', () => {
       expect(swapTechnician([ ana, pedro ], ana, pedro)).toEqual([ pedro ])
     })
 
-    test('adds the row’s technician to an order coming from a lane', () => {
+    test('makes the row’s technician the lead of an order coming from a lane', () => {
       expect(swapTechnician([], null, luis)).toEqual([ luis ])
-      expect(swapTechnician([ pedro ], null, luis)).toEqual([ pedro, luis ])
+      expect(swapTechnician([ pedro ], null, luis)).toEqual([ luis, pedro ])
+      expect(swapTechnician([ pedro, luis ], null, luis)).toEqual([ luis, pedro ])
       expect(swapTechnician([ luis ], null, luis)).toEqual([ luis ])
     })
 
@@ -90,10 +91,21 @@ describe('planner', () => {
       const unavailabilities = [ { id: 1, technician: pedro, startsAt: at(14), endsAt: at(15), createdAt: at(8) } ]
       const scheduled = [ shared, pedrosOrder ]
 
-      expect(teamConflictOf({ start: 720, end: 780 }, shared.id, [ ana, pedro ], scheduled, [], day)).toBe('order')
+      expect(teamConflictOf({ start: 720, end: 780 }, shared.id, [ ana, pedro ], scheduled, [], day)).toEqual({ reason: 'order', technician: pedro })
       expect(teamConflictOf({ start: 720, end: 780 }, shared.id, [ ana ], scheduled, [], day)).toBeNull()
-      expect(teamConflictOf({ start: 840, end: 900 }, shared.id, [ ana, pedro ], scheduled, unavailabilities, day)).toBe('unavailable')
+      expect(teamConflictOf({ start: 840, end: 900 }, shared.id, [ ana, pedro ], scheduled, unavailabilities, day)).toEqual({ reason: 'unavailable', technician: pedro })
       expect(teamConflictOf({ start: 600, end: 660 }, shared.id, [ ana, pedro ], scheduled, unavailabilities, day)).toBeNull()
+    })
+
+    test('tells whether a technician is free at an order’s time, or what they have on then', () => {
+      const pedrosOrder = workOrder({ name: 'Ruedas', status: 'notStarted', technicians: [ pedro ], scheduledAt: at(10), labourMinutes: 30 })
+      const unavailabilities = [ { id: 1, technician: luis, startsAt: at(10), endsAt: at(11), reason: 'Médico', createdAt: at(8) } ]
+      const scheduled = [ shared, pedrosOrder ]
+
+      expect(availability(shared, luis, scheduled, [])).toEqual({ free: true, span: { start: 600, end: 660 } })
+      expect(availability(shared, pedro, scheduled, [])).toEqual({ free: false, title: 'Ruedas', span: { start: 600, end: 630 } })
+      expect(availability(shared, luis, scheduled, unavailabilities)).toEqual({ free: false, title: 'Médico', span: { start: 600, end: 660 } })
+      expect(availability(workOrder({ scheduledAt: null }), pedro, scheduled, [])).toEqual({ free: true, span: null })
     })
   })
 })

@@ -54,7 +54,8 @@ const useDrag = () => {
     const span = { start, end: start + drag.order.labourMinutes }
 
     const technicians = swapTechnician(drag.order.technicians, drag.technician, technician)
-    const conflict = teamConflictOf(span, drag.order.id, technicians, plan.scheduled, unavailabilities, day)
+    const rowFirst = [ technician, ...technicians.filter(({ id }) => id !== technician.id) ]     // its clash is the one told
+    const conflict = teamConflictOf(span, drag.order.id, rowFirst, plan.scheduled, unavailabilities, day)
 
     dispatch({ type: 'placed', ghost: { technicianId: technician.id, technicians, span, conflict } })
   }

@@ -90,11 +90,13 @@ describe('WorkOrdersTimeline', () => {
     return { saved, release: () => release() }
   }
 
-  const Timeline = ({ onSelect }: { onSelect?: (id: WorkOrder['id']) => void }) =>
-    <WorkOrdersTimeline mutations={ useWorkOrderMutations() } onSelect={ onSelect } />
+  type TimelineProps = { onSelect?: (order: WorkOrder) => void, selectedId?: WorkOrder['id'] }
+
+  const Timeline = ({ onSelect, selectedId }: TimelineProps) =>
+    <WorkOrdersTimeline mutations={ useWorkOrderMutations() } onSelect={ onSelect } selectedId={ selectedId } />
 
   /* renders it once the api has answered: every order and technician on screen */
-  const renderTimeline = async (api: Api, onSelect?: (id: WorkOrder['id']) => void) => {
+  const renderTimeline = async (api: Api, onSelect?: (order: WorkOrder) => void) => {
     const server = serve(api)
     render(<Timeline onSelect={ onSelect } />)
 
@@ -199,7 +201,7 @@ describe('WorkOrdersTimeline', () => {
     await user.click(card('Frenos'))
     await user.click(card('Embrague'))
 
-    expect(onSelect.mock.calls).toEqual([ [ workOrders[0].id ], [ workOrders[2].id ] ])
+    expect(onSelect.mock.calls.map(([ order ]) => order.id)).toEqual([ workOrders[0].id, workOrders[2].id ])
   })
 
   describe('drag and drop', () => {
@@ -310,7 +312,7 @@ describe('WorkOrdersTimeline', () => {
       await user.click(within(dialog).getByRole('button', { name: 'Sacar de la programación' }))
 
       expect(await within(tray('Sin programar')).findByText('Frenos')).toBeInTheDocument()
-      expect(saved).toEqual([ [ workOrders[0].id, { technician_ids: [], scheduled_at: null, status: 'not_started' } ] ])
+      expect(saved).toEqual([ [ workOrders[0].id, { scheduled_at: null, status: 'not_started' } ] ])
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     })
 
@@ -337,8 +339,8 @@ describe('WorkOrdersTimeline', () => {
 
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
       expect(saved).toEqual([
-        [ workOrders[0].id, { technician_ids: [], scheduled_at: null, status: 'paused' } ],
-        [ workOrders[3].id, { technician_ids: [], scheduled_at: null, status: 'paused' } ],
+        [ workOrders[0].id, { scheduled_at: null, status: 'paused' } ],
+        [ workOrders[3].id, { scheduled_at: null, status: 'paused' } ],
       ])
       expect(within(row('Ana García')).queryByText('Frenos')).not.toBeInTheDocument()
     })
@@ -349,7 +351,7 @@ describe('WorkOrdersTimeline', () => {
 
       drag(card('Embrague'), tray('Sin programar'))
       expect(await within(tray('Sin programar')).findByText('Embrague')).toBeInTheDocument()
-      expect(saved.at(-1)).toEqual([ workOrders[2].id, { technician_ids: [], scheduled_at: null, status: 'not_started' } ])
+      expect(saved.at(-1)).toEqual([ workOrders[2].id, { scheduled_at: null, status: 'not_started' } ])
 
       drag(card('Embrague'), row('Luis Pérez'), x(16))
       expect(await within(row('Luis Pérez')).findByText('Embrague')).toBeInTheDocument()
@@ -386,17 +388,18 @@ describe('WorkOrdersTimeline', () => {
 
   describe('v3 layout', () => {
 
-    test('takes the technician away from an order dropped in a lane, and gives it the row’s on a row', async () => {
+    test('keeps the technician of an order dropped in a lane, and makes the row’s the lead on a row', async () => {
       const workOrders = orders()
       const { saved } = await renderTimeline({ workOrders, technicians: [ ana, luis ] })
 
       drag(card('Frenos'), tray('En pausa'))
       expect(await within(tray('En pausa')).findByText('Frenos')).toBeInTheDocument()
-      expect(saved.at(-1)).toEqual([ workOrders[0].id, expect.objectContaining({ technician_ids: [] }) ])
+      expect(saved.at(-1)).toEqual([ workOrders[0].id, { scheduled_at: null, status: 'paused' } ])
 
       drag(card('Frenos'), row('Luis Pérez'), x(16, 30))
       expect(await within(row('Luis Pérez')).findByText('Frenos')).toBeInTheDocument()
-      expect(saved.at(-1)).toEqual([ workOrders[0].id, expect.objectContaining({ technician_ids: [ luis.id ] }) ])
+      expect(within(row('Ana García')).getByText('Frenos')).toBeInTheDocument()
+      expect(saved.at(-1)).toEqual([ workOrders[0].id, expect.objectContaining({ technician_ids: [ luis.id, ana.id ] }) ])
     })
 
     test('lists an order with a time but no technician as waiting', async () => {
@@ -475,19 +478,22 @@ describe('WorkOrdersTimeline', () => {
       expect(within(row('Ana García')).queryByText('Motor')).not.toBeInTheDocument()
     })
 
-    test('refuses a time taken on another of its technicians’ rows', async () => {
+    test('refuses a time taken on another of its technicians’ rows, naming who is busy', async () => {
       const pedrosOrder = workOrder({ name: 'Ruedas', technicians: [ pedro ], scheduledAt: today(12), labourMinutes: 60, status: 'notStarted' })
       const { saved } = await renderTimeline({ workOrders: [ shared(), pedrosOrder ], technicians: [ ana, pedro ] })
 
       dragEvent('dragStart', within(row('Ana García')).getByText('Motor').closest('button')!)
       dragEvent('dragOver', row('Ana García'), x(12, 30))
-      expect(within(row('Ana García')).getByText('Solapa con otra orden')).toBeInTheDocument()
+      expect(within(row('Ana García')).getByText('Pedro está ocupado')).toBeInTheDocument()
 
-      dragEvent('drop', row('Ana García'), x(12, 30))
+      dragEvent('dragOver', row('Pedro Ruiz'), x(12, 30))
+      expect(within(row('Pedro Ruiz')).getByText('Solapa con otra orden')).toBeInTheDocument()
+
+      dragEvent('drop', row('Pedro Ruiz'), x(12, 30))
       expect(saved).toEqual([])
     })
 
-    test('takes all its technicians away when dropped in a lane', async () => {
+    test('keeps all its technicians when dropped in a lane, and shows them on its card', async () => {
       const user = userEvent.setup()
       const order = shared()
       const { saved } = await renderTimeline({ workOrders: [ order ], technicians: [ ana, pedro ] })
@@ -496,8 +502,45 @@ describe('WorkOrdersTimeline', () => {
       await user.click(screen.getByRole('button', { name: 'Sacar de la programación' }))
 
       expect(await within(tray('Sin programar')).findByText('Motor')).toBeInTheDocument()
-      expect(saved).toEqual([ [ order.id, { technician_ids: [], scheduled_at: null, status: 'not_started' } ] ])
+      expect(saved).toEqual([ [ order.id, { scheduled_at: null, status: 'not_started' } ] ])
       expect(within(row('Pedro Ruiz')).queryByText('Motor')).not.toBeInTheDocument()
+
+      await vi.waitFor(() => expect(within(card('Motor')).getByText('AG')).toBeInTheDocument())
+      expect(within(card('Motor')).getByText('PR')).toBeInTheDocument()
+    })
+
+    test('stacks the other technicians on each copy of the block', async () => {
+      await renderTimeline({ workOrders: [ shared() ], technicians: [ ana, pedro ] })
+
+      const anasCopy = within(row('Ana García')).getByText('Motor').closest('button')!
+      const pedrosCopy = within(row('Pedro Ruiz')).getByText('Motor').closest('button')!
+
+      expect(within(anasCopy).getByText('PR')).toBeInTheDocument()
+      expect(within(anasCopy).queryByText('AG')).not.toBeInTheDocument()
+      expect(within(pedrosCopy).getByText('AG')).toBeInTheDocument()
+
+      /* 9px and 18 an avatar, for the title to end before it */
+      expect(anasCopy).toHaveStyle({ paddingRight: '27px' })
+    })
+
+    test('names its technicians when hovered, and tells a click opens it', async () => {
+      const user = userEvent.setup()
+      await renderTimeline({ workOrders: [ shared() ], technicians: [ ana, pedro ] })
+
+      await user.hover(within(row('Ana García')).getByText('Motor'))
+
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Ana García, Pedro Ruiz')
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Clic para ver detalles')
+    })
+
+    test('outlines every copy of the selected order', async () => {
+      const order = shared()
+      serve({ workOrders: [ order ], technicians: [ ana, pedro ] })
+      render(<Timeline selectedId={ order.id } />)
+
+      const copies = await screen.findAllByText('Motor')
+      expect(copies).toHaveLength(2)
+      copies.forEach(copy => expect(copy.closest('button')).toHaveClass('outline-[#1C1917]'))
     })
   })
 })

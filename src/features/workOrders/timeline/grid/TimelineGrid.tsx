@@ -28,7 +28,8 @@ type TimelineGridProps = {
   unavailabilities: ScheduleUnavailability[]
   onDayChange: (day: Date) => void
   onZoomChange: (zoom: Zoom) => void
-  onSelect?: (id: WorkOrder['id']) => void
+  selectedId?: WorkOrder['id'] | null
+  onSelect?: (order: WorkOrder) => void
 }
 
 const TimelineGrid = (props: TimelineGridProps) => {
@@ -56,6 +57,12 @@ const TimelineGrid = (props: TimelineGridProps) => {
   }, [])
 
   const hover = (order: WorkOrder, rect: DOMRect | null) => setHovered(rect ? { order, rect } : null)
+
+  /* the details open over where the tooltip was: it goes */
+  const select = (order: WorkOrder) => {
+    setHovered(null)
+    props.onSelect?.(order)
+  }
 
   /* a drag takes the tooltip away, so it does not come back where the card was once dropped */
   if (drag && hovered)
@@ -89,7 +96,8 @@ const TimelineGrid = (props: TimelineGridProps) => {
                 ppm={ ppm }
                 orders={ ordersOf(technician, plan.scheduled) }
                 unavailable={ unavailableSpans(unavailabilities, technician.id, day) }
-                onSelect={ props.onSelect }
+                selectedId={ props.selectedId }
+                onSelect={ select }
                 onHover={ hover }
               />
             )}
@@ -108,7 +116,8 @@ const TimelineGrid = (props: TimelineGridProps) => {
             paused={ plan.paused }
             ppm={ ppm }
             width={ laneWidth }
-            onSelect={ props.onSelect }
+            selectedId={ props.selectedId }
+            onSelect={ select }
             onHover={ hover }
           />
         </div>

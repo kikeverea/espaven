@@ -1,13 +1,17 @@
 import type { PersistedRecord } from '@/types'
 import type { WorkOrder } from '@/features/workOrders/types.ts'
 
+export type ServiceStatus = 'not_started' | 'in_progress' | 'paused' | 'completed' | 'cancelled'
+
 export type Service =
   & PersistedRecord
   & {
     name: string,
     laborMinutes: number,
-    status: string,
+    expectedMinutes: number | null,
+    status: ServiceStatus,
     workOrder: WorkOrder,
+    workOrderId: WorkOrder['id'],
     approvedAt: string
 }
 

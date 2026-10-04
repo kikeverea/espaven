@@ -12,7 +12,8 @@ type LaneProps = {
   orders: WorkOrder[]
   ppm: number             // px a minute
   width: number           // of the timeline that shows, for the cards to wrap within
-  onSelect?: (id: WorkOrder['id']) => void
+  selectedId?: WorkOrder['id'] | null
+  onSelect?: (order: WorkOrder) => void
   onHover: (order: WorkOrder, rect: DOMRect | null) => void
 }
 
@@ -52,6 +53,7 @@ const Lane = ({ laneType, orders, ppm, width, ...props }: LaneProps) => {
                 laneType={ laneType }
                 ppm={ ppm }
                 dimmed={ drag?.order.id === order.id }
+                selected={ props.selectedId === order.id }
                 onSelect={ props.onSelect }
                 onHover={ rect => props.onHover(order, rect) }
               />

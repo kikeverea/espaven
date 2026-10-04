@@ -95,7 +95,14 @@ export const hideDragImage = (event: DragEvent<HTMLElement>) => {
     event.dataTransfer.setDragImage(BLANK, 0, 0)
 }
 
-export const laneChange = (lane: LaneType, drag: Drag): ScheduleChange | null =>
-  drag.from === lane
-    ? null
-    : { technicians: [], scheduledAt: null, status: lane === 'paused' ? 'paused' : 'notStarted' }
+/* Off the timeline, into a lane: no time, but the technicians it has stay on it */
+export const laneChange = (lane: LaneType, drag: Drag): ScheduleChange | null => {
+  if (drag.from === lane)
+    return null
+
+  const status = lane === 'paused' ? 'paused'
+    : drag.order.status === 'completed' ? 'completed'
+    : 'notStarted'
+
+  return { scheduledAt: null, status }
+}

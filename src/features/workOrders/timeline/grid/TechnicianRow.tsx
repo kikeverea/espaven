@@ -16,7 +16,8 @@ type TechnicianRowProps = {
   ppm: number             // px a minute
   orders: WorkOrder[]
   unavailable: { unavailability: ScheduleUnavailability, span: TimeSpan }[]
-  onSelect?: (id: WorkOrder['id']) => void
+  selectedId?: WorkOrder['id'] | null
+  onSelect?: (order: WorkOrder) => void
   onHover: (order: WorkOrder, rect: DOMRect | null) => void
 }
 
@@ -51,8 +52,10 @@ const TechnicianRow = ({ technician, ppm, orders, unavailable, ...props }: Techn
           <Block
             key={ order.id }
             order={ order }
+            technician={ technician }
             ppm={ ppm }
             dimmed={ drag?.order.id === order.id }
+            selected={ props.selectedId === order.id }
             onSelect={ props.onSelect }
             onDragStart={ startDrag(order, 'row', technician) }
             onDragEnd={ endDrag }

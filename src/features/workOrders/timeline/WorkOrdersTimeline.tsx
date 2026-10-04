@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import type { FormWorkOrder, WorkOrder } from '@/features/workOrders/types'
-import type { Technician } from '@/features/users/types'
 import { dayPlan } from '@/features/workOrders/timeline/func/planner'
 import TimelineGrid from '@/features/workOrders/timeline/grid/TimelineGrid'
 import UnscheduleDialog from '@/features/workOrders/timeline/UnscheduleDialog'
@@ -13,13 +12,15 @@ import { useScheduledWorkOrders } from '@/features/workOrders/useWorkOrders'
 import { useTechnicians } from '@/features/users/useUsers'
 import { useUnavailabilities } from '@/features/unavailabilities/useUnavailabilities'
 import type { Mutations } from '@/lib/mutations'
+import { usePendingSave } from '@/features/workOrders/pendingSave'
 
 type WorkOrdersTimelineProps = {
-  onSelect?: (id: WorkOrder['id']) => void
+  selectedId?: WorkOrder['id'] | null       // open in the details: outlined wherever it shows
+  onSelect?: (order: WorkOrder) => void
   mutations: Mutations<WorkOrder, FormWorkOrder>
 }
 
-const WorkOrdersTimeline = ({ onSelect, mutations }: WorkOrdersTimelineProps) => {
+const WorkOrdersTimeline = ({ selectedId, onSelect, mutations }: WorkOrdersTimelineProps) => {
 
   const [ day, setDay ] = useState(() => new Date())
   const [ zoom, setZoom ] = useState<Zoom>(30)
@@ -28,26 +29,12 @@ const WorkOrdersTimeline = ({ onSelect, mutations }: WorkOrdersTimelineProps) =>
   const { data: technicians = [] } = useTechnicians()
   const { data: unavailableSlots } = useUnavailabilities(day)
 
-  const { update, status } = mutations
+  const { update } = mutations
 
   const unavailabilities = unavailableSlots?.collection ?? []
 
-  /* the save under way, shown before the api answers. It sends technicianIds: back to technicians */
-  const saving = status.pending.update as (FormWorkOrder & { technicianIds?: Technician['id'][] }) | null
-  const technicianOf = (order: WorkOrder) => (id: Technician['id']) =>
-    technicians.find(technician => technician.id === id) ?? order.technicians?.find(technician => technician.id === id)
-
-  const orders = (scheduled?.collection ?? []).map(order =>
-    order.id === saving?.id
-      ? {
-          ...order,
-          ...saving,
-          ...(saving.technicianIds && {
-            technicians: saving.technicianIds.map(technicianOf(order)).filter(technician => technician != null),
-          }),
-        }
-      : order
-  )
+  const pending = usePendingSave(mutations, technicians)
+  const orders = (scheduled?.collection ?? []).map(pending)
 
   const plan = dayPlan(orders, day)
 
@@ -66,6 +53,7 @@ const WorkOrdersTimeline = ({ onSelect, mutations }: WorkOrdersTimelineProps) =>
           unavailabilities={ unavailabilities }
           onDayChange={ setDay }
           onZoomChange={ setZoom }
+          selectedId={ selectedId }
           onSelect={ onSelect }
         />
 

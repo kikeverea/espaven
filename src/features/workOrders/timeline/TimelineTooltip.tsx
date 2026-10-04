@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { clock } from '@/lib/time.ts'
 
 const WIDTH = 250
-const HEIGHT = 140        // about, to flip it above a block near the bottom of the screen
+const HEIGHT = 190        // about, to flip it above a block near the bottom of the screen
 const GAP = 8
 
 /* The whole of a block, which only has room for its title: below its bottom-left, kept on screen */
@@ -40,6 +40,12 @@ const TimelineTooltip = ({ order, anchor }: { order: WorkOrder, anchor: DOMRect 
       <span className={ cn(MONO, 'text-[11px] text-white/75') }>
         { span ? `${clock(span.start)} – ${clock(span.end)}` : 'Sin hora' } · { duration(order.labourMinutes) }
       </span>
+
+      <span className='text-xs text-[#D6D3D1]'>
+        { order.technicians?.length ? order.technicians.map(({ fullName }) => fullName).join(', ') : 'Sin técnico' }
+      </span>
+
+      <span className='mt-1.5 border-t border-[#44403C] pt-2 text-[11px] text-[#A8A29E]'>Clic para ver detalles</span>
     </div>,
     document.body
   )

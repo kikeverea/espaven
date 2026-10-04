@@ -4,7 +4,7 @@ import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import type { TableQuery } from '@/components/Table/hooks/useTableQuery'
 
-const workOrderKeys = resourceKeys('workOrders')
+export const workOrderKeys = resourceKeys('workOrders')
 
 export const useWorkOrderMutations = () =>
   useMutations<WorkOrder, FormWorkOrder>(workOrderKeys, api, { batchDelete: true })
@@ -20,4 +20,12 @@ export const useScheduledWorkOrders = (day: Date) =>
   useQuery({
     queryKey: [ ...workOrderKeys.all, 'scheduled', day.toISOString() ],
     queryFn: () => api.getAll(),
+  })
+
+/* One order, as it is now. `known`, the order as it was last seen, shows while it loads */
+export const useWorkOrder = (known: WorkOrder) =>
+  useQuery({
+    queryKey: [ ...workOrderKeys.all, 'one', known.id ],
+    queryFn: () => api.get(known.id),
+    placeholderData: known,
   })

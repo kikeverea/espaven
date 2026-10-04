@@ -6,6 +6,14 @@ export type Zoom = 15 | 30 | 60
 
 export type Conflict = 'order' | 'unavailable'
 
+/* Why an order cannot go somewhere, and whose time it would clash with */
+export type TeamConflict = { reason: Conflict, technician: Technician }
+
+/* Whether a technician is free at an order's time (none, if it has no time), or what they have on then */
+export type Availability =
+  | { free: true, span: TimeSpan | null }
+  | { free: false, title: string, span: TimeSpan }
+
 export type ScheduleChange = Pick<WorkOrder, 'scheduledAt' | 'status'> & { technicians?: Technician[] }
 
 export type Lane = {
@@ -34,7 +42,7 @@ export type Ghost = {
   technicianId: Technician['id']        // the row it is over
   technicians: Technician[]             // the ones it would have, dropped there
   span: TimeSpan
-  conflict: Conflict | null
+  conflict: TeamConflict | null
 }
 
 export type BlockStatus = 'done' | 'live' | 'todo'

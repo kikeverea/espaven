@@ -1,4 +1,5 @@
 import { type Service, type FormService } from './types'
+import type { WorkOrder } from '@/features/workOrders/types'
 import api from '@/features/services/data/service.api'
 import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
 import { useQuery } from '@tanstack/react-query'
@@ -20,4 +21,12 @@ export const useServices = (target: 'active' | 'discarded') =>
           : !!service.discardedAt
       ),
     }),
+  })
+
+/* A work order's services, top level only: their parts come within them */
+export const useWorkOrderServices = (workOrderId: WorkOrder['id']) =>
+  useQuery({
+    queryKey: [ ...serviceKeys.all, 'workOrder', workOrderId ],
+    queryFn: () => api.getAll({}, { workOrderId }),
+    select: data => data.collection,
   })
