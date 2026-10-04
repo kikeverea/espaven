@@ -15,3 +15,9 @@ export const useWorkOrders = (query?: TableQuery) =>
     queryFn: () => api.getAll(query),
     placeholderData: keepPreviousData,      // keep the current page on screen while the next one loads
   })
+
+export const useScheduledWorkOrders = (day: Date) =>
+  useQuery({
+    queryKey: [ ...workOrderKeys.all, 'scheduled', day.toISOString() ],
+    queryFn: () => api.getAll(),
+  })
