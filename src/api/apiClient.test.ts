@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { api, collectionQuery } from '@/api/apiClient'
+import { api } from '@/api/apiClient'
 import type { EntityCollection } from '@/components/Table/useCollection'
 import type { PersistedRecord } from '@/types'
+import { collectionQuery } from '@/test/util.ts'
 
 type Part = PersistedRecord & { name: string, inventoryCategory: { id: number, appliesSigaus: boolean } }
 

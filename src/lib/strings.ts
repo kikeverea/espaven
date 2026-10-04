@@ -20,6 +20,11 @@ export const snakeCase = (s: string): string =>
   .replace(/[-\s]+/g, '_')
   .toLowerCase()
 
+export const snakeCaseKeys = <T extends Record<string, any>>(params?: T): T | undefined =>
+  params &&
+  Object.fromEntries(
+    Object.entries(params).map(([ key, value ]) => [ snakeCase(key), value ])
+  ) as T
 
 export const normalizedValue = (val: Primitive | Primitive[]) => {
   const value = Array.isArray(val) ? val.join(' ') : val

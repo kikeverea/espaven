@@ -1,7 +1,8 @@
-import { api, collectionQuery, type ApiMapper, type CollectionQuery } from '@/api/apiClient'
+import { api, collectionParams, type ApiMapper, type CollectionQuery } from '@/api/apiClient'
 import type { ForbiddenApiFields } from '@/api/entity.mapper'
 import type { EntityCollection } from '@/components/Table/useCollection'
 import type { PersistedRecord } from '@/types'
+import { type UrlParams, withParams } from '@/lib/urls'
 
 export const createResource = <
   T extends PersistedRecord,
@@ -14,8 +15,12 @@ export const createResource = <
   const { apiFetch, fetch } = api<T, TApiIn, TApiOut>(mapper)
 
   return {
-    getAll: (query?: CollectionQuery): Promise<EntityCollection<T>> =>
-      apiFetch<EntityCollection<T>>(`${path}${collectionQuery(query)}`),
+    /*
+     * params: filters besides paging and sorting, camel cased like the rest of the app. Paging and
+     * sorting go last, so a filter of the same name can't take their place
+     */
+    getAll: (query?: CollectionQuery, params?: UrlParams): Promise<EntityCollection<T>> =>
+      apiFetch<EntityCollection<T>>(withParams(path, params || {}, collectionParams(query))),
 
     get: (id: T['id']): Promise<T> =>
       apiFetch<T>(`${path}/${id}`),

@@ -1,7 +1,8 @@
-import { camelize, snakeCase } from '@/lib/strings.ts'
-import { type ForbiddenApiFields, prepareForApi } from '@/api/entity.mapper.ts'
-import type { Entity, PersistedRecord } from '@/types.ts'
-import type { EntityCollection } from '@/components/Table/useCollection.tsx'
+import { camelize, snakeCase } from '@/lib/strings'
+import { type ForbiddenApiFields, prepareForApi } from '@/api/entity.mapper'
+import type { Entity, PersistedRecord } from '@/types'
+import { type UrlParams } from '@/lib/urls'
+import type { EntityCollection } from '@/components/Table/useCollection'
 
 const API_URL = import.meta.env.API_URL ?? "http://localhost:3000"
 
@@ -20,30 +21,17 @@ export type CollectionQuery = {
   sort?: { key?: string, column: string, direction?: 'asc' | 'desc' }
 }
 
-export const collectionQuery = (query?: CollectionQuery): string => {
-  const params = new URLSearchParams()
-
-  if (query?.page)
-    params.set('page', String(query.page))
-
-  if (query?.perPage)
-    params.set('per_page', String(query.perPage))
-
-  const search = query?.search?.trim()
-
-  if (search)
-    params.set('search', search)
-
+/* The params a collection is paged and sorted with, as the api knows them */
+export const collectionParams = (query?: CollectionQuery): UrlParams => {
   const sort = query?.sort
   const sortColumn = sort?.key ?? sort?.column
 
-  if (sortColumn) {
-    params.set('sort', sortColumn)
-    params.set('direction', sort?.direction ?? 'asc')
+  return {
+    page: query?.page,
+    per_page: query?.perPage,
+    search: query?.search?.trim(),
+    ...(sortColumn && { sort: sortColumn, direction: sort?.direction ?? 'asc' }),
   }
-
-  const queryString = params.toString()
-  return queryString ? `?${queryString}` : ''
 }
 
 export function api<

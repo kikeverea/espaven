@@ -36,6 +36,29 @@ describe('createResource', () => {
     expect(requestOf(spy).url).toBe('http://localhost:3000/api/generic_parts?page=2&per_page=25')
   })
 
+  test('reads the collection filtered, with snake cased params', async () => {
+    const spy = respondWith({ collection: [] })
+    await parts.getAll({ page: 2 }, { scheduledOn: '2026-10-04', category: null })
+
+    expect(requestOf(spy).url).toBe('http://localhost:3000/api/generic_parts?scheduled_on=2026-10-04&page=2')
+  })
+
+  test('reads the collection paged, sorted and filtered at once', async () => {
+    const spy = respondWith({ collection: [] })
+    await parts.getAll({ page: 2, perPage: 25, sort: { column: 'name' } }, { scheduledOn: '2026-10-04' })
+
+    expect(requestOf(spy).url)
+      .toBe('http://localhost:3000/api/generic_parts?scheduled_on=2026-10-04&page=2&per_page=25&sort=name&direction=asc')
+  })
+
+  test('keeps paging and sorting over filters of the same name', async () => {
+    const spy = respondWith({ collection: [] })
+    await parts.getAll({ page: 2, sort: { column: 'name' } }, { page: 9, sort: 'date', scheduledOn: '2026-10-04' })
+
+    expect(requestOf(spy).url)
+      .toBe('http://localhost:3000/api/generic_parts?page=2&sort=name&scheduled_on=2026-10-04&direction=asc')
+  })
+
   test('reads the collection with no query', async () => {
     const spy = respondWith({ collection: [] })
     await parts.getAll()
