@@ -1,5 +1,5 @@
 import { describe, expect } from 'vitest'
-import { render } from '@/test/util'
+import { render } from '@/test/render.tsx'
 import TableList, { type TableListEntry } from '@/components/TableList/TableList'
 import { screen } from '@testing-library/react'
 

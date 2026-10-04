@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 import { createMongoAbility, ForbiddenError } from '@casl/ability'
-import { render } from '@/test/util'
+import { render } from '@/test/render.tsx'
 import { rulesFor, type AppAbility } from '@/lib/ability'
 import RouteError from '@/components/RouteError/RouteError'
 

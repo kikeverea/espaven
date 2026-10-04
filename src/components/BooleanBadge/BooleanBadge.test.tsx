@@ -1,5 +1,5 @@
 import { describe } from 'vitest'
-import { render } from '@/test/util.tsx'
+import { render } from '@/test/render.tsx'
 import { screen } from '@testing-library/react'
 import BooleanBadge from '@/components/BooleanBadge/BooleanBadge.tsx'
 

@@ -3,7 +3,7 @@ import { beforeEach, expect } from 'vitest'
 import InquiryComments from '@/features/inquiries/comments/InquiryComments.tsx'
 import userEvent from '@testing-library/user-event'
 import { createFactories } from '@/test/factories.ts'
-import { render } from '@/test/util.tsx'
+import { render } from '@/test/render.tsx'
 
 describe('Comments', () => {
 

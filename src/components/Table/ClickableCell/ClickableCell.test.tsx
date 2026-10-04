@@ -1,5 +1,5 @@
 import ClickableCell from '@/components/Table/ClickableCell/ClickableCell.tsx'
-import { render } from '@/test/util.tsx'
+import { render } from '@/test/render.tsx'
 import { expect } from 'vitest'
 import { screen } from '@testing-library/react'
 

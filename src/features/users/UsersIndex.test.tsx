@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest'
 import { screen, within } from '@testing-library/react'
-import { render } from '@/test/util'
+import { render } from '@/test/render.tsx'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { createFactories } from '@/test/factories'
 import UsersIndex from '@/features/users/UsersIndex.tsx'
