@@ -7,11 +7,19 @@ export type WorkOrder =
   {
     name: string
     number: string
-    stage: string
-    status: string
-    technician: Technician
+    stage: 'quote' | 'order' | 'invoice'
+    status:
+      | 'pendingTechnician'
+      | 'notStarted'
+      | 'inProgress'
+      | 'paused'
+      | 'completed'
+      | 'archived'
+    technicians?: Technician[]
     vehicle: Vehicle
-    totalMinutes: number
+    labourMinutes: number
+    workedMinutes: number
+    scheduledAt?: string | null      // ISO, when the work starts. Unscheduled while null
   }
 
 export type FormWorkOrder = Partial<WorkOrder>

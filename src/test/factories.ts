@@ -1,6 +1,6 @@
 /* plop:imports */
 import type { Vehicle } from '@/features/vehicles/types'
-import type { User } from '@/features/users/types'
+import type { Technician, User } from '@/features/users/types'
 import type { WorkOrder } from '@/features/workOrders/types'
 import type { Contact, Inquiry } from '@/features/inquiries/types'
 import type { UnitOfMeasure } from '@/features/unitsOfMeasure/types'
@@ -59,11 +59,13 @@ export const createFactories = () => {
     id: ids.workOrder++,
     name: 'Test work order',
     number: 'Test number',
-    stage: 'Test stage',
-    status: 'Test status',
-    technician: user({ roles: [ 'technician' ] }) as WorkOrder['technician'],
+    stage: 'order',
+    status: 'notStarted',
+    technicians: [ user({ roles: [ 'technician' ] }) as Technician ],
     vehicle: vehicle(),
-    totalMinutes: 1,
+    labourMinutes: 1,
+    workedMinutes: 1,
+    scheduledAt: now(),
     createdAt: now(),
     ...args,
   })
