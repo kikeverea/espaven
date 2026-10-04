@@ -1,6 +1,6 @@
 import * as z from 'zod'
 import Form from '@/components/Form/Form.tsx'
-import { render } from '@/test/util.tsx'
+import { render } from '@/test/render.tsx'
 import { defineFormConfig } from '@/components/Form/util.ts'
 import type { Mutations } from '@/lib/mutations.tsx'
 import type { Entity } from '@/types.ts'
@@ -21,8 +21,8 @@ describe('Form', () => {
     update: vi.fn(),
     remove: vi.fn(),
     status: {
-      pending: { creating: null, updating: null, deleting: null, any: false, current: () => null  },
-      errors: { creating: null, updating: null, deleting: null, any: false, error: () => null  },
+      pending: { create: null, update: null, delete: null, any: false, current: () => null  },
+      errors: { create: null, update: null, delete: null, any: false, error: () => null  },
     }
   }
 

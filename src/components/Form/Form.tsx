@@ -92,7 +92,7 @@ const Form = <T extends Entity, TSubmit extends Record<string, unknown>, F exten
     const submitItem = config.toSubmitData(item as T, formData as InferSchema<typeof config.fields>)
 
     if (item.id != null)
-      update({ id: item.id, payload: submitItem }, { onSuccess })
+      update({ ...submitItem, id: item.id }, { onSuccess })
     else
       create(submitItem, { onSuccess })
   }

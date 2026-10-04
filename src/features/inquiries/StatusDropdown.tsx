@@ -17,7 +17,7 @@ const StatusDropdown = ({ inquiry }: { inquiry: Inquiry }) => {
 
   const changeStatus = (status: InquiryStatus) => {
     update(
-      { id: inquiry.id, payload: { ...inquiry, status } },
+      { ...inquiry, status },
       { onSuccess: () => toast.add({ title: 'Estado cambiado'})}
     )
   }

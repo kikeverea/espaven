@@ -42,7 +42,7 @@ describe('useMutations', () => {
 
     expect(result.current.status.pending.any).toBe(false)
 
-    result.current.update({ id: cat.id, payload: cat })
+    result.current.update(cat)
 
     await waitFor(() => expect(result.current.status.pending.any).toBe(true))
   })
@@ -50,7 +50,7 @@ describe('useMutations', () => {
   test('only the item being updated reports as current', async () => {
     const { result } = renderMutations()
 
-    result.current.update({ id: cat.id, payload: cat })
+    result.current.update(cat)
 
     await waitFor(() => expect(result.current.status.pending.current(cat)).toBeTruthy())
     expect(result.current.status.pending.current(dog)).toBeNull()

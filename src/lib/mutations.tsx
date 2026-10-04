@@ -10,16 +10,16 @@ import type { Entity } from '@/types.ts'
 
 export type Mutations<T extends object, TWrite extends object = T> = {
   create: UseMutateFunction<T, Error | null, TWrite>
-  update: UseMutateFunction<T, Error | null, UpdateParams<TWrite>>
+  update: UseMutateFunction<T, Error | null, WithId<TWrite>>
   remove: UseMutateFunction<T, Error | null, T>
   removeAll?: UseMutateFunction<boolean[], Error | null, Entity['id'][]>
   status: MutationStatusTypes<T>
 }
 
 type QueryActions<T> = {
-  creating: T | null
-  updating: T | null
-  deleting: T | null
+  create: T | null
+  update: T | null
+  delete: T | null
   any: boolean,
 }
 
@@ -33,7 +33,9 @@ type MutationStatusTypes<T> = {
 
 type MutationError<T> = { item: T, error: Error | null}
 type MutationKey = string | number
-type UpdateParams<TWrite> = { id: Entity['id'], payload: TWrite }
+
+/* what an update takes: the item as it is written, with the id of the one it changes */
+export type WithId<TWrite> = TWrite & { id: Entity['id'] }
 
 export type MutationKeys = {
   all: readonly MutationKey[]
@@ -110,7 +112,7 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
 
   const update = useMutation({
     mutationKey: mutationKeys.update,
-    mutationFn: ({ id, payload }: UpdateParams<TWrite>) => mutationApi.update(id, payload),
+    mutationFn: ({ id, ...item }: WithId<TWrite>) => mutationApi.update(id, item as TWrite),
     onError: showError,
     onSuccess: args.mutationSideEffects?.update,
     onSettled: invalidate,
@@ -147,11 +149,10 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
 
   const status: MutationStatusTypes<T> = {
     pending: {
-      creating,
-      deleting,
-      updating,
+      create: creating,
+      update: updating,
+      delete: deleting,
       any: !!creating || !!updating || !!deleting,
-      /* Which mutation, if any, is running on this very item. A create has no id to match yet */
       current: (item) => (
         (creating?.id === item.id && creating) ||
         (updating?.id === item.id && updating) ||
@@ -160,9 +161,9 @@ export const useMutations = <T extends Entity, TWrite extends object = T>(
       )
     },
     errors: {
-      creating: createError,
-      updating: updateError,
-      deleting: deleteError,
+      create: createError,
+      update: updateError,
+      delete: deleteError,
       any: !!createError || !!updateError || !!deleteError,
       error: (item?: T) =>
         [ createError, updateError, deleteError ]
