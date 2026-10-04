@@ -27,8 +27,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
                 { label: 'Solicitudes', path: '/inquiries', icon: <Inbox />, subject: 'Inquiry' },
                 { label: 'Clientes', path: '/clients', icon: <User />, subject: 'Contact' },
               ],
-              Servicios: [
-                { label: 'Activos', path: '/services', icon: <Wrench />, subject: 'Service' },
+              Taller: [
+                { label: 'Órdenes de trabajo', path: '/work_orders', icon: <Wrench />, subject: 'WorkOrder' },
                 { label: 'Plantillas', path: '/service_templates', icon: <NotepadTextDashed />, subject: 'ServiceTemplate' },
               ],
               Inventario: [

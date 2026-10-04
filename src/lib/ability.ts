@@ -8,6 +8,7 @@ export type Subject =
   | 'Inquiry'
   | 'Contact'
   | 'Service'
+  | 'WorkOrder'
   | 'ServiceTemplate'
   | 'Inventory'
   | 'InventoryCategory'
@@ -28,10 +29,10 @@ export const rulesFor = (role: Role) => {
       can('manage', 'all')
       break
     case 'office':
-      can('manage', [ 'Inquiry', 'Contact', 'Service', 'Inventory' ])
+      can('manage', [ 'Inquiry', 'Contact', 'Service', 'WorkOrder', 'Inventory' ])
       break
     case 'technician':
-      can('manage', [ 'Service', 'Inventory' ])
+      can('manage', [ 'Service', 'WorkOrder', 'Inventory' ])
       break
   }
 

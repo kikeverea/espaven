@@ -35,6 +35,7 @@ describe('route guards', () => {
     [ 'office', '/inquiries' ],
     [ 'office', '/inventory' ],
     [ 'technician', '/inventory' ],
+    [ 'technician', '/work_orders' ],
   ] as [ Role, string ][])('lets %s into %s', async (role, path) => {
     expect(await isDenied(role, path)).toBe(false)
   })

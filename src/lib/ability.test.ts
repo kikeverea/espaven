@@ -5,7 +5,7 @@ import type { Role } from '@/features/users/types'
 const readable = (role: Role) => {
   const ability = createMongoAbility<AppAbility>(rulesFor(role))
   const subjects: Subject[] = [
-    'Inquiry', 'Contact', 'Service', 'ServiceTemplate',
+    'Inquiry', 'Contact', 'Service', 'WorkOrder', 'ServiceTemplate',
     'Inventory', 'InventoryCategory', 'InventoryItem', 'UnitOfMeasure',
   ]
 
@@ -16,16 +16,16 @@ describe('rulesFor', () => {
 
   test('admin reads everything', () => {
     expect(readable('admin')).toEqual([
-      'Inquiry', 'Contact', 'Service', 'ServiceTemplate',
+      'Inquiry', 'Contact', 'Service', 'WorkOrder', 'ServiceTemplate',
       'Inventory', 'InventoryCategory', 'InventoryItem', 'UnitOfMeasure',
     ])
   })
 
   test('office reads all but the service templates, and only the stock of the inventory', () => {
-    expect(readable('office')).toEqual([ 'Inquiry', 'Contact', 'Service', 'Inventory' ])
+    expect(readable('office')).toEqual([ 'Inquiry', 'Contact', 'Service', 'WorkOrder', 'Inventory' ])
   })
 
   test('technician reads what office does, but the CRM', () => {
-    expect(readable('technician')).toEqual([ 'Service', 'Inventory' ])
+    expect(readable('technician')).toEqual([ 'Service', 'WorkOrder', 'Inventory' ])
   })
 })
