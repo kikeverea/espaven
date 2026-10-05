@@ -43,7 +43,7 @@ const WorkOrdersTimeline = ({ selectedId, onSelect, mutations }: WorkOrdersTimel
 
   return (
     <div className={ cn(FONT, 'text-[#1C1917]') }>
-      <DragProvider day={ day } zoom={ zoom } plan={ plan } unavailabilities={ unavailabilities } schedule={ schedule }>
+      <DragProvider day={ day } onDayChange={ setDay } zoom={ zoom } plan={ plan } unavailabilities={ unavailabilities } schedule={ schedule }>
         <TimelineGrid
           day={ day }
           zoom={ zoom }

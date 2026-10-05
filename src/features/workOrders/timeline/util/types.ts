@@ -27,7 +27,8 @@ export type Lane = {
   sub: string
 }
 
-export type LaneType = 'unscheduled' | 'paused'
+/* unassigned: orders with a time but no technician, of any day */
+export type LaneType = 'unassigned' | 'unscheduled' | 'paused'
 
 export type Drag = {
   order: WorkOrder
@@ -43,6 +44,7 @@ export type Ghost = {
   technicians: Technician[]             // the ones it would have, dropped there
   span: TimeSpan
   conflict: TeamConflict | null
+  pinnedAt: string | null               // when it is booked, if it cannot move along the row
 }
 
 export type BlockStatus = 'done' | 'live' | 'todo'

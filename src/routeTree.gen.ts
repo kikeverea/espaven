@@ -11,6 +11,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CalendarRouteRouteImport } from './routes/calendar/route'
 import { Route as InquiriesRouteRouteImport } from './routes/inquiries/route'
 import { Route as InventoryRouteRouteImport } from './routes/inventory/route'
 import { Route as Inventory_categoriesRouteRouteImport } from './routes/inventory_categories/route'
@@ -19,6 +20,7 @@ import { Route as Service_templatesRouteRouteImport } from './routes/service_tem
 import { Route as Units_of_measureRouteRouteImport } from './routes/units_of_measure/route'
 import { Route as Work_ordersRouteRouteImport } from './routes/work_orders/route'
 
+const CalendarIndexLazyRouteImport = createFileRoute('/calendar/')()
 const InquiriesIndexLazyRouteImport = createFileRoute('/inquiries/')()
 const InventoryIndexLazyRouteImport = createFileRoute('/inventory/')()
 const Inventory_categoriesIndexLazyRouteImport = createFileRoute(
@@ -41,6 +43,11 @@ const Service_templatesNewIndexLazyRouteImport = createFileRoute(
   '/service_templates/new/',
 )()
 
+const CalendarRouteRoute = CalendarRouteRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InquiriesRouteRoute = InquiriesRouteRouteImport.update({
   id: '/inquiries',
   path: '/inquiries',
@@ -77,6 +84,13 @@ const Work_ordersRouteRoute = Work_ordersRouteRouteImport.update({
   path: '/work_orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarIndexLazyRoute = CalendarIndexLazyRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CalendarRouteRoute,
+} as any).lazy(() =>
+  import('./routes/calendar/index.lazy').then((d) => d.Route),
+)
 const InquiriesIndexLazyRoute = InquiriesIndexLazyRouteImport.update({
   id: '/',
   path: '/',
@@ -160,6 +174,7 @@ const Service_templatesNewIndexLazyRoute =
   )
 
 export interface FileRoutesByFullPath {
+  '/calendar': typeof CalendarRouteRouteWithChildren
   '/inquiries': typeof InquiriesRouteRouteWithChildren
   '/inventory': typeof InventoryRouteRouteWithChildren
   '/inventory_categories': typeof Inventory_categoriesRouteRouteWithChildren
@@ -167,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/service_templates': typeof Service_templatesRouteRouteWithChildren
   '/units_of_measure': typeof Units_of_measureRouteRouteWithChildren
   '/work_orders': typeof Work_ordersRouteRouteWithChildren
+  '/calendar/': typeof CalendarIndexLazyRoute
   '/inquiries/': typeof InquiriesIndexLazyRoute
   '/inventory/': typeof InventoryIndexLazyRoute
   '/inventory_categories/': typeof Inventory_categoriesIndexLazyRoute
@@ -180,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/service_templates/new/': typeof Service_templatesNewIndexLazyRoute
 }
 export interface FileRoutesByTo {
+  '/calendar': typeof CalendarIndexLazyRoute
   '/inquiries': typeof InquiriesIndexLazyRoute
   '/inventory': typeof InventoryIndexLazyRoute
   '/inventory_categories': typeof Inventory_categoriesIndexLazyRoute
@@ -194,6 +211,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/calendar': typeof CalendarRouteRouteWithChildren
   '/inquiries': typeof InquiriesRouteRouteWithChildren
   '/inventory': typeof InventoryRouteRouteWithChildren
   '/inventory_categories': typeof Inventory_categoriesRouteRouteWithChildren
@@ -201,6 +219,7 @@ export interface FileRoutesById {
   '/service_templates': typeof Service_templatesRouteRouteWithChildren
   '/units_of_measure': typeof Units_of_measureRouteRouteWithChildren
   '/work_orders': typeof Work_ordersRouteRouteWithChildren
+  '/calendar/': typeof CalendarIndexLazyRoute
   '/inquiries/': typeof InquiriesIndexLazyRoute
   '/inventory/': typeof InventoryIndexLazyRoute
   '/inventory_categories/': typeof Inventory_categoriesIndexLazyRoute
@@ -216,6 +235,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/calendar'
     | '/inquiries'
     | '/inventory'
     | '/inventory_categories'
@@ -223,6 +243,7 @@ export interface FileRouteTypes {
     | '/service_templates'
     | '/units_of_measure'
     | '/work_orders'
+    | '/calendar/'
     | '/inquiries/'
     | '/inventory/'
     | '/inventory_categories/'
@@ -236,6 +257,7 @@ export interface FileRouteTypes {
     | '/service_templates/new/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/calendar'
     | '/inquiries'
     | '/inventory'
     | '/inventory_categories'
@@ -249,6 +271,7 @@ export interface FileRouteTypes {
     | '/service_templates/new'
   id:
     | '__root__'
+    | '/calendar'
     | '/inquiries'
     | '/inventory'
     | '/inventory_categories'
@@ -256,6 +279,7 @@ export interface FileRouteTypes {
     | '/service_templates'
     | '/units_of_measure'
     | '/work_orders'
+    | '/calendar/'
     | '/inquiries/'
     | '/inventory/'
     | '/inventory_categories/'
@@ -270,6 +294,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  CalendarRouteRoute: typeof CalendarRouteRouteWithChildren
   InquiriesRouteRoute: typeof InquiriesRouteRouteWithChildren
   InventoryRouteRoute: typeof InventoryRouteRouteWithChildren
   Inventory_categoriesRouteRoute: typeof Inventory_categoriesRouteRouteWithChildren
@@ -283,6 +308,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inquiries': {
       id: '/inquiries'
       path: '/inquiries'
@@ -331,6 +363,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/work_orders'
       preLoaderRoute: typeof Work_ordersRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/calendar/': {
+      id: '/calendar/'
+      path: '/'
+      fullPath: '/calendar/'
+      preLoaderRoute: typeof CalendarIndexLazyRouteImport
+      parentRoute: typeof CalendarRouteRoute
     }
     '/inquiries/': {
       id: '/inquiries/'
@@ -411,6 +450,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface CalendarRouteRouteChildren {
+  CalendarIndexLazyRoute: typeof CalendarIndexLazyRoute
+}
+
+const CalendarRouteRouteChildren: CalendarRouteRouteChildren = {
+  CalendarIndexLazyRoute: CalendarIndexLazyRoute,
+}
+
+const CalendarRouteRouteWithChildren = CalendarRouteRoute._addFileChildren(
+  CalendarRouteRouteChildren,
+)
 
 interface InquiriesRouteRouteChildren {
   InquiriesIndexLazyRoute: typeof InquiriesIndexLazyRoute
@@ -504,6 +555,7 @@ const Work_ordersRouteRouteWithChildren =
   Work_ordersRouteRoute._addFileChildren(Work_ordersRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  CalendarRouteRoute: CalendarRouteRouteWithChildren,
   InquiriesRouteRoute: InquiriesRouteRouteWithChildren,
   InventoryRouteRoute: InventoryRouteRouteWithChildren,
   Inventory_categoriesRouteRoute: Inventory_categoriesRouteRouteWithChildren,

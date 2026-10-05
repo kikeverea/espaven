@@ -24,11 +24,13 @@ describe('planner', () => {
     const archived = workOrder({ status: 'archived', scheduledAt: null })
 
     const timedWithoutTechnicians = workOrder({ status: 'notStarted', technicians: [], scheduledAt: at(12) })
+    const otherDayWithoutTechnicians = workOrder({ status: 'pendingTechnician', technicians: [], scheduledAt: at(9, new Date(2026, 9, 7)) })
 
-    const plan = dayPlan([ today, live, tomorrow, waiting, noTechnician, pausedScheduled, pausedWaiting, archived, timedWithoutTechnicians ], day)
+    const plan = dayPlan([ today, live, tomorrow, waiting, noTechnician, pausedScheduled, pausedWaiting, archived, timedWithoutTechnicians, otherDayWithoutTechnicians ], day)
 
     expect(plan.scheduled).toEqual([ today, live ])
-    expect(plan.unscheduled).toEqual([ waiting, noTechnician, timedWithoutTechnicians ])
+    expect(plan.unassigned).toEqual([ timedWithoutTechnicians, otherDayWithoutTechnicians ])
+    expect(plan.unscheduled).toEqual([ waiting, noTechnician ])
     expect(plan.paused).toEqual([ pausedScheduled, pausedWaiting ])
   })
 

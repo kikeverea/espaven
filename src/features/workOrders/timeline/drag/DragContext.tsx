@@ -9,6 +9,7 @@ type DragContextValue = {
   state: DragState
   dispatch: Dispatch<DragAction>
   day: Date
+  onDayChange: (day: Date) => void
   zoom: Zoom
   plan: ReturnType<typeof dayPlan>
   unavailabilities: ScheduleUnavailability[]

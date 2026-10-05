@@ -29,3 +29,10 @@ export const useWorkOrder = (known: WorkOrder) =>
     queryFn: () => api.get(known.id),
     placeholderData: known,
   })
+
+/* Every order, whatever its day, for the calendar to place */
+export const useCalendarWorkOrders = () =>
+  useQuery({
+    queryKey: [ ...workOrderKeys.all, 'calendar' ],
+    queryFn: () => api.getAll(),
+  })

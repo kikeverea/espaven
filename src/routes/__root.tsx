@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/toast"
 import { BlinkProvider } from '@/components/Blinker/BlinkContext.tsx'
 import { AbilityProvider } from '@casl/react'
 import { ability, type AppAbility } from '@/lib/ability.ts'
-import { Inbox, User, CirclePile, Scale, NotepadTextDashed, Wrench, ChartBarStacked, Cog } from 'lucide-react'
+import { Inbox, User, CirclePile, Scale, NotepadTextDashed, Wrench, ChartBarStacked, Cog, CalendarDays } from 'lucide-react'
 
 export type RouterContext = {
   queryClient: QueryClient
@@ -29,6 +29,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
               ],
               Taller: [
                 { label: 'Órdenes de trabajo', path: '/work_orders', icon: <Wrench />, subject: 'WorkOrder' },
+                { label: 'Calendario', path: '/calendar', icon: <CalendarDays />, subject: 'WorkOrder' },
                 { label: 'Plantillas', path: '/service_templates', icon: <NotepadTextDashed />, subject: 'ServiceTemplate' },
               ],
               Inventario: [

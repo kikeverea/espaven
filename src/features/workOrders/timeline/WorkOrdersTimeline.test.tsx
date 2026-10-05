@@ -1,6 +1,7 @@
 import { createEvent, fireEvent, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { setHours, setMinutes, startOfDay } from 'date-fns'
+import { addDays, format, setHours, setMinutes, startOfDay } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { render } from '@/test/render.tsx'
 import { camelize, snakeCase } from '@/lib/strings'
 import { createFactories } from '@/test/factories'
@@ -402,15 +403,6 @@ describe('WorkOrdersTimeline', () => {
       expect(saved.at(-1)).toEqual([ workOrders[0].id, expect.objectContaining({ technician_ids: [ luis.id, ana.id ] }) ])
     })
 
-    test('lists an order with a time but no technician as waiting', async () => {
-      await renderTimeline({
-        technicians: [ ana ],
-        workOrders: [ workOrder({ name: 'Sin técnico', technicians: [], scheduledAt: today(10), status: 'pendingTechnician' }) ],
-      })
-
-      expect(within(tray('Sin programar')).getByText('Sin técnico')).toBeInTheDocument()
-    })
-
     test('sizes the lanes’ cards by how long they take, at the zoom', async () => {
       const user = userEvent.setup()
       await renderTimeline({ workOrders: orders(), technicians: [ ana ] })
@@ -448,6 +440,86 @@ describe('WorkOrdersTimeline', () => {
 
       await user.hover(card('Escape'))
       expect(screen.getByRole('tooltip')).toHaveTextContent('Sin hora · 1 h')
+    })
+  })
+
+  describe('orders booked without a technician', () => {
+
+    const tomorrow = (hours: number) => setHours(startOfDay(addDays(new Date(), 1)), hours).toISOString()
+    const longDay = (iso: string) => format(new Date(iso), "d 'de' MMMM", { locale: es })
+
+    const booked = () => [
+      ...orders(),
+      workOrder({ number: 'OT-6', name: 'Revisión', technicians: [], scheduledAt: today(14), labourMinutes: 60, status: 'pendingTechnician' }),
+      workOrder({ number: 'OT-7', name: 'Mañana', technicians: [], scheduledAt: tomorrow(9), labourMinutes: 60, status: 'pendingTechnician' }),
+    ]
+
+    test('waits in their own lane, whatever their day, with when they are booked', async () => {
+      await renderTimeline({ workOrders: booked(), technicians: [ ana ] })
+
+      const lane = tray('Programados sin técnico')
+      expect(within(lane).getByText('Revisión')).toBeInTheDocument()
+      expect(within(lane).getByText('Mañana')).toBeInTheDocument()
+      expect(within(lane).getByText(`OT-6 · ${format(new Date(today(14)), 'd MMM, HH:mm', { locale: es })}`)).toBeInTheDocument()
+      expect(within(tray('Sin programar')).queryByText('Revisión')).not.toBeInTheDocument()
+    })
+
+    test('keeps their time on a drag: only the row changes, wherever the pointer goes', async () => {
+      const workOrders = booked()
+      const { saved } = await renderTimeline({ workOrders, technicians: [ ana, luis ] })
+
+      dragEvent('dragStart', card('Revisión'))
+      dragEvent('dragOver', row('Ana García'), x(17, 30))
+      expect(within(row('Ana García')).getByText(`Agendada el ${longDay(today(14))} a las 14:00`)).toBeInTheDocument()
+
+      dragEvent('dragOver', row('Luis Pérez'), x(9))
+      expect(within(row('Luis Pérez')).getByText(`Agendada el ${longDay(today(14))} a las 14:00`)).toBeInTheDocument()
+
+      dragEvent('drop', row('Luis Pérez'), x(9))
+      expect(await within(row('Luis Pérez')).findByText('Revisión')).toBeInTheDocument()
+      expect(saved).toEqual([ [ workOrders[4].id, { technician_ids: [ luis.id ], scheduled_at: today(14), status: 'not_started' } ] ])
+    })
+
+    test('refuses a row busy at their time', async () => {
+      const { saved } = await renderTimeline({
+        technicians: [ ana ],
+        workOrders: [
+          workOrder({ name: 'Ocupada', technicians: [ ana ], scheduledAt: today(14), labourMinutes: 60, status: 'notStarted' }),
+          workOrder({ name: 'Revisión', technicians: [], scheduledAt: today(14), labourMinutes: 60, status: 'pendingTechnician' }),
+        ],
+      })
+
+      dragEvent('dragStart', card('Revisión'))
+      dragEvent('dragOver', row('Ana García'), x(9))
+      expect(within(row('Ana García')).getByText('Solapa con otra orden')).toBeInTheDocument()
+
+      dragEvent('drop', row('Ana García'), x(9))
+      expect(saved).toEqual([])
+    })
+
+    test('locks those of another day, offering to go to it', async () => {
+      const user = userEvent.setup()
+      await renderTimeline({ workOrders: booked(), technicians: [ ana ] })
+
+      expect(card('Revisión')).toHaveAttribute('draggable', 'true')
+      expect(card('Mañana')).toHaveAttribute('draggable', 'false')
+      expect(card('Mañana').querySelector('[data-locked]')).toBeInTheDocument()
+
+      await user.click(card('Mañana'))
+      await user.click(await screen.findByRole('menuitem', { name: `Ir al ${longDay(tomorrow(9))}` }))
+
+      expect(await screen.findByRole('heading', { name: new RegExp(format(new Date(tomorrow(9)), "d 'de' MMMM", { locale: es })) })).toBeInTheDocument()
+      expect(card('Mañana')).toHaveAttribute('draggable', 'true')
+      expect(card('Revisión')).toHaveAttribute('draggable', 'false')
+    })
+
+    test('takes no drops: an order only gets there from the api', async () => {
+      const { saved } = await renderTimeline({ workOrders: booked(), technicians: [ ana ] })
+
+      drag(card('Frenos'), tray('Programados sin técnico'))
+
+      expect(saved).toEqual([])
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     })
   })
 

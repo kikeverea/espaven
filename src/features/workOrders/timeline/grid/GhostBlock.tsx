@@ -3,6 +3,8 @@ import { blockGeometry } from '@/features/workOrders/timeline/func/timeline'
 import { MONO } from '@/features/workOrders/timeline/util/styles'
 import { BLOCK_INSET } from '@/features/workOrders/timeline/util/layout'
 import type { Ghost } from '@/features/workOrders/timeline/util/types'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { clock } from '@/lib/time.ts'
 import { firstName } from '@/features/workOrders/timeline/TechnicianAvatar'
 
@@ -31,10 +33,12 @@ const GhostBlock = ({ ghost, name, ppm }: GhostBlockProps) => {
       <span
         aria-live='polite'
         className={ cn('absolute bottom-[calc(100%+6px)] left-0 rounded-[5px] px-1.5 py-0.5 text-[11px] leading-4 font-medium whitespace-nowrap text-white shadow-md',
-          !conflict && MONO,
+          !conflict && !ghost.pinnedAt && MONO,
           conflict ? 'bg-[#E5484D]' : 'bg-[#3366E0]') }
       >
-        { conflictLabel(ghost) ?? `${clock(ghost.span.start)} – ${clock(ghost.span.end)}` }
+        { conflictLabel(ghost)
+          ?? (ghost.pinnedAt && `Agendada el ${format(new Date(ghost.pinnedAt), "d 'de' MMMM", { locale: es })} a las ${clock(ghost.span.start)}`)
+          ?? `${clock(ghost.span.start)} – ${clock(ghost.span.end)}` }
       </span>
 
       <span className='min-w-0 truncate text-[12.5px] leading-[1.25] font-semibold'>{ name }</span>

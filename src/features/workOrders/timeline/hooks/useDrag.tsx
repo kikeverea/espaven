@@ -2,7 +2,7 @@ import { useContext, type DragEvent } from 'react'
 import type { Technician } from '@/features/users/types'
 import type { WorkOrder } from '@/features/workOrders/types'
 import { END, hideDragImage, laneChange, PX_PER_MIN, snapStart, START } from '@/features/workOrders/timeline/func/timeline'
-import { swapTechnician, teamConflictOf } from '@/features/workOrders/timeline/func/planner'
+import { spanOf, swapTechnician, teamConflictOf } from '@/features/workOrders/timeline/func/planner'
 import { DragContext } from '@/features/workOrders/timeline/drag/DragContext'
 import type { Drag, LaneType } from '@/features/workOrders/timeline/util/types'
 import { atMinute } from '@/lib/time'
@@ -17,7 +17,7 @@ const useDrag = () => {
   if (!context)
     throw new Error('useDrag must be used within a DragProvider')
 
-  const { state, dispatch, day, zoom, plan, unavailabilities, schedule } = context
+  const { state, dispatch, day, onDayChange, zoom, plan, unavailabilities, schedule } = context
   const { drag, ghost, unscheduling } = state
 
   /* technician: whose row it is taken from, if it is */
@@ -48,16 +48,21 @@ const useDrag = () => {
 
     const track = event.currentTarget.getBoundingClientRect()
     const ppm = track.width ? track.width / (END - START) : PX_PER_MIN[zoom]      // the day may be stretched
+    /* one booked already keeps its time: it only moves from row to row */
+    const pinned = drag.from === 'unassigned'
     const pointer = event.clientX - track.left
     const left = pointer - drag.order.labourMinutes * ppm / 2
     const start = snapStart(left, drag.order.labourMinutes, ppm)
-    const span = { start, end: start + drag.order.labourMinutes }
+    const span = pinned ? spanOf(drag.order) : { start, end: start + drag.order.labourMinutes }
 
     const technicians = swapTechnician(drag.order.technicians, drag.technician, technician)
     const rowFirst = [ technician, ...technicians.filter(({ id }) => id !== technician.id) ]     // its clash is the one told
     const conflict = teamConflictOf(span, drag.order.id, rowFirst, plan.scheduled, unavailabilities, day)
 
-    dispatch({ type: 'placed', ghost: { technicianId: technician.id, technicians, span, conflict } })
+    dispatch({
+      type: 'placed',
+      ghost: { technicianId: technician.id, technicians, span, conflict, pinnedAt: pinned ? drag.order.scheduledAt ?? null : null },
+    })
   }
 
   const dropOnRow = (technician: Technician) => (event: DragEvent<HTMLElement>) => {
@@ -67,7 +72,8 @@ const useDrag = () => {
       schedule(drag.order, {
         technicians: ghost.technicians,
         scheduledAt: atMinute(day, ghost.span.start).toISOString(),
-        status: drag.from === 'paused' ? 'notStarted' : drag.order.status,      // a paused order picks up again
+        /* a paused order picks up again; one waiting for a technician has one now */
+        status: drag.from === 'paused' || drag.order.status === 'pendingTechnician' ? 'notStarted' : drag.order.status,
       })
 
     endDrag()
@@ -103,6 +109,8 @@ const useDrag = () => {
 
   return {
     ...state,
+    day,
+    onDayChange,
     startDrag,
     endDrag,
     dragOverRow,

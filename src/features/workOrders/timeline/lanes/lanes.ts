@@ -1,6 +1,16 @@
 import type { Lane, LaneType } from '@/features/workOrders/timeline/util/types'
 
 export const LANES: Record<LaneType, Lane> = {
+  unassigned: {
+    title: 'Programados sin técnico',
+    empty: 'Todo lo programado tiene técnico.',
+    badge: 'bg-[#3366E0] text-white',
+    track: 'repeating-linear-gradient(135deg,#E4E1DD 0 6px,#EFEDEA 6px 12px)',
+    dropTrack: '#EEF2FC',
+    card: 'border-dashed border-[#7A9BE8] bg-[#F5F8FE] hover:border-solid hover:border-[#3366E0] hover:shadow-[0_2px_8px_rgba(28,25,23,.08)]',
+    cardTitle: 'text-[#1C1917]',
+    sub: 'text-[#57534E]',
+  },
   unscheduled: {
     title: 'Sin programar',
     empty: 'Todo programado.',

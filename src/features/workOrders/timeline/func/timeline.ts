@@ -97,7 +97,7 @@ export const hideDragImage = (event: DragEvent<HTMLElement>) => {
 
 /* Off the timeline, into a lane: no time, but the technicians it has stay on it */
 export const laneChange = (lane: LaneType, drag: Drag): ScheduleChange | null => {
-  if (drag.from === lane)
+  if (drag.from === lane || lane === 'unassigned')      // that lane only fills from the api
     return null
 
   const status = lane === 'paused' ? 'paused'

@@ -1,4 +1,5 @@
 import type { WorkOrder } from '@/features/workOrders/types'
+import type { Schedulable } from '@/features/schedulables/types'
 import type { ScheduleUnavailability } from '@/features/unavailabilities/types'
 import type { Technician } from '@/features/users/types'
 import { END, overlaps, START } from '@/features/workOrders/timeline/func/timeline'
@@ -15,9 +16,9 @@ const BLOCK_STATUS: Partial<Record<WorkOrder['status'], BlockStatus>> = {
 
 export const blockStatus = (order: WorkOrder): BlockStatus | null => BLOCK_STATUS[order.status] ?? null
 
-export const spanOf = (order: WorkOrder): TimeSpan => {
-  const start = minuteOfDay(new Date(order.scheduledAt!))
-  return { start, end: start + order.labourMinutes }
+export const spanOf = (scheduled: Schedulable): TimeSpan => {
+  const start = minuteOfDay(new Date(scheduled.scheduledAt!))
+  return { start, end: start + scheduled.labourMinutes }
 }
 
 const UNSCHEDULABLE: WorkOrder['status'][] = [ 'paused', 'completed', 'archived' ]
@@ -30,8 +31,14 @@ export const dayPlan = (workOrders: WorkOrder[], day: Date) => (
       isSameDay(new Date(order.scheduledAt), day) &&
       blockStatus(order)
     ),
+    /* booked at a time, any day, with no one to do it */
+    unassigned: workOrders.filter(order =>
+      order.scheduledAt &&
+      !order.technicians?.length &&
+      !UNSCHEDULABLE.includes(order.status)
+    ),
     unscheduled: workOrders.filter(order =>
-      (!order.scheduledAt || !order.technicians?.length) &&
+      !order.scheduledAt &&
       !UNSCHEDULABLE.includes(order.status)
     ),
     paused: workOrders.filter(order => order.status === 'paused'),

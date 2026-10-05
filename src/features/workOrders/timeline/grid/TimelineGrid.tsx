@@ -23,7 +23,7 @@ type TimelineGridProps = {
   day: Date
   zoom: Zoom
   technicians: Technician[]
-  plan: { scheduled: WorkOrder[], unscheduled: WorkOrder[], paused: WorkOrder[] }
+  plan: { scheduled: WorkOrder[], unassigned: WorkOrder[], unscheduled: WorkOrder[], paused: WorkOrder[] }
   counts: TimelineCounts
   unavailabilities: ScheduleUnavailability[]
   onDayChange: (day: Date) => void
@@ -112,6 +112,7 @@ const TimelineGrid = (props: TimelineGridProps) => {
           </div>
 
           <Lanes
+            unassigned={ plan.unassigned }
             unscheduled={ plan.unscheduled }
             paused={ plan.paused }
             ppm={ ppm }

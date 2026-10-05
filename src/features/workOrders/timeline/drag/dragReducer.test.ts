@@ -9,7 +9,7 @@ describe('dragReducer', () => {
 
   const order = workOrder()
   const drag: Drag = { order, from: 'row', technician: null, grab: { x: 0, y: 0 }, size: { width: 100, height: 40 }, pointer: { x: 0, y: 0 } }
-  const ghost: Ghost = { technicianId: 1, technicians: [], span: { start: 600, end: 660 }, conflict: null }
+  const ghost: Ghost = { technicianId: 1, technicians: [], span: { start: 600, end: 660 }, conflict: null, pinnedAt: null }
   const change: ScheduleChange = { technicians: [], scheduledAt: null, status: 'notStarted' }
 
   const dragging: DragState = { ...initialDragState, drag }
