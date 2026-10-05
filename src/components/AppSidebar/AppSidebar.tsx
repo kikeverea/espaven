@@ -27,6 +27,7 @@ export type AppSidebarLink = {
   label: string
   links?: AppSidebarLink[]
   subject?: Subject
+  badge?: ReactNode         // over the icon, like a blinker for what is new
 }
 
 const roles: { label: string, value: Role }[] = [
@@ -64,12 +65,13 @@ export function AppSidebar({ struct }: { struct: AppSidebarStruct }) {
             <SidebarGroupLabel>{ label }</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                { links.map(({ label, icon, path, links }, itemInd) =>
+                { links.map(({ label, icon, path, links, badge }, itemInd) =>
                   <SidebarMenuItem className='mb-2' key={`${label}-item-${itemInd}`}>
                     <Link to={ path } className='w-full'>
                       {({ isActive }) => (
-                        <SidebarMenuButton isActive={isActive} className='cursor-pointer'>
+                        <SidebarMenuButton isActive={isActive} className='relative cursor-pointer'>
                           { icon }
+                          { badge }
                           <span>{ label }</span>
                         </SidebarMenuButton>
                       )}

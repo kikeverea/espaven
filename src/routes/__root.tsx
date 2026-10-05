@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toast"
 import { BlinkProvider } from '@/components/Blinker/BlinkContext.tsx'
 import { AbilityProvider } from '@casl/react'
 import { ability, type AppAbility } from '@/lib/ability.ts'
+import NewInquiriesBlinker from '@/features/inquiries/NewInquiriesBlinker.tsx'
 import { Inbox, User, CirclePile, Scale, NotepadTextDashed, Wrench, ChartBarStacked, Cog, CalendarDays } from 'lucide-react'
 
 export type RouterContext = {
@@ -24,7 +25,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           <SidebarProvider>
             <AppSidebar struct={{
               CRM: [
-                { label: 'Solicitudes', path: '/inquiries', icon: <Inbox />, subject: 'Inquiry' },
+                { label: 'Solicitudes', path: '/inquiries', icon: <Inbox />, subject: 'Inquiry', badge: <NewInquiriesBlinker /> },
                 { label: 'Clientes', path: '/clients', icon: <User />, subject: 'Contact' },
               ],
               Taller: [
