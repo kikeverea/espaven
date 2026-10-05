@@ -2,7 +2,7 @@ import type { BlockStatus } from '@/features/workOrders/timeline/util/types'
 
 /* Each status's look on the timeline: the card (background and border), its title and its subline */
 export const TIMELINE_STATUS_STYLE: Record<BlockStatus | 'pause', { label: string, card: string, title: string, sub: string }> = {
-  done: { label: 'Completada', card: 'border-[#D3CFCA] bg-[#E7E5E2]', title: 'text-[#57534E]', sub: 'text-[#78716C]' },
+  done: { label: 'Completada', card: 'border-[#BFDCC8] bg-[#E8F3EC]', title: 'text-[#2F5E3F]', sub: 'text-[#5E8A6C]' },
   live: { label: 'En curso', card: 'border-[#2A57C2] bg-[#3366E0]', title: 'text-white', sub: 'text-[#DCE6FB]' },
   todo: { label: 'Pendiente', card: 'border-[#C9C5C0] bg-white shadow-[0_1px_2px_rgba(28,25,23,.10)]', title: 'text-[#1C1917]', sub: 'text-[#78716C]' },
   pause: {

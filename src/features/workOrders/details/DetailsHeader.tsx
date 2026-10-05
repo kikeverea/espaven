@@ -7,7 +7,7 @@ import { MONO, TIMELINE_STATUS_STYLE } from '@/features/workOrders/timeline/util
 type PillStatus = keyof typeof TIMELINE_STATUS_STYLE
 
 const PILL: Record<PillStatus, string> = {
-  done: 'bg-[#E7E5E2] text-[#44403C]',
+  done: 'bg-[#DCEFE3] text-[#1E7A46]',
   live: 'bg-[#3366E0] text-white',
   todo: 'bg-[#E7E5E4] text-[#1C1917]',
   pause: 'bg-[#F6DDA6] text-[#6B3F02]',
