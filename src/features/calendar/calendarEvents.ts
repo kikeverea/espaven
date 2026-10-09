@@ -2,14 +2,12 @@ import type { EventInput } from '@fullcalendar/react'
 import type { Schedulable } from '@/features/schedulables/types'
 import type { WorkOrder } from '@/features/workOrders/types'
 import type { Service } from '@/features/services/types'
-
-export type SchedulableKind = 'workOrder' | 'service'
+import { COMPLETED_STYLE, SCHEDULABLE_STYLES, type SchedulableKind } from '@/features/schedulables/styles'
 
 /* What an event stands for, to find it again when it is moved or clicked */
 export type EventSource = { kind: SchedulableKind, id: number }
 
-/* Done, they stay where they are: the colours match the timeline's */
-const DONE = { backgroundColor: '#E8F3EC', borderColor: '#BFDCC8', textColor: '#2F5E3F' }
+/* Waiting to pick up again, as the timeline's paused lane */
 const PAUSED = { backgroundColor: '#F6DDA6', borderColor: '#E9B85C', textColor: '#6B3F02' }
 
 const span = ({ scheduledAt, labourMinutes }: Schedulable) => {
@@ -26,7 +24,8 @@ const workOrderEvent = (order: WorkOrder): EventInput => {
     ...span(order),
     startEditable: !done,
     extendedProps: { kind: 'workOrder', id: order.id } satisfies EventSource,
-    ...(done && DONE),
+    ...SCHEDULABLE_STYLES.workOrder!.event,
+    ...(done && COMPLETED_STYLE.event),
     ...(order.status === 'paused' && PAUSED),
   }
 }
@@ -40,7 +39,8 @@ const serviceEvent = (service: Service): EventInput => {
     ...span(service),
     startEditable: !done,
     extendedProps: { kind: 'service', id: service.id } satisfies EventSource,
-    ...(done && DONE),
+    ...SCHEDULABLE_STYLES.service?.event,
+    ...(done && COMPLETED_STYLE.event),
   }
 }
 

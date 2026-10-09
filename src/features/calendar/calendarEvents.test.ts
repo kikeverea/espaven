@@ -1,5 +1,6 @@
 import { createFactories } from '@/test/factories'
 import type { Service } from '@/features/services/types'
+import type { WorkOrder } from '@/features/workOrders/types'
 import { calendarEvents } from '@/features/calendar/calendarEvents'
 
 describe('calendarEvents', () => {
@@ -48,5 +49,15 @@ describe('calendarEvents', () => {
 
     expect(order).toMatchObject({ startEditable: false, backgroundColor: '#E8F3EC' })
     expect(done).toMatchObject({ startEditable: false, backgroundColor: '#E8F3EC' })
+  })
+
+  test('colours a work order as such, started or not, and a paused one amber', () => {
+    const [ pending, live, paused ] = calendarEvents([ 'notStarted', 'inProgress', 'paused' ].map(status =>
+      workOrder({ scheduledAt: at, status: status as WorkOrder['status'] })), [])
+
+    const sky = { backgroundColor: 'var(--color-sky-800)', borderColor: 'var(--color-sky-900)', textColor: 'var(--color-white)' }
+    expect(pending).toMatchObject(sky)
+    expect(live).toMatchObject(sky)
+    expect(paused).toMatchObject({ backgroundColor: '#F6DDA6' })
   })
 })

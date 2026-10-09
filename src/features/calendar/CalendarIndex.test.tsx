@@ -33,4 +33,31 @@ describe('CalendarIndex', () => {
     expect(await screen.findByRole('heading', { name: 'Frenos' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Cerrar detalles' })).toBeInTheDocument()
   })
+
+  test('moves through dates and views from the charcoal toolbar', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => json({ collection: [] }))
+
+    render(<SidebarProvider><CalendarIndex /></SidebarProvider>)
+
+    const title = () => screen.getByRole('heading', { level: 2 }).textContent
+
+    /* a week is titled by its month: by the day, each step tells */
+    await vi.waitFor(() => expect(screen.getByRole('tab', { name: 'Semana' })).toHaveAttribute('aria-selected', 'true'))
+    await user.click(screen.getByRole('tab', { name: 'Día' }))
+    await vi.waitFor(() => expect(screen.getByRole('tab', { name: 'Día' })).toHaveAttribute('aria-selected', 'true'))
+
+    const today = title()
+    expect(screen.getByRole('button', { name: 'Hoy' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }))
+    await vi.waitFor(() => expect(title()).not.toBe(today))
+    expect(screen.getByRole('button', { name: 'Hoy' })).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: 'Anterior' }))
+    await vi.waitFor(() => expect(title()).toBe(today))
+
+    await user.click(screen.getByRole('tab', { name: 'Mes' }))
+    await vi.waitFor(() => expect(screen.getByRole('tab', { name: 'Mes' })).toHaveAttribute('aria-selected', 'true'))
+  })
 })
