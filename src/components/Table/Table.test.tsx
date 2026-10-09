@@ -50,7 +50,6 @@ describe('Table', () => {
 
   describe('While loading', () => {
 
-    /* Keeps the table mounted across the flip, the way a refetch does */
     const LoadingHarness = () => {
       const [isLoading, setIsLoading] = useState(false)
 
@@ -71,6 +70,13 @@ describe('Table', () => {
       render(<Table collection={ collection } columns={ columns } isLoading={ true }/>)
 
       expect(screen.queryByText(collection[0].name)).not.toBeInTheDocument()
+    })
+
+    test('show loading message', () => {
+      const loadingMessage = 'test msg'
+      render(<Table collection={ collection } columns={ columns } isLoading={ true } loadingMessage={ loadingMessage }/>)
+
+      expect(screen.queryByText(loadingMessage)).toBeInTheDocument()
     })
 
     test('keeps the table state across a reload', async () => {

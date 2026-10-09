@@ -5,7 +5,6 @@ import { mapperFactory } from './inquiry.mapper.ts'
 
 const { fetch } = api(mapperFactory())
 
-/* Whether any active inquiry is new: no one has done anything with it yet */
 const hasNew = async (): Promise<boolean> => {
   const { hasNew } = await fetch<{ hasNew: boolean }>('/inquiries/has_new')
   return hasNew

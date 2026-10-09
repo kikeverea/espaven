@@ -26,6 +26,7 @@ import selectionReducer, { type SelectionTypes } from '@/components/Table/reduce
 import TableSkeleton from '@/components/Table/TableSkeleton.tsx'
 import Blinker from '@/components/Blinker/Blinker.tsx'
 import ClickableCell from '@/components/Table/ClickableCell/ClickableCell.tsx'
+import { Spinner } from '@/components/ui/spinner.tsx'
 
 const Table = <T extends Entity>(
 {
@@ -37,6 +38,7 @@ const Table = <T extends Entity>(
   sortBy,
   paginate,
   page: initialPage,
+  loadingMessage,
   noEntriesMessage,
   selectable=false,
   onSelectionChange,
@@ -64,18 +66,23 @@ const Table = <T extends Entity>(
     [tableData, searchTerm, filter, server]
   )
 
-  // in server mode the api sorted and sliced the rows already
   const sort = server ? server.sort : internalSort
 
   const setSortColumn = server
     ? (columnName: string) => server.setSort({ ...nextSort(server.sort, columnName), key: sortKeyOf(columns, columnName) })
     : setInternalSortColumn
 
-  // typing stays instant; only the request waits for the term to settle
   useDebouncedCallback(searchTerm, SEARCH_DEBOUNCE_MS, term => server?.setSearch(term))
 
   if (isLoading)
-    return <TableSkeleton colCount={ columns.length }/>
+    return (
+      <>
+        <div className='w-full flex items-center gap-2 p-4 text-sm text-gray-700'>
+          { loadingMessage || 'cargando' } <Spinner />
+        </div>
+        <TableSkeleton colCount={ columns.length }/>
+      </>
+    )
 
   // the api knows how many rows there are in total, a client mode table has them all in hand
   const recordCount = server?.pagination?.count ?? collection.length

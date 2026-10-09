@@ -8,10 +8,6 @@ const inquiryKeys = resourceKeys('inquiries')
 export const useInquiryMutations = () =>
   useMutations<Inquiry, FormInquiry>(inquiryKeys, api, { batchDelete: true })
 
-/*
- * Whether any active inquiry is new: no one has done anything with it yet. Checked every minute, and
- * whenever an inquiry changes
- */
 export const useHasNewInquiries = () =>
   useQuery({
     queryKey: [ ...inquiryKeys.all, 'hasNew' ],

@@ -64,10 +64,6 @@ export type SelectionAction<T extends Entity> = {
   variant?: ButtonVariants
 }
 
-/*
- * Everything the api decided for a server driven table: the slice it sent, the order it
- * used, and the callbacks that ask it for a different one
- */
 export type ServerTable = {
   pagination?: Pagination
   sort?: TableSort
@@ -81,6 +77,7 @@ export type ServerTable = {
 type BaseTableProps<T extends Entity> = ComponentProps<"div"> & {
   collection?: T[]
   columns: TableColumn<T>[]
+  loadingMessage?: string
   noEntriesMessage?: string
   selectable?: boolean
   onSelectionChange?: (selection: T['id'][]) => void
@@ -91,7 +88,6 @@ type BaseTableProps<T extends Entity> = ComponentProps<"div"> & {
   isLoading?: boolean
 }
 
-/* The Table holds the whole collection, so it does the searching, sorting and paging itself */
 type ClientModeProps = {
   server?: never
   search?: string
@@ -101,10 +97,6 @@ type ClientModeProps = {
   page?: number
 }
 
-/*
- * The api holds the collection and sent one page of it, so searching and sorting are its job.
- * `filter` stays absent: applied here it would only ever match the rows of the current page
- */
 type ServerModeProps = {
   server?: ServerTable
   search?: never
