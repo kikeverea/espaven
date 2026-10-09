@@ -12,7 +12,6 @@ type TechnicianCellProps = {
 
 const LOAD_COLOUR = { high: 'bg-[#E5484D]', mid: 'bg-[#D9930D]', low: 'bg-[#3366E0]' }
 
-/* A technician, pinned left as the hours scroll by: who, and how booked their day is */
 const TechnicianCell = ({ technician, booked, capacity }: TechnicianCellProps) => {
   return (
     <div

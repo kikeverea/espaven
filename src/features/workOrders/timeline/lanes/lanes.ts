@@ -1,4 +1,16 @@
 import type { Lane, LaneType } from '@/features/workOrders/timeline/util/types'
+import { SCHEDULABLE_STYLES } from '@/features/schedulables/styles'
+
+/*
+ * Waiting orders look as those on the timeline: white, edged in the work orders' colour. On hover they
+ * lift, not darken their border, which would take the edge's colour too
+ */
+const workOrder = SCHEDULABLE_STYLES.workOrder!
+const WORK_ORDER_CARD = {
+  card: `${workOrder.card} hover:shadow-[0_2px_8px_rgba(28,25,23,.12)]`,
+  cardTitle: workOrder.title,
+  sub: workOrder.sub,
+}
 
 export const LANES: Record<LaneType, Lane> = {
   unassigned: {
@@ -7,9 +19,7 @@ export const LANES: Record<LaneType, Lane> = {
     badge: 'bg-[#3366E0] text-white',
     track: 'repeating-linear-gradient(135deg,#E4E1DD 0 6px,#EFEDEA 6px 12px)',
     dropTrack: '#EEF2FC',
-    card: 'border-dashed border-[#7A9BE8] bg-[#F5F8FE] hover:border-solid hover:border-[#3366E0] hover:shadow-[0_2px_8px_rgba(28,25,23,.08)]',
-    cardTitle: 'text-[#1C1917]',
-    sub: 'text-[#57534E]',
+    ...WORK_ORDER_CARD,
   },
   unscheduled: {
     title: 'Sin programar',
@@ -17,9 +27,7 @@ export const LANES: Record<LaneType, Lane> = {
     badge: 'bg-blue-200 text-blue-500',
     track: 'repeating-linear-gradient(135deg,#E4E1DD 0 6px,#EFEDEA 6px 12px)',
     dropTrack: '#EEF2FC',
-    card: 'border-dashed border-[#A8A29E] bg-white hover:border-solid hover:border-[#57534E] hover:shadow-[0_2px_8px_rgba(28,25,23,.08)]',
-    cardTitle: 'text-[#1C1917]',
-    sub: 'text-[#78716C]',
+    ...WORK_ORDER_CARD,
   },
   paused: {
     title: 'En pausa',

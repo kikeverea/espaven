@@ -21,7 +21,6 @@ type TechnicianRowProps = {
   onHover: (order: WorkOrder, rect: DOMRect | null) => void
 }
 
-/* A technician's day: their cell, then a track with their orders and the stretches they are out */
 const TechnicianRow = ({ technician, ppm, orders, unavailable, ...props }: TechnicianRowProps) => {
   const { drag, ghost: placing, startDrag, endDrag, dragOverRow, dropOnRow } = useDrag()
   const ghost = placing?.technicianId === technician.id ? placing : null       // only when it is on this row

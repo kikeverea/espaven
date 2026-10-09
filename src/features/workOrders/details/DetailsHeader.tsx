@@ -2,9 +2,9 @@ import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { WorkOrder } from '@/features/workOrders/types'
 import { blockStatus } from '@/features/workOrders/timeline/func/planner'
-import { MONO, TIMELINE_STATUS_STYLE } from '@/features/workOrders/timeline/util/styles'
+import { MONO, TIMELINE_STATUS_LABELS } from '@/features/workOrders/timeline/util/styles'
 
-type PillStatus = keyof typeof TIMELINE_STATUS_STYLE
+type PillStatus = keyof typeof TIMELINE_STATUS_LABELS
 
 const PILL: Record<PillStatus, string> = {
   done: 'bg-[#DCEFE3] text-[#1E7A46]',
@@ -30,7 +30,7 @@ const DetailsHeader = ({ order, onClose }: { order: WorkOrder, onClose: () => vo
       <div className='flex items-center gap-2'>
         <span className={ `${MONO} text-xs font-medium text-[#78716C]` }>{ order.number }</span>
         <span className={ cn('rounded-[10px] px-2 py-0.5 text-[11px] font-medium', PILL[status]) }>
-          { TIMELINE_STATUS_STYLE[status].label }
+          { TIMELINE_STATUS_LABELS[status] }
         </span>
         <span className='flex-1' />
         <button type='button' aria-label='Cerrar detalles' className='cursor-pointer ps-2 pb-2' onClick={ onClose }>

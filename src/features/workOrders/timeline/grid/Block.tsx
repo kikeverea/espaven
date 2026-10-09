@@ -4,7 +4,7 @@ import type { WorkOrder } from '@/features/workOrders/types.ts'
 import type { Technician } from '@/features/users/types.ts'
 import { blockGeometry } from '@/features/workOrders/timeline/func/timeline.ts'
 import { blockStatus, spanOf } from '@/features/workOrders/timeline/func/planner.ts'
-import { TIMELINE_STATUS_STYLE } from '@/features/workOrders/timeline/util/styles.ts'
+import { COMPLETED_STYLE, SCHEDULABLE_STYLES } from '@/features/schedulables/styles.ts'
 import { BLOCK_INSET } from '@/features/workOrders/timeline/util/layout.ts'
 import { blockLayout, isThin, subline } from '@/features/workOrders/timeline/grid/blockText.ts'
 import BlockLabel from '@/features/workOrders/timeline/grid/BlockLabel.tsx'
@@ -33,7 +33,7 @@ const Block = ({ order, technician, ppm, dimmed, selected, onSelect, onDragStart
   if (!geometry)
     return null
 
-  const style = TIMELINE_STATUS_STYLE[status]
+  const style = status === 'done' ? COMPLETED_STYLE : SCHEDULABLE_STYLES.workOrder!
   const thin = isThin(geometry.width)
   const others = thin ? [] : (order.technicians ?? []).filter(({ id }) => id !== technician.id)
 
@@ -47,11 +47,11 @@ const Block = ({ order, technician, ppm, dimmed, selected, onSelect, onDragStart
       onMouseEnter={ event => onHover(event.currentTarget.getBoundingClientRect()) }
       onMouseLeave={() => onHover(null)}
       className={ cn(
-        'absolute z-[2] flex flex-col justify-center gap-0.5 overflow-hidden rounded-[7px] border text-left transition-opacity focus-visible:outline-2 focus-visible:outline-[#3366E0]',
+        'absolute z-2 flex flex-col justify-center gap-0.5 overflow-hidden rounded-[7px] border text-left transition-opacity focus-visible:outline-2 focus-visible:outline-[#3366E0]',
         blockLayout(thin),
         style.card,
         'cursor-pointer',
-        selected && 'outline-2 outline-offset-1 outline-[#1C1917]',
+        selected && 'outline-2 outline-offset-1 outline-amber-500',
         dimmed && 'opacity-35'
       )}
       style={{

@@ -155,6 +155,29 @@ describe('WorkOrdersTimeline', () => {
     expect(within(tray('Sin programar')).getByText('Escape')).toBeInTheDocument()
   })
 
+  test('draws work orders in their colour, started or not, and those done in green, as the legend tells', async () => {
+    await renderTimeline({
+      technicians: [ ana, luis ],
+      workOrders: [ ...orders(), workOrder({ name: 'Luces', technicians: [ ana ], scheduledAt: today(15), labourMinutes: 60, status: 'notStarted' }) ],
+    })
+
+    expect(card('Frenos')).toHaveClass('bg-white', 'border-l-sky-800')     // in progress
+    expect(card('Luces')).toHaveClass('bg-white', 'border-l-sky-800')      // not started
+    expect(card('Aceite')).toHaveClass('bg-[#E8F3EC]')    // completed
+    expect(screen.getAllByRole('listitem').map(item => item.textContent)).toEqual([ 'Órdenes de trabajo', 'Completadas' ])
+  })
+
+  test('draws the cards of orders waiting for a time or a technician as the blocks, and paused ones apart', async () => {
+    await renderTimeline({
+      technicians: [ ana ],
+      workOrders: [ ...orders(), workOrder({ name: 'Revisión', technicians: [], scheduledAt: today(14), labourMinutes: 60, status: 'pendingTechnician' }) ],
+    })
+
+    expect(card('Escape')).toHaveClass('bg-white', 'border-l-sky-800')       // sin programar
+    expect(card('Revisión')).toHaveClass('bg-white', 'border-l-sky-800')     // programada sin técnico
+    expect(card('Embrague')).not.toHaveClass('border-l-sky-800')             // en pausa
+  })
+
   test('counts the day’s orders in the header', async () => {
     await renderTimeline({ workOrders: orders(), technicians: [ ana, luis ] })
 

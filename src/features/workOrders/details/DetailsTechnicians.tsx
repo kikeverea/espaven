@@ -33,7 +33,6 @@ const DetailsTechnicians = ({ order, candidates, onChange }: DetailsTechniciansP
     <section aria-label='Técnicos' className='flex flex-col gap-2.5 border-b border-[#E3E0DC] px-5 py-4'>
       <div className='flex items-center gap-2'>
         <h3 className='text-sm font-semibold'>Técnicos</h3>
-        <span className='text-xs text-[#78716C]'>{ technicians.length }</span>
         <span className='flex-1' />
         <button
           type='button'
@@ -42,7 +41,7 @@ const DetailsTechnicians = ({ order, candidates, onChange }: DetailsTechniciansP
           className={ cn('h-7 cursor-pointer rounded-[7px] border border-[#D6D3CF] px-2.5 text-xs font-medium',
             picking ? 'bg-[#F1EFEC]' : 'hover:bg-[#F5F5F4]') }
         >
-          + Añadir técnico
+          {picking ? 'x Cerrar' : '+ Añadir técnico' }
         </button>
       </div>
 

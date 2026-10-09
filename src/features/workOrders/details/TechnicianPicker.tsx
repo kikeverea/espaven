@@ -6,7 +6,6 @@ import { clock } from '@/lib/time'
 
 export type Candidate = { technician: Technician, availability: Availability }
 
-/* Whether they could join: free at the order's time, busy then and with what, or the order has no time */
 const availabilityLabel = (availability: Availability) => {
   if (!availability.span)
     return { text: 'Orden sin hora asignada', tone: 'text-[#78716C]' }
@@ -18,11 +17,19 @@ const availabilityLabel = (availability: Availability) => {
     : { text: `Ocupado · ${availability.title} ${clock(start)}–${clock(end)}`, tone: 'text-[#B42318]' }
 }
 
-/* The technicians the order does not have yet, each with whether they are free at its time */
-const TechnicianPicker = ({ candidates, onPick }: { candidates: Candidate[], onPick: (technician: Technician) => void }) =>
-  <div className='overflow-hidden rounded-[9px] border border-[#D6D3CF] shadow-[0_4px_12px_rgba(28,25,23,.06)]'>
+type TechnicianPickerProps = {
+  candidates: Candidate[]
+  onPick: (technician: Technician) => void
+}
+
+
+const TechnicianPicker = ({ candidates, onPick }: TechnicianPickerProps) =>
+  <div className='
+    overflow-hidden rounded-[9px] border border-[#D6D3CF]
+    shadow-[0_4px_12px_rgba(28,25,23,.06)]
+  '>
     { candidates.length === 0 &&
-      <p className='px-3 py-[9px] text-[13px] text-[#78716C]'>Todos los técnicos están asignados.</p>
+      <p className='px-3 py-2 text-[13px] text-[#78716C]'>Todos los técnicos están asignados.</p>
     }
 
     { candidates.map(({ technician, availability }) => {
@@ -34,7 +41,7 @@ const TechnicianPicker = ({ candidates, onPick }: { candidates: Candidate[], onP
           type='button'
           disabled={ !availability.free }
           onClick={() => onPick(technician)}
-          className='flex w-full cursor-pointer items-center gap-2.5 border-b border-[#EFEDEB] px-3 py-[9px] text-left last:border-b-0 hover:bg-[#F7F6F4] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent'
+          className='flex w-full cursor-pointer items-center gap-2.5 border-b border-[#EFEDEB] px-3 py-2 text-left hover:bg-[#F7F6F4] disabled:opacity-60 disabled:hover:bg-transparent'
         >
           <TechnicianAvatar technician={ technician } size='sm' />
           <span className='shrink-0 text-[13px] font-medium'>{ technician.fullName }</span>

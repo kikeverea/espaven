@@ -8,22 +8,18 @@ import { workOrderKeys } from '@/features/workOrders/useWorkOrders'
 import { duration } from '@/features/workOrders/timeline/func/timeline'
 import { MONO } from '@/features/workOrders/timeline/util/styles'
 
-/* What the order is for, ticked off as each is done. A cancelled service is not part of it any more */
 const DetailsServices = ({ order }: { order: WorkOrder }) => {
   const client = useQueryClient()
   const { data = [] } = useWorkOrderServices(order.id)
   const { update, status } = useServiceMutations()
 
-  /* the tick shows before the api answers */
   const saving = status.pending.update as (FormService & Pick<Service, 'id'>) | null
   const services = data
     .map(service => service.id === saving?.id ? { ...service, ...saving } as Service : service)
     .filter(service => service.status !== 'cancelled')
 
-  const done = services.filter(service => service.status === 'completed').length
   const total = services.reduce((minutes, service) => minutes + (service.expectedMinutes ?? 0), 0)
 
-  /* the last one done completes the order */
   const toggle = (service: Service) =>
     update(
       { id: service.id, status: service.status === 'completed' ? 'not_started' : 'completed' },
@@ -32,10 +28,7 @@ const DetailsServices = ({ order }: { order: WorkOrder }) => {
 
   return (
     <section aria-label='Servicios' className='flex flex-col px-5 pt-4 pb-6'>
-      <div className='flex items-baseline gap-2'>
-        <h3 className='text-sm font-semibold'>Servicios</h3>
-        <span className='text-xs text-[#78716C]'>{ done } de { services.length } hechos</span>
-      </div>
+      <h3 className='text-sm font-semibold'>Servicios</h3>
 
       { services.length === 0 && <p className='pt-2.5 text-[13px] text-[#78716C]'>Sin servicios.</p> }
 
