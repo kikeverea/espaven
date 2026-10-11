@@ -5,10 +5,12 @@ export type FilterParser = (value: any) => number | null
 
 export type TableFilterProps = {
   filter: TableFilter,
+  labels?: Record<string, string>,      // by column key, the key itself titleized when missing
   dispatchFilterChange: Dispatch<FilterAction>,
   onCloseFilter: () => void
 }
 
+/* By column key */
 export type TableFilter = Record<string, CheckboxesFilter | RangeFilter>
 
 export type CheckboxesFilter = {
@@ -39,6 +41,16 @@ export type FilterAction =
   | { type: 'RESET_FILTER' }
 
 export const isRange = (filter: { type: 'checkboxes' | 'range' }): filter is RangeFilter => filter.type === 'range'
+
+/* Whether any column of the filter leaves rows out */
+export const isFilterActive = (filter: TableFilter): boolean =>
+  Object.values(filter).some(columnFilter =>
+    isRange(columnFilter)
+      ? hasLimit(columnFilter.min) || hasLimit(columnFilter.max)
+      : columnFilter.checked.length > 0
+  )
+
+const hasLimit = (limit?: number | string): boolean => limit != null && String(limit).trim() !== ''
 
 export function assertAsRange(filter: CheckboxesFilter | RangeFilter): asserts filter is RangeFilter {
   if (filter.type !== 'range')

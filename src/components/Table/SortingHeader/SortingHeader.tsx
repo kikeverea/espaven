@@ -2,8 +2,7 @@ import { TableHead, TableHeader, TableRow } from '@/components/ui/table.tsx'
 
 import { ChevronUp } from 'lucide-react'
 import type { Entity } from '@/types.ts'
-import type { SelectionAction, TableColumn, TableSort } from '@/components/Table/types.ts'
-import { normalized } from '@/lib/strings.ts'
+import { isCustomCol, type SelectionAction, type TableColumn, type TableSort } from '@/components/Table/types.ts'
 import { cellPadding } from '@/components/Table/util.tsx'
 import { Checkbox } from '@/components/ui/checkbox.tsx'
 import { useState } from 'react'
@@ -12,7 +11,7 @@ import { Button } from '@/components/ui/button.tsx'
 type SortingHeaderProps<T extends Entity> = {
   sort?: TableSort,
   columns: TableColumn<T>[],
-  setSortColumn: (name: string)=> void,
+  setSortColumn: (columnKey: string)=> void,
   selectable?: boolean
   selection?: T['id'][]
   hasActions?: boolean
@@ -56,18 +55,19 @@ const SortingHeader = <T extends Entity>({
         }
         { columns.map((col, ind) =>
           <TableHead
-            key={ col.name || col.key }
+            key={ col.key }
             className={`
               w-25 text-gray-500 cursor-pointer
               ${cellPadding()}
               ${ind === columns.length - 1 && !hasActions ? 'pe-8' : ''}
             `}
-            onClick={ () => setSortColumn(normalized(col.name)) }
+            // a custom column has no data to sort by
+            onClick={ isCustomCol(col) ? undefined : () => setSortColumn(col.key) }
           >
             <div className={`flex items-center gap-1 ${col.headerClassName}`}>
               {('name' in col) ? col.name : col.header()}
 
-              {column?.toLowerCase() === col.name?.toLowerCase() && (
+              {!isCustomCol(col) && column === col.key && (
                 <ChevronUp
                   className={`
                     size-4

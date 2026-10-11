@@ -16,11 +16,11 @@ const raw: TestData[] = [
 ]
 
 const columns: TableColumn<TestData>[] = [
-{ name: 'Name', accessor: item => item.name },
-{ name: 'Family', accessor: item => item.family },
-{ name: 'Type', accessor: item => item.type },
-{ name: 'Age', accessor: item => item.age },
-{ name: 'Birth', accessor: item => parseDate(item.birth), presenter: formatDate },
+{ name: 'Name', key: 'name' },
+{ name: 'Family', key: 'family' },
+{ name: 'Type', key: 'type' },
+{ name: 'Age', key: 'age' },
+{ name: 'Birth', key: 'birth', accessor: item => parseDate(item.birth), presenter: formatDate },
 ]
 
 const collection = mapToData(raw, columns)

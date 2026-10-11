@@ -6,19 +6,15 @@ import type { WorkOrder } from '@/features/workOrders/types'
 import IndexNavBar from '@/components/NavBar/IndexNavBar'
 import SideTray from '@/components/SideTray/SideTray'
 import { useCollection } from '@/components/Table/useCollection'
-import useTableQuery from '@/components/Table/hooks/useTableQuery'
 
 const WorkOrdersIndex = () => {
-  const query = useTableQuery()
-
   const mutations = useWorkOrderMutations()
   const [ selected, setSelected ] = useState<WorkOrder | null>(null)
 
   const { formItem: formWorkOrder } = useCollection(
     [ 'Orden de trabajo', 'f' ],
-    useWorkOrders(query),
+    useWorkOrders(),
     mutations,
-    query
   )
 
   /* Esc closes the details */

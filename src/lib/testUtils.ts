@@ -134,4 +134,4 @@ export const defaultCollection: TestData[] = [
   { id: 7, name: 'Monkey', family: 'Primate', type: 'Wild', age: 5, birth: '2020-01-08' },
 ]
 
-export const defaultFilterColumns: FilterColumns = [ 'Family', 'Type', ['Age', 'range'], ['Birth', 'range', parseDate] ]
+export const defaultFilterColumns: FilterColumns = [ 'family', 'type', ['age', 'range'], ['birth', 'range', parseDate] ]

@@ -1,5 +1,4 @@
 export type PersistedRecord = Entity & { createdAt: string }
-
 export type Entity = { id: number } & Record<string, unknown>
 
 export type Primitive = string | number

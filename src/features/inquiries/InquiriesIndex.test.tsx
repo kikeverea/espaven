@@ -10,8 +10,8 @@ describe('ServiceTemplatesIndex', () => {
   const { inquiry } = createFactories()
 
   const columns: TableColumn<Inquiry>[] = [
-    { name: 'Service', accessor: 'service' },
-    { name: 'Last activity', accessor: 'lastActivityAt' },
+    { name: 'Service', key: 'service' },
+    { name: 'Last activity', key: 'lastActivityAt' },
   ]
 
   test('renders blinker when inquiry lastActivityAt is null', () => {

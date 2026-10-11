@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useMutations, type MutationApi, type MutationKeys } from '@/lib/mutations.tsx'
+import { resourceKeys, useMutations, type MutationApi, type MutationKeys } from '@/lib/mutations.tsx'
 import type { ReactNode } from 'react'
 import { expect, vi } from 'vitest'
 
@@ -64,5 +64,26 @@ describe('useMutations', () => {
     await waitFor(() => expect(result.current.status.pending.any).toBe(true))
     expect(result.current.status.pending.current(cat)).toBeNull()
     expect(result.current.status.pending.current(dog)).toBeNull()
+  })
+})
+
+describe('resourceKeys.list', () => {
+  const keys = resourceKeys('parts')
+
+  test('sits under the resource, so a mutation invalidates every page of it', () => {
+    expect(keys.list({ page: 2 }).slice(0, 1)).toEqual(keys.all)
+  })
+
+  test('tells apart pages narrowed differently', () => {
+    const filter = { family: { type: 'checkboxes' as const, values: ['feline'], checked: ['feline'] } }
+
+    expect(keys.list({ page: 1 })).not.toEqual(keys.list({ page: 2 }))
+    expect(keys.list({ search: 'a' })).not.toEqual(keys.list({ search: 'b' }))
+    expect(keys.list({})).not.toEqual(keys.list({ filter }))
+    expect(keys.list({}, { day: 'monday' })).not.toEqual(keys.list({}))
+  })
+
+  test('is the same for queries that make the same request', () => {
+    expect(keys.list({ page: 1, search: '' })).toEqual(keys.list({ page: 1 }))
   })
 })

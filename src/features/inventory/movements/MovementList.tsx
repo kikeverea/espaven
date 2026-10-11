@@ -22,21 +22,21 @@ const List = ({ item }: { item: InventoryItem } ) => {
     useCollection('Movimiento', useItemMovements(item), useInventoryItemMovementMutations(item))
 
   const columns: TableColumn<InventoryMovement>[] = [
-    { name: 'Movimiento', accessor: 'movement', presenter: movementBadge },
+    { name: 'Movimiento', key: 'movement', presenter: movementBadge },
     { name: 'Cantidad',
-      accessor: 'amountDelta',
+      key: 'amountDelta',
       className: 'text-center',
       headerClassName: 'justify-center',
       presenter: amount => amountPresenter(amount, item),
     },
     { name: 'En inventario',
-      accessor: 'stockAfter',
+      key: 'stockAfter',
       className: 'text-center',
       headerClassName: 'justify-center',
       presenter: (stock, movement) => stockPresenter(stock, item, movement.movement),
     },
     { name: 'Fecha',
-      accessor: 'createdAt',
+      key: 'createdAt',
       presenter: timeString,
       className: 'text-end pe-10',
       headerClassName: 'justify-end pe-10'

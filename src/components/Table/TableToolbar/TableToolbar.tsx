@@ -10,6 +10,7 @@ import type { TableToolbarProps } from '@/components/Table/TableToolbar/types.ts
 const TableToolbar = (
 {
   filter,
+  filterLabels,
   search,
   showSearch=true,
   searchPlaceholder,
@@ -40,6 +41,7 @@ const TableToolbar = (
             <div className={styles.filter}>
               <TableFilter
                 filter={ filter }
+                labels={ filterLabels }
                 dispatchFilterChange={ dispatchFilterChange }
                 onCloseFilter={ () => setShowFilter(false) }
               />

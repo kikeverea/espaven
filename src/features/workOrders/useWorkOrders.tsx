@@ -2,16 +2,16 @@ import { type WorkOrder, type FormWorkOrder } from './types.ts'
 import api from '@/features/workOrders/data/workOrder.api.ts'
 import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import type { TableQuery } from '@/components/Table/hooks/useTableQuery'
+import type { CollectionQuery } from '@/api/apiClient.ts'
 
 export const workOrderKeys = resourceKeys('workOrders')
 
 export const useWorkOrderMutations = () =>
   useMutations<WorkOrder, FormWorkOrder>(workOrderKeys, api, { batchDelete: true })
 
-export const useWorkOrders = (query?: TableQuery) =>
+export const useWorkOrders = (query?: CollectionQuery) =>
   useQuery({
-    queryKey: [...workOrderKeys.all, query?.page ?? 1, query?.perPage ?? null, query?.search ?? '', query?.sort ?? null],
+    queryKey: workOrderKeys.list(query),
     queryFn: () => api.getAll(query),
     placeholderData: keepPreviousData,      // keep the current page on screen while the next one loads
   })

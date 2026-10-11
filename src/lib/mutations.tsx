@@ -7,6 +7,8 @@ import {
 } from '@tanstack/react-query'
 import { toast } from '@/components/ui/toast'
 import type { Entity } from '@/types.ts'
+import { collectionParams, type CollectionQuery } from '@/api/apiClient'
+import { type UrlParams, withParams } from '@/lib/urls'
 
 export type Mutations<T extends object, TWrite extends object = T> = {
   create: UseMutateFunction<T, Error | null, TWrite>
@@ -44,12 +46,22 @@ export type MutationKeys = {
   delete: readonly [...MutationKey[], 'delete']
 }
 
-/* The four keys a resource mutates under. `name` is what it is called in the cache ('inventoryItems') */
-export const resourceKeys = (name: string): MutationKeys => ({
+export type ResourceKeys = MutationKeys & {
+  list: (query?: CollectionQuery, params?: UrlParams) => readonly MutationKey[]
+}
+
+/*
+ * The four keys a resource mutates under, and the one each page of it is cached under.
+ * `name` is what it is called in the cache ('inventoryItems')
+ */
+export const resourceKeys = (name: string): ResourceKeys => ({
   all: [name] as const,
   create: [name, 'create'] as const,
   update: [name, 'update'] as const,
   delete: [name, 'delete'] as const,
+  // the request's own query string, so whatever narrows the request tells its pages apart
+  list: (query?: CollectionQuery, params?: UrlParams) =>
+    [name, 'list', withParams('', params ?? {}, collectionParams(query))] as const,
 })
 
 export type MutationApi<T extends object, TWrite extends object = T> = {

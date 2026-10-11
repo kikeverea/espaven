@@ -7,7 +7,7 @@ import { parseDate, newFilter } from '@/lib/testUtils'
 
 describe('filterReducer', () => {
 
-  const filterColumns: FilterColumns = [ 'Family', 'Type', ['Age', 'range'], ['Birth', 'range', parseDate] ]
+  const filterColumns: FilterColumns = [ 'family', 'type', ['age', 'range'], ['birth', 'range', parseDate] ]
   let filterAnd: (args?: UpdateFilterArgs) => TableFilter
   let filter: () => TableFilter
 
@@ -20,7 +20,7 @@ describe('filterReducer', () => {
     test('selecting a column value adds the column and value to the filter', () => {
       const state = filterReducer(
         filter(),
-        { type: 'TOGGLE_COLUMN', payload: { column: 'Family', value: 'Feline', selected: true }}
+        { type: 'TOGGLE_COLUMN', payload: { column: 'family', value: 'Feline', selected: true }}
       )
       expect(state).toEqual(filterAnd({ family: ['feline'] }))
     })
@@ -28,7 +28,7 @@ describe('filterReducer', () => {
     test('selecting a column value of a column already present in the filter, adds the value to the filter', () => {
       const state = filterReducer(
         filterAnd({ family: ['feline'] }),
-        { type: 'TOGGLE_COLUMN', payload: { column: 'Family', value: 'canine', selected: true }}
+        { type: 'TOGGLE_COLUMN', payload: { column: 'family', value: 'canine', selected: true }}
       )
       expect(state).toEqual(filterAnd({ family: ['feline', 'canine'] }))
     })
@@ -36,7 +36,7 @@ describe('filterReducer', () => {
     test('unselecting a column value removes the value from the filter', () => {
       const state = filterReducer(
         filterAnd({ family: ['feline', 'canine'] }),
-        { type: 'TOGGLE_COLUMN', payload: { column: 'Family', value: 'canine', selected: false }}
+        { type: 'TOGGLE_COLUMN', payload: { column: 'family', value: 'canine', selected: false }}
       )
       expect(state).toEqual(filterAnd({ family: ['feline'] }))
     })
@@ -44,7 +44,7 @@ describe('filterReducer', () => {
     test('unselecting the last value of a column produces an empty array', () => {
       const state = filterReducer(
         filterAnd({ family: ['feline'] }),
-        { type: 'TOGGLE_COLUMN', payload: { column: 'Family', value: 'Feline', selected: false }}
+        { type: 'TOGGLE_COLUMN', payload: { column: 'family', value: 'Feline', selected: false }}
       )
       expect(state).toEqual(filterAnd({ family: [] }))
     })
@@ -54,7 +54,7 @@ describe('filterReducer', () => {
     test.each([10, '10'])('sets a range min', min => {
       const state = filterReducer(
         filter(),
-        { type: 'SET_COLUMN_RANGE', payload: { column: 'Age', target: 'min', value: min }}
+        { type: 'SET_COLUMN_RANGE', payload: { column: 'age', target: 'min', value: min }}
       )
       expect(state).toEqual(filterAnd({ age: { min: min }}))
     })
@@ -62,7 +62,7 @@ describe('filterReducer', () => {
     test.each([12, '12'])('sets a range max', max => {
       const state = filterReducer(
         filter(),
-        { type: 'SET_COLUMN_RANGE', payload: { column: 'Age', target: 'max', value: max }}
+        { type: 'SET_COLUMN_RANGE', payload: { column: 'age', target: 'max', value: max }}
       )
       expect(state).toEqual(filterAnd({ age: { max: max, parser: undefined }}))
     })
@@ -70,12 +70,12 @@ describe('filterReducer', () => {
     test('sets a range min and max', () => {
       const minState = filterReducer(
         filter(),
-        { type: 'SET_COLUMN_RANGE', payload: { column: 'Age', target: 'min', value: 10 }}
+        { type: 'SET_COLUMN_RANGE', payload: { column: 'age', target: 'min', value: 10 }}
       )
 
       const minMaxState = filterReducer(
         minState,
-        { type: 'SET_COLUMN_RANGE', payload: { column: 'Age', target: 'max', value: 16 }}
+        { type: 'SET_COLUMN_RANGE', payload: { column: 'age', target: 'max', value: 16 }}
       )
 
       expect(minMaxState).toEqual(filterAnd({ age: { min: 10, max: 16 }}))

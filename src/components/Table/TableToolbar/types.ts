@@ -4,6 +4,7 @@ import type { Dispatch } from 'react'
 
 export type RangeFilterColumn = [string, 'range', FilterParser?]
 
+/* Column keys */
 export type FilterColumns = (string | RangeFilterColumn)[]
 
 export type TableToolbarProps = {
@@ -14,5 +15,6 @@ export type TableToolbarProps = {
   filterColumns?: FilterColumns,
   onSearchChange?: (search: string) => void,
   filter?: TableFilter,
+  filterLabels?: Record<string, string>,
   dispatchFilterChange?: Dispatch<FilterAction>,
 }

@@ -3,7 +3,7 @@ import styles from './TableFilter.module.css'
 import { isRange, type RangeFilter, type TableFilterProps} from '@/components/Table/TableFilter/types'
 import { titleize } from '@/lib/strings'
 
-const TableFilter = ({ filter={}, dispatchFilterChange, onCloseFilter }: TableFilterProps) => {
+const TableFilter = ({ filter={}, labels={}, dispatchFilterChange, onCloseFilter }: TableFilterProps) => {
 
   const handleCheckboxValueChanged = (e: ChangeEvent<HTMLInputElement>, column: string, value: string): void => {
     const checkbox = e.currentTarget
@@ -33,7 +33,7 @@ const TableFilter = ({ filter={}, dispatchFilterChange, onCloseFilter }: TableFi
           return (
             <div key={ column } className={ styles.filterColumnContainer } role='group' aria-label={ column }>
               <div id={`${column}-filter-label`} className={ styles.filterColumnLabel } role='label' >
-                { titleize(column) }
+                { labels[column] ?? titleize(column) }
               </div>
               { isRange(filterValue)
                 ? <div className={ styles.rangesContainer }>

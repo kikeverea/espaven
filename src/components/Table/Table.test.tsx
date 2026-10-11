@@ -1,7 +1,8 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Table from './Table.tsx'
-import type { ServerTable, TableColumn } from '@/components/Table/types'
+import type { TableColumn, TableProps, TableQuery } from '@/components/Table/types'
+import useTableQuery, { type TableQueryOptions } from '@/components/Table/hooks/useTableQuery'
 import type { FilterColumns } from '@/components/Table/TableToolbar/types'
 
 import type { TestData, UpdateFilterArgs } from '@/lib/testUtils.ts'
@@ -15,14 +16,35 @@ import {
 import { expect } from 'vitest'
 import { useState } from 'react'
 
+/* A table narrowed by a query its caller owns, starting from `query` */
+const QueryTable = <T extends TestData>(
+  { query, ...props }: Omit<TableProps<T>, 'tableQuery'> & { query: TableQueryOptions }
+) =>
+  <Table { ...props } tableQuery={ useTableQuery(query) } />
+
+/* What a feature hands a server table: the api applies it, the table only reports changes to it */
+const serverQuery = (overrides: Partial<TableQuery> = {}): TableQuery => ({
+  mode: 'server',
+  page: 1,
+  perPage: 25,
+  search: '',
+  filter: {},
+  setPage: vi.fn(),
+  setPerPage: vi.fn(),
+  setSearch: vi.fn(),
+  setSort: vi.fn(),
+  setFilter: vi.fn(),
+  ...overrides
+})
+
 describe('Table', () => {
 
   const columns: TableColumn<TestData>[] = [
-    { name: 'Name', accessor: 'name' },
-    { name: 'Family', accessor: item => item.family },
-    { name: 'Type', accessor: 'type' },
-    { name: 'Age', accessor: item => item.age },
-    { name: 'Birth', accessor: item => parseDate(item.birth), presenter: formatDate }
+    { name: 'Name', key: 'name' },
+    { name: 'Family', key: 'family' },
+    { name: 'Type', key: 'type' },
+    { name: 'Age', key: 'age' },
+    { name: 'Birth', key: 'birth', accessor: item => parseDate(item.birth), presenter: formatDate }
   ]
 
   const collection: TestData[] = [
@@ -45,7 +67,7 @@ describe('Table', () => {
   const pageLink = (page: number) =>
     within(screen.getByLabelText('Pagination Navigation')).getByLabelText(`Go to page ${page}`)
 
-  const filterColumns: FilterColumns = [ 'Family', 'Type', ['Age', 'range'], ['Birth', 'range', parseDate] ]
+  const filterColumns: FilterColumns = [ 'family', 'type', ['age', 'range'], ['birth', 'range', parseDate] ]
   const filterAnd = (args?: UpdateFilterArgs) => newFilter(filterColumns, args, longCollection)
 
   describe('While loading', () => {
@@ -216,7 +238,7 @@ describe('Table', () => {
     test('calls on column click', async () => {
       const mock = vi.fn()
       const testColumns = [
-        { name: 'Clickable', accessor: () => 'Clickable', onClick: mock },
+        { name: 'Clickable', key: 'clickable', accessor: () => 'Clickable', onClick: mock },
         ...columns,
       ]
 
@@ -240,13 +262,13 @@ describe('Table', () => {
 
     describe('Search', () => {
       test('renders rows that pass the search', () => {
-        render(<Table collection={ collection } columns={ columns } search='dog' />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ search: 'dog' }} />)
 
         expect(getNameCellsContent()).toEqual(['Dog'])
       })
 
       test('renders empty message if no row passes the search', () => {
-        render(<Table collection={ collection } columns={ columns } search='no-rows' />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ search: 'no-rows' }} />)
 
         expect(getNameCellsContent()).toEqual(['No hay entradas'])
       })
@@ -255,52 +277,42 @@ describe('Table', () => {
     describe('Filter', () => {
 
       test('renders rows that pass the filter', () => {
-        render(<Table collection={ longCollection } columns={ columns } filter={
-          filterAnd({
+        render(<QueryTable collection={ longCollection } columns={ columns } query={{ filter: filterAnd({
             'family': ['feline', 'canine' ],
             'type': ['wild', 'canine' ],
-          })}
-        />)
+          }) }} />)
 
         expect(getNameCellsContent()).toEqual(['Lion', 'Red Fox'])
       })
 
       test('renders rows that pass the filter and search', () => {
-        render(<Table collection={ collection } columns={ columns } search='cat' filter={
-          filterAnd({
+        render(<QueryTable collection={ collection } columns={ columns } query={{ search: 'cat', filter: filterAnd({
             'family': ['feline' ],
-          })}
-        />)
+          }) }} />)
 
         expect(getNameCellsContent()).toEqual(['Cat'])
       })
 
       test('renders rows that pass the range filter', () => {
-        render(<Table collection={ collection } columns={ columns } filter={
-          filterAnd({
+        render(<QueryTable collection={ collection } columns={ columns } query={{ filter: filterAnd({
             'age': { min: 8, max: 15 },
-          })}
-        />)
+          }) }} />)
 
         expect(getNameCellsContent()).toEqual(['Cat', 'Lion'])
       })
 
       test('renders rows that pass the range filter, edge cases', () => {
-        render(<Table collection={ collection } columns={ columns }filter={
-          filterAnd({
+        render(<QueryTable collection={ collection } columns={ columns } query={{ filter: filterAnd({
             'age': { min: 10, max: 13 },
-          })}
-        />)
+          }) }} />)
 
         expect(getNameCellsContent()).toEqual(['Cat', 'Lion'])
       })
 
       test('renders rows that pass a min range filter', () => {
-        render(<Table collection={ collection } columns={ columns } filter={
-          filterAnd({
+        render(<QueryTable collection={ collection } columns={ columns } query={{ filter: filterAnd({
             'age': { min: 12 },
-          })}
-        />)
+          }) }} />)
 
         expect(getNameCellsContent()).toEqual(['Lion', 'Sea Lion'])
       })
@@ -313,59 +325,48 @@ describe('Table', () => {
       ])
       ('renders empty message if no row passes the filter', (noPassFilter) => {
 
-        render(<Table collection={ collection } columns={ columns } filter={ filterAnd(noPassFilter) } />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ filter: filterAnd(noPassFilter) }} />)
 
         expect(getNameCellsContent()).toEqual(['No hay entradas'])
       })
 
       test('renders empty message if no row passes the filter and search', () => {
-        render(<Table collection={ collection } columns={ columns } search='dog' filter={
-          filterAnd({
+        render(<QueryTable collection={ collection } columns={ columns } query={{ search: 'dog', filter: filterAnd({
             'family': ['feline' ],
-          })}
-        />)
+          }) }} />)
 
         expect(getNameCellsContent()).toEqual(['No hay entradas'])
       })
 
       test('renders rows that pass the max range filter', () => {
-        render(<Table collection={ collection } columns={ columns } filter={
-          filterAnd({
+        render(<QueryTable collection={ collection } columns={ columns } query={{ filter: filterAnd({
             'age': { max: 12 },
-          })}
-        />)
+          }) }} />)
 
         expect(getNameCellsContent()).toEqual(['Cat', 'Dog'])
       })
 
       test('renders rows that pass the date range filter', () => {
         render(
-          <Table
+          <QueryTable
             collection={ collection }
-            columns={ columns }
-            filter={
-              filterAnd({
+            columns={ columns } query={{ filter: filterAnd({
                 'birth': {
                   min: '2012-07-14',
                   max: '2015-07-14',
                   parser: parseDate
                 },
-              })}
-          />)
+              }) }} />)
 
         expect(getNameCellsContent()).toEqual(['Cat', 'Lion'])
       })
 
       test('renders rows that pass a range filter, filter and search', () => {
-        render(<Table
+        render(<QueryTable
           collection={ collection }
-          columns={ columns }
-          search='Lion'
-          filter={
-            filterAnd({
+          columns={ columns } query={{ search: 'Lion', filter: filterAnd({
               'age': { min: 8, max: 16 }, 'family': ['feline']
-            })}
-        />)
+            }) }} />)
 
         expect(getNameCellsContent()).toEqual(['Lion'])
       })
@@ -392,17 +393,36 @@ describe('Table', () => {
         expect(searchBox()).toBeInTheDocument()
       })
 
-      test('always appears in server mode, however few rows came back', () => {
+      test('is hidden in server mode when few rows came back and nothing narrowed them', () => {
         render(
           <Table
             collection={ collection }
             columns={ columns }
-            server={{
-              pagination: { page: 1, pages: 1, count: 4, perPage: 25, next: null, prev: null },
-              search: '', setPage: vi.fn(), setPerPage: vi.fn(), setSearch: vi.fn(), setSort: vi.fn()
-            }}
+            tableQuery={ serverQuery() }
+            pagination={{ page: 1, pages: 1, count: 4, perPage: 25, next: null, prev: null }}
           />
         )
+
+        expect(searchBox()).not.toBeInTheDocument()
+      })
+
+      test('stays while a search narrows the collection, so it can be cleared', () => {
+        render(
+          <Table
+            collection={ collection }
+            columns={ columns }
+            tableQuery={ serverQuery({ search: 'cat' }) }
+            pagination={{ page: 1, pages: 1, count: 4, perPage: 25, next: null, prev: null }}
+          />
+        )
+
+        expect(searchBox()).toBeInTheDocument()
+      })
+
+      test('stays in client mode while the search leaves few rows', async () => {
+        render(<Table collection={ manyRows(16) } columns={ columns } />)
+
+        await userEvent.type(searchBox()!, 'Animal 16')
 
         expect(searchBox()).toBeInTheDocument()
       })
@@ -413,10 +433,8 @@ describe('Table', () => {
           <Table
             collection={ collection }
             columns={ columns }
-            server={{
-              pagination: { page: 1, pages: 100, count: 400, perPage: 4, next: 2, prev: null },
-              search: '', setPage: vi.fn(), setPerPage: vi.fn(), setSearch: vi.fn(), setSort: vi.fn()
-            }}
+            tableQuery={ serverQuery() }
+            pagination={{ page: 1, pages: 100, count: 400, perPage: 4, next: 2, prev: null }}
           />
         )
 
@@ -438,10 +456,8 @@ describe('Table', () => {
           <Table
             collection={ collection }
             columns={ columns }
-            server={{
-              pagination: { page: 1, pages: 17, count: 405, perPage: 25, next: 2, prev: null },
-              search: '', setPage: vi.fn(), setPerPage: vi.fn(), setSearch, setSort: vi.fn()
-            }}
+            tableQuery={ serverQuery({ setSearch }) }
+            pagination={{ page: 1, pages: 17, count: 405, perPage: 25, next: 2, prev: null }}
           />
         )
 
@@ -458,10 +474,8 @@ describe('Table', () => {
           <Table
             collection={ collection }
             columns={ columns }
-            server={{
-              pagination: { page: 1, pages: 1, count: 4, perPage: 25, next: null, prev: null },
-              search: 'zzz', setPage: vi.fn(), setPerPage: vi.fn(), setSearch: vi.fn(), setSort: vi.fn()
-            }}
+            tableQuery={ serverQuery({ search: 'zzz' }) }
+            pagination={{ page: 1, pages: 1, count: 4, perPage: 25, next: null, prev: null }}
           />
         )
 
@@ -472,13 +486,13 @@ describe('Table', () => {
     describe('Client mode', () => {
 
       test('paginates data', () => {
-        render(<Table collection={ collection } columns={ columns } paginate={ 2 }/>)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ perPage: 2 }} />)
 
         expect(getNameCellsContent()).toEqual(['Cat', 'Dog'])
       })
 
       test('renders the selected page data', async () => {
-        render(<Table collection={ collection } columns={ columns } paginate={ 2 }/>)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ perPage: 2 }} />)
 
         await userEvent.click(pageLink(2))
 
@@ -486,7 +500,7 @@ describe('Table', () => {
       })
 
       test('left arrow navigates to previous page', async () => {
-        render(<Table collection={ longCollection } columns={ columns } paginate={ 1 } page={ 4 } />)
+        render(<QueryTable collection={ longCollection } columns={ columns } query={{ perPage: 1, page: 5 }} />)
 
         await userEvent.click(screen.getByLabelText('Go to previous page'))
 
@@ -494,7 +508,7 @@ describe('Table', () => {
       })
 
       test('right arrow navigates to next page', async () => {
-        render(<Table collection={ longCollection } columns={ columns } paginate={ 1 } page={ 4 } />)
+        render(<QueryTable collection={ longCollection } columns={ columns } query={{ perPage: 1, page: 5 }} />)
 
         await userEvent.click(screen.getByLabelText('Go to next page'))
 
@@ -502,16 +516,16 @@ describe('Table', () => {
       })
 
       test('selecting items per page renders that amount of items', async () => {
-        render(<Table collection={ longCollection } columns={ columns } paginate={ 2 } />)
+        render(<QueryTable collection={ longCollection } columns={ columns } query={{ perPage: 2 }} />)
 
-        await userEvent.selectOptions(screen.getByRole('combobox'), '10')
+        await userEvent.selectOptions(screen.getByRole('combobox'), '25')
 
-        expect(dataRows()).toHaveLength(Math.min(longCollection.length, 10))
+        expect(dataRows()).toHaveLength(longCollection.length)
       })
 
       test('sorts the whole collection before paging it, not just the page', async () => {
         render(
-          <Table collection={ longCollection } columns={ columns } sortBy={{ column: 'family' }} paginate={ 2 } />
+          <QueryTable collection={ longCollection } columns={ columns } query={{ sort: { column: 'family' }, perPage: 2 }} />
         )
 
         // 'Dog' and 'Red Fox' are both Canine: the first two of the sorted collection,
@@ -519,8 +533,23 @@ describe('Table', () => {
         expect(getNameCellsContent()).toEqual(['Dog', 'Red Fox'])
       })
 
+      test('filters with the filter panel', async () => {
+        render(<QueryTable collection={ longCollection } columns={ columns } query={{ filter: filterAnd() }} />)
+
+        await userEvent.click(screen.getByLabelText('show filter'))
+        await userEvent.click(within(screen.getByRole('group', { name: 'family' })).getByRole('checkbox', { name: 'Canine' }))
+
+        expect(getNameCellsContent()).toEqual(['Dog', 'Red Fox'])
+      })
+
+      test('falls back to the last page when the collection shrinks under the current one', () => {
+        render(<QueryTable collection={ longCollection } columns={ columns } query={{ perPage: 2, page: 9 }} />)
+
+        expect(getNameCellsContent()).toEqual([longCollection[6].name])
+      })
+
       test('counts the whole collection in the pagination info', () => {
-        render(<Table collection={ longCollection } columns={ columns } paginate={ 2 } />)
+        render(<QueryTable collection={ longCollection } columns={ columns } query={{ perPage: 2 }} />)
 
         expect(screen.getByRole('status').textContent)
           .toBe(`Showing 1 to 2 of ${longCollection.length} records`)
@@ -532,36 +561,29 @@ describe('Table', () => {
       // the api already sliced this page out of a much bigger collection
       const pagination = { page: 2, pages: 17, count: 405, perPage: 25, next: 3, prev: 1 }
 
-      const serverTable = (overrides: Partial<ServerTable> = {}): ServerTable => ({
-        pagination,
-        search: '',
-        setPage: vi.fn(),
-        setPerPage: vi.fn(),
-        setSearch: vi.fn(),
-        setSort: vi.fn(),
-        ...overrides
-      })
+      const ServerTable = ({ query, ...props }: Omit<TableProps<TestData>, 'tableQuery'> & { query?: Partial<TableQuery> }) =>
+        <Table pagination={ pagination } { ...props } tableQuery={ serverQuery({ page: 2, ...query }) } />
 
       const sortableColumns: TableColumn<TestData>[] = [
-        { name: 'Name', accessor: 'name', sortKey: 'animals.name' },
-        { name: 'Family', accessor: item => item.family }
+        { name: 'Name', key: 'animalName', accessor: item => item.name },
+        { name: 'Family', key: 'family' }
       ]
 
       test('renders every row it was given, without slicing them again', () => {
-        render(<Table collection={ longCollection } columns={ columns } server={ serverTable() } />)
+        render(<ServerTable collection={ longCollection } columns={ columns } />)
 
         expect(dataRows()).toHaveLength(longCollection.length)
       })
 
       test('reports the position of the page inside the whole collection', () => {
-        render(<Table collection={ longCollection } columns={ columns } server={ serverTable() } />)
+        render(<ServerTable collection={ longCollection } columns={ columns } />)
 
         expect(screen.getByRole('status').textContent).toBe('Showing 26 to 50 of 405 records')
       })
 
       test('asks the api for a new page instead of paging locally', async () => {
         const setPage = vi.fn()
-        render(<Table collection={ longCollection } columns={ columns } server={ serverTable({ setPage }) } />)
+        render(<ServerTable collection={ longCollection } columns={ columns } query={{ setPage }} />)
 
         await userEvent.click(pageLink(4))
 
@@ -571,56 +593,43 @@ describe('Table', () => {
 
       test('asks the api for a new page size', async () => {
         const setPerPage = vi.fn()
-        render(<Table collection={ longCollection } columns={ columns } server={ serverTable({ setPerPage }) } />)
+        render(<ServerTable collection={ longCollection } columns={ columns } query={{ setPerPage }} />)
 
         await userEvent.selectOptions(screen.getByRole('combobox'), '100')
 
         expect(setPerPage).toHaveBeenCalledWith(100)
       })
 
-      test('reports the clicked column with the key the api knows it by', async () => {
+      test('reports the clicked column by its key', async () => {
         const setSort = vi.fn()
-        render(
-          <Table collection={ longCollection } columns={ sortableColumns } server={ serverTable({ setSort }) } />
-        )
+        render(<ServerTable collection={ longCollection } columns={ sortableColumns } query={{ setSort }} />)
 
         await userEvent.click(screen.getAllByRole('columnheader')[0])
 
-        expect(setSort).toHaveBeenCalledWith({ column: 'name', key: 'animals.name' })
-      })
-
-      test('falls back to the column name when it declares no api key', async () => {
-        const setSort = vi.fn()
-        render(
-          <Table collection={ longCollection } columns={ sortableColumns } server={ serverTable({ setSort }) } />
-        )
-
-        await userEvent.click(screen.getAllByRole('columnheader')[1])
-
-        expect(setSort).toHaveBeenCalledWith({ column: 'family', key: undefined })
+        expect(setSort).toHaveBeenCalledWith({ column: 'animalName' })
       })
 
       test('flips the direction when the sorted column is clicked again', async () => {
         const setSort = vi.fn()
         render(
-          <Table
+          <ServerTable
             collection={ longCollection }
             columns={ sortableColumns }
-            server={ serverTable({ setSort, sort: { column: 'name', direction: 'asc' } }) }
+            query={{ setSort, sort: { column: 'animalName', direction: 'asc' } }}
           />
         )
 
         await userEvent.click(screen.getAllByRole('columnheader')[0])
 
-        expect(setSort).toHaveBeenCalledWith({ column: 'name', direction: 'desc', key: 'animals.name' })
+        expect(setSort).toHaveBeenCalledWith({ column: 'animalName', direction: 'desc' })
       })
 
       test('leaves the rows in the order the api sent them', () => {
         render(
-          <Table
+          <ServerTable
             collection={ longCollection }
             columns={ sortableColumns }
-            server={ serverTable({ sort: { column: 'name', direction: 'asc' } }) }
+            query={{ sort: { column: 'animalName', direction: 'asc' } }}
           />
         )
 
@@ -628,9 +637,29 @@ describe('Table', () => {
         expect(getNameCellsContent()).toEqual(longCollection.map(item => item.name))
       })
 
+      test('reports the filter by column key', async () => {
+        const setFilter = vi.fn()
+        const filter = { family: { type: 'checkboxes' as const, values: ['feline', 'canine'], checked: [] } }
+
+        render(
+          <ServerTable
+            collection={ longCollection }
+            columns={[ { name: 'Name', key: 'name' }, { name: 'Family', key: 'family' } ]}
+            query={{ setFilter, filter }}
+          />
+        )
+
+        await userEvent.click(screen.getByLabelText('show filter'))
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Feline' }))
+
+        expect(setFilter).toHaveBeenCalledWith({
+          family: { type: 'checkboxes', values: ['feline', 'canine'], checked: ['feline'] }
+        })
+      })
+
       test('renders no paginator until the api sends pagination', () => {
         render(
-          <Table collection={ longCollection } columns={ columns } server={ serverTable({ pagination: undefined }) } />
+          <ServerTable collection={ longCollection } columns={ columns } pagination={ undefined } />
         )
 
         expect(screen.queryByLabelText('Pagination Navigation')).not.toBeInTheDocument()
@@ -639,48 +668,46 @@ describe('Table', () => {
 
     describe('Sorting', () => {
       test('sorts rows ascending', () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'family' }} />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ sort: { column: 'family' } }} />)
 
         expect(getNameCellsContent()).toEqual(['Dog', 'Cat', 'Lion', 'Sea Lion'])
       })
 
       test('sorts rows descending', () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'family', direction: 'desc' }} />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ sort: { column: 'family', direction: 'desc' } }} />)
 
         expect(getNameCellsContent()).toEqual(['Sea Lion', 'Cat', 'Lion', 'Dog'])
       })
 
       test('sorts by number asc', () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'age' }} />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ sort: { column: 'age' } }} />)
 
         expect(getNameCellsContent()).toEqual(['Dog', 'Cat', 'Lion', 'Sea Lion'])
       })
 
       test('sorts by number desc', () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'age', direction: 'desc' }} />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ sort: { column: 'age', direction: 'desc' } }} />)
 
         expect(getNameCellsContent()).toEqual(['Sea Lion', 'Lion', 'Cat', 'Dog'])
       })
 
       test('sorts by date asc', () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'birth' }} />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ sort: { column: 'birth' } }} />)
 
         expect(getNameCellsContent()).toEqual(['Sea Lion', 'Lion', 'Cat', 'Dog'])
       })
 
       test('sorts by date desc', () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'birth', direction: 'desc' }} />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ sort: { column: 'birth', direction: 'desc' } }} />)
 
         expect(getNameCellsContent()).toEqual(['Dog', 'Cat', 'Lion', 'Sea Lion'])
       })
 
       test.each(['asc', 'desc'])
       ('sorts invalid dates in last positions', sortDirection=> {
-        render(<Table
+        render(<QueryTable
           collection={ [...collection, { id: 5, name: 'Invalid', family: 'x', type: 'x', age: 0, birth: 'invalid' }] }
-          columns={ columns }
-          sortBy={{ column: 'birth', direction: sortDirection as ('asc' | 'desc') }}
-        />)
+          columns={ columns } query={{ sort: { column: 'birth', direction: sortDirection as ('asc' | 'desc') } }} />)
 
         // Names in expected order
         const [_animal1, _animal2, _animal3, _animal4, invalid] = getNameCellsContent()
@@ -688,25 +715,21 @@ describe('Table', () => {
       })
 
       test('sorts rows that pass a range filter, filter and search', () => {
-        render(<Table
+        render(<QueryTable
           collection={ collection }
-          columns={ columns }
-          filter={ filterAnd({ 'age': { min: 8, max: 16 } })}
-          search='Lion'
-          sortBy={{ column: 'name', direction: 'desc' }}
-        />)
+          columns={ columns } query={{ filter: filterAnd({ 'age': { min: 8, max: 16 } }), search: 'Lion', sort: { column: 'name', direction: 'desc' } }} />)
 
         expect(getNameCellsContent()).toEqual(['Sea Lion', 'Lion'])
       })
 
       test('sorts by the initial sort column', () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'family' }} />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ sort: { column: 'family' } }} />)
 
         expect(getNameCellsContent()).toEqual(['Dog', 'Cat', 'Lion', 'Sea Lion'])
       })
 
       test('sorts the table by the clicked header', async () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'family' }} />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ sort: { column: 'family' } }} />)
 
         const nameHeader = screen.getAllByRole('columnheader')[0]
         await userEvent.click(nameHeader)
@@ -715,7 +738,7 @@ describe('Table', () => {
       })
 
       test('toggles sort direction when clicking the sorting header', async () => {
-        render(<Table collection={ collection } columns={ columns } sortBy={{ column: 'family', direction: 'asc'}} />)
+        render(<QueryTable collection={ collection } columns={ columns } query={{ sort: { column: 'family', direction: 'asc'} }} />)
 
         const familyHeader = screen.getAllByRole('columnheader')[1]
         await userEvent.click(familyHeader)
@@ -724,7 +747,7 @@ describe('Table', () => {
       })
 
       test('sorts the whole collection', () => {
-        render( <Table collection={ longCollection } columns={ columns } sortBy={{ column: 'family' }} />)
+        render( <QueryTable collection={ longCollection } columns={ columns } query={{ sort: { column: 'family' } }} />)
 
         expect(getNameCellsContent())
           .toEqual(['Dog', 'Red Fox', 'Cat', 'Lion', 'Gold Fish', 'Monkey', 'Sea Lion'])

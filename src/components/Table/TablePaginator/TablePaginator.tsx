@@ -10,7 +10,10 @@ import {
 } from '@/components/ui/pagination'
 
 export const MAX_PAGE_LINKS = 6
-const PER_PAGE_OPTIONS = [10, 25, 50, 100]
+export const PER_PAGE_OPTIONS = [25, 50, 100]
+
+/* The smallest page: a collection that fits in it needs no paginator */
+export const DEFAULT_PER_PAGE = PER_PAGE_OPTIONS[0]
 
 type TablePaginatorProps = {
   page: number

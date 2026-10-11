@@ -3,6 +3,8 @@ import { type ForbiddenApiFields, prepareForApi } from '@/api/entity.mapper'
 import type { Entity, PersistedRecord } from '@/types'
 import { type UrlParams } from '@/lib/urls'
 import type { EntityCollection } from '@/components/Table/useCollection'
+import type { TableQueryState } from '@/components/Table/types'
+import { isRange, type TableFilter } from '@/components/Table/TableFilter/types'
 
 const API_URL = import.meta.env.API_URL ?? "http://localhost:3000"
 
@@ -14,25 +16,45 @@ export type ApiMapper<TDomain extends Entity, TApiIn, TApiOut extends object & F
 type ApiBody<T> = { body?: T }
 type ApiOptions<T> = Omit<RequestInit, 'body'> & ApiBody<T>
 
-export type CollectionQuery = {
-  page?: number
-  perPage?: number
-  search?: string
-  sort?: { key?: string, column: string, direction?: 'asc' | 'desc' }
+/* What a collection is paged, searched, sorted and filtered with. A TableQuery is one */
+export type CollectionQuery = Partial<TableQueryState>
+
+export type QueryArgs = {
+  query?: CollectionQuery
+  staleTime?: number
 }
 
-/* The params a collection is paged and sorted with, as the api knows them */
+/* The params a collection is paged, sorted and filtered with, as the api knows them */
 export const collectionParams = (query?: CollectionQuery): UrlParams => {
   const sort = query?.sort
-  const sortColumn = sort?.key ?? sort?.column
 
   return {
     page: query?.page,
     per_page: query?.perPage,
     search: query?.search?.trim(),
-    ...(sortColumn && { sort: sortColumn, direction: sort?.direction ?? 'asc' }),
+    ...(sort && { sort: snakeCase(sort.column), direction: sort.direction ?? 'asc' }),
+    ...filterParams(query?.filter),
   }
 }
+
+/*
+ * Rails style: `filter[category][]=a&filter[category][]=b&filter[price][min]=3`, snake cased on the way out.
+ * Only what leaves rows out goes: unchecked columns and open range limits are left out
+ */
+const filterParams = (filter: TableFilter = {}): UrlParams =>
+  Object.entries(filter).reduce((params: UrlParams, [ column, columnFilter ]) => {
+    const name = `filter[${column}]`
+
+    if (isRange(columnFilter)) {
+      const { min, max, parser } = columnFilter
+      params[`${name}[min]`] = parser ? parser(min) : min
+      params[`${name}[max]`] = parser ? parser(max) : max
+    }
+    else
+      params[`${name}[]`] = columnFilter.checked
+
+    return params
+  }, {})
 
 export function api<
   TDomain extends PersistedRecord, TApiIn, TApiOut extends object & ForbiddenApiFields

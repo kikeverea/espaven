@@ -1,4 +1,4 @@
-import type { TableColumn, ItemData, TableData, RowData } from '../types'
+import { type TableColumn, type ItemData, type TableData, type RowData, isCustomCol } from '../types'
 import {
   type CheckboxesFilter,
   isRange,
@@ -21,14 +21,16 @@ export const mapToData = <T extends Entity>(
 
   return collection.map(item => {
     const data = columns.reduce((data, column) => {
-      const columnName = normalized(column.name)
+      // a custom column renders its own cell, it has no data to sort or filter by
+      if (isCustomCol(column))
+        return data
 
-      const columnData = typeof column.accessor === 'function'
+      const columnData = column.accessor
         ? column.accessor(item)
-        : stringify(item[column.accessor as keyof T])
+        : fieldValue(item[column.key])
 
       const blink = 'blink' in column && column.blink?.(item)
-      data[columnName] = { value: columnData, presenter: column.presenter, blink: blink }
+      data[column.key] = { value: columnData, presenter: column.presenter, blink: blink }
 
       return data
     }, {} as ItemData<T>)
@@ -37,9 +39,11 @@ export const mapToData = <T extends Entity>(
   })
 }
 
+/* numbers stay numbers, so they sort and range filter as such */
+const fieldValue = (value: unknown): Primitive => typeof value === 'number' ? value : stringify(value)
+
 export const filterData = <T extends Entity>(collection: TableData<T> = [], args: FilterDataArgs): TableData<T> => {
-  const normalizedFilter = args.filter && normalizeFilter(args.filter)
-  return collection.filter(item => applySearchAndFilter(item.data, args.search, normalizedFilter))
+  return collection.filter(item => applySearchAndFilter(item.data, args.search, args.filter))
 }
 
 const applySearchAndFilter = <T extends Entity>(
@@ -141,15 +145,3 @@ const asNumber = (value: string | number | undefined): number | null => {
 
 const numberPresent = (value: number | null): value is number =>
   value !== undefined && value !== null && String(value).trim() !== ''
-
-export const normalizeFilter = (filter: TableFilter): TableFilter => {
-  return Object
-    .entries(filter)
-    .reduce(
-      (normalizedFilter: TableFilter, [ key, value ]: [string, any]): TableFilter => {
-        normalizedFilter[normalized(key)] = value
-        return normalizedFilter
-      },
-      {}
-    )
-}

@@ -29,8 +29,7 @@ const toggleColumn = (filter: TableFilter, payload: ColumnTogglePayload): TableF
 
   const { column, value, selected } = payload
 
-  const columnName = normalized(column)
-  const checkboxFilter = filter[columnName]
+  const checkboxFilter = filter[column]
 
   assertAsCheckboxes(checkboxFilter)
 
@@ -41,20 +40,19 @@ const toggleColumn = (filter: TableFilter, payload: ColumnTogglePayload): TableF
     ? [ ...checked, valueName ]
     : checked.filter(name => name !== valueName)
 
-  return { ...filter, [columnName]: { ...checkboxFilter, checked: updatedValues }}
+  return { ...filter, [column]: { ...checkboxFilter, checked: updatedValues }}
 }
 
 const setRangeLimit = (filter: TableFilter, payload: RangeValuePayload): TableFilter => {
   const { column, target, value } = payload
 
-  const columnName = normalized(column)
-  const rangeValue = filter[columnName] || {}
+  const rangeValue = filter[column] || {}
 
   assertAsRange(rangeValue)
 
   const newRangeValue = { ...rangeValue, [target]: value }
 
-  return { ...filter, [columnName]: newRangeValue }
+  return { ...filter, [column]: newRangeValue }
 }
 
 export default filterReducer

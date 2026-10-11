@@ -5,31 +5,25 @@ import Table from '@/components/Table/Table.tsx'
 import { Pencil, Trash } from 'lucide-react'
 import IndexNavBar from '@/components/NavBar/IndexNavBar.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
-import useTableQuery from '@/components/Table/hooks/useTableQuery.ts'
 import InventoryItemForm from '@/features/inventory/inventoryItems/InventoryItemForm.tsx'
 import { batchDelete } from '@/components/Table/util.tsx'
 
 const InventoryItemsIndex = () => {
-  const query = useTableQuery()
-
   const {
     collection: inventoryItems = [],
-    server,
     formItem: formPart,
     isLoading,
     remove,
     removeAll
   } = useCollection(
     'Parte',
-    useInventoryItems(query),
+    useInventoryItems(),
     useInventoryItemMutations(),
-    query
   )
 
-
   const columns: TableColumn<InventoryItem>[] = [
-    { name: 'Nombre', accessor: 'name', sortKey: 'name' },
-    { name: 'Categoría', accessor: inventoryItem => inventoryItem.inventoryCategory.name, sortKey: 'category' }
+    { name: 'Nombre', key: 'name' },
+    { name: 'Categoría', key: 'category', accessor: inventoryItem => inventoryItem.inventoryCategory.name }
   ]
 
   return (
@@ -48,7 +42,6 @@ const InventoryItemsIndex = () => {
             <div className='lg:flex-1'>
               <Table
                 collection={ inventoryItems }
-                server={ server }
                 isLoading={ isLoading }
                 columns={ columns }
                 noEntriesMessage='No hay partes'

@@ -5,7 +5,7 @@ import type { TableFilter } from '@/components/Table/TableFilter/types.ts'
 
 const parser = (value: any) => value
 
-const columns: FilterColumns = [ 'Family', 'Type', ['Age', 'range'], ['Birth', 'range', parser] ]
+const columns: FilterColumns = [ 'family', 'type', ['age', 'range'], ['birth', 'range', parser] ]
 
 const collection: TestData[] = [
   { id: 1, name: 'Cat', family: 'Feline', type: 'Pet', age: 10, birth: '2015-07-14' },

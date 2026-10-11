@@ -23,9 +23,9 @@ const InventoryCategoriesIndex = () => {
   )
 
   const columns: TableColumn<InventoryCategory>[] = [
-    { name: 'Nombre', accessor: 'name' },
+    { name: 'Nombre', key: 'name' },
     { name: 'SIGAUS',
-      accessor: 'appliesSigaus',
+      key: 'appliesSigaus',
       presenter: applies => <BooleanBadge
         bool={applies === 'true'}
         trueColor='bg-orange-50 text-orange-500 border-orange-300'

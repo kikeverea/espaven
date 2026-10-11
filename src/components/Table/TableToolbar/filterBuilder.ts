@@ -22,10 +22,10 @@ export const buildFilter = ({ columns, collection }: BuildArgs): TableFilter => 
 
     if (isRangeColumn(column)) {
       const [name, _range, parser] = column
-      filter[normalized(name)] = buildRangeFilter(parser)
+      filter[name] = buildRangeFilter(parser)
     }
     else {
-      filter[normalized(column)] = buildCheckboxesFilterWithCollection(column, collection)
+      filter[column] = buildCheckboxesFilterWithCollection(column, collection)
     }
 
     return filter
@@ -42,7 +42,7 @@ const buildRangeFilter = (parser?: FilterParser): RangeFilter => {
 const buildCheckboxesFilterWithCollection = (column: string, collection: Entity[]): CheckboxesFilter => {
 
   const values = collection.reduce((checkboxes, entity): Set<string> => {
-    const value = entity[normalized(column)]
+    const value = entity[column]
 
     if (value) {
       checkboxes.add(normalized(String(value)))
@@ -73,10 +73,10 @@ export const resetFilter = (filter: TableFilter): TableFilter => {
   return Object.entries(filter).reduce((filter: TableFilter, [column, columnFilter]): TableFilter => {
 
     if (isRange(columnFilter)) {
-      filter[normalized(column)] = buildRangeFilter(columnFilter.parser)
+      filter[column] = buildRangeFilter(columnFilter.parser)
     }
     else {
-      filter[normalized(column)] = checkboxesFilter(columnFilter.values)
+      filter[column] = checkboxesFilter(columnFilter.values)
     }
 
     return filter

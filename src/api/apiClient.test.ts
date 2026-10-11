@@ -93,18 +93,42 @@ describe('collectionQuery', () => {
     expect(collectionQuery({ perPage: 10 })).toBe('?per_page=10')
   })
 
-  test('sends the sort key the api knows, not the column header', () => {
-    expect(collectionQuery({ sort: { column: 'categoría', key: 'category', direction: 'desc' } }))
-      .toBe('?sort=category&direction=desc')
+  test('sends the sorted column key snake cased, like the api names it', () => {
+    expect(collectionQuery({ sort: { column: 'inventoryCategory', direction: 'desc' } }))
+      .toBe('?sort=inventory_category&direction=desc')
   })
 
-  test('falls back to the column name when the column declares no key', () => {
+  test('sorts ascending unless told otherwise', () => {
     expect(collectionQuery({ sort: { column: 'name' } })).toBe('?sort=name&direction=asc')
   })
 
   test('combines paging and sorting', () => {
-    expect(collectionQuery({ page: 2, perPage: 25, sort: { column: 'nombre', key: 'name' } }))
+    expect(collectionQuery({ page: 2, perPage: 25, sort: { column: 'name' } }))
       .toBe('?page=2&per_page=25&sort=name&direction=asc')
+  })
+
+  test('sends the checked values of a filter, Rails style, under the column key snake cased', () => {
+    const filter = {
+      inventoryCategory: { type: 'checkboxes' as const, values: ['a', 'b', 'c'], checked: ['a', 'b'] }
+    }
+
+    expect(decodeURIComponent(collectionQuery({ filter })))
+      .toBe('?filter[inventory_category][]=a&filter[inventory_category][]=b')
+  })
+
+  test('sends the limits of a range filter, parsed', () => {
+    const filter = { age: { type: 'range' as const, min: '3', max: '9', parser: (value: string) => Number(value) * 2 } }
+
+    expect(decodeURIComponent(collectionQuery({ filter }))).toBe('?filter[age][min]=6&filter[age][max]=18')
+  })
+
+  test('leaves out filters that leave no row out', () => {
+    const filter = {
+      family: { type: 'checkboxes' as const, values: ['feline'], checked: [] },
+      age: { type: 'range' as const, min: '' },
+    }
+
+    expect(collectionQuery({ filter })).toBe('')
   })
 })
 
@@ -119,7 +143,7 @@ describe('genericPart.api', () => {
     )
 
     const service = (await import('@/features/inventory/inventoryItems/data/inventoryItem.api.ts')).default
-    await service.getAll({ page: 3, perPage: 25, sort: { column: 'categoría', key: 'category' } })
+    await service.getAll({ page: 3, perPage: 25, sort: { column: 'category' } })
 
     expect(fetchSpy.mock.calls[0][0])
       .toBe('http://localhost:3000/api/generic_parts?page=3&per_page=25&sort=category&direction=asc')

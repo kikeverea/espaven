@@ -34,6 +34,14 @@ describe('withParams', () => {
     expect(withParams('/work_orders', { a: null })).toBe('/work_orders')
   })
 
+  test('sends an array as one param per value', () => {
+    expect(decodeURIComponent(withParams('/parts', { 'ids[]': [1, 2] }))).toBe('/parts?ids[]=1&ids[]=2')
+  })
+
+  test('leaves out an array with no values', () => {
+    expect(withParams('/parts', { 'ids[]': [] })).toBe('/parts')
+  })
+
   test('encodes the values', () => {
     expect(withParams('/contacts', { search: 'García & co' })).toBe('/contacts?search=Garc%C3%ADa+%26+co')
   })

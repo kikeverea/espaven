@@ -1,6 +1,20 @@
 import type { ItemData, TableData, TableSort } from '@/components/Table/types'
 import { type Entity, isBoolean, isNumber, isString } from '@/types'
-import { normalized } from '@/lib/strings'
+
+/* Clicking the sorted column flips its direction, any other column starts ascending */
+export const nextSort = (sort: TableSort | undefined, columnKey: string): TableSort => {
+  if (!sort)
+    return { column: columnKey }
+
+  const isSameColumn = sort.column === columnKey
+
+  return {
+    column: columnKey,
+    direction: isSameColumn
+      ? (sort.direction || 'asc') === 'asc' ? 'desc' : 'asc'
+      : 'asc'
+  }
+}
 
 export const sortData = <T extends Entity>(data: TableData<T>, sort?: TableSort): TableData<T> =>
   data.length
@@ -16,10 +30,8 @@ const applySort = <T extends Entity>(
   if (!sort)
     return 0
 
-  const column = normalized(sort.column)
-
-  const value1 = item1[column].value
-  const value2 = item2[column].value
+  const value1 = item1[sort.column].value
+  const value2 = item2[sort.column].value
   const direction = sort.direction || 'asc'
 
   const areStrings = isString(value1) && isString(value2)

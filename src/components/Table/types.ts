@@ -1,13 +1,15 @@
-import type { TableFilter } from '@/components/Table/TableFilter/types'
-import type { Entity, Pagination, Primitive } from '@/types.ts'
+import type { Entity, Pagination, Primitive } from '@/types'
 import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import type { UseMutateFunction } from '@tanstack/react-query'
-import type { ButtonVariants } from '@/components/ui/button.tsx'
+import type { ButtonVariants } from '@/components/ui/button'
+import type { TableFilter } from '@/components/Table/TableFilter/types.ts'
 
-export type StandardTableColumn<T extends Entity> = {
+/*
+ * `key` names the column everywhere but its header: in each row's data, in sorts and filters, and to the
+ * collection's source, which gets it snake cased. A column that shows a field as it is needs no accessor
+ */
+export type StandardTableColumn<T extends Entity> = ColumnAccess<T> & {
   name: string
-  accessor: keyof T | ((item: T) => Primitive | Primitive[])
-  sortKey?: string            // what the api calls this column, when it is the one sorting
   blink?: (item: T) => boolean
   presenter?: DataPresenter<T>
   className?: string
@@ -15,10 +17,13 @@ export type StandardTableColumn<T extends Entity> = {
   onClick?: (id: number) => void
   link?: (id: number) => string
 
-  key?: never
   header?: never
   component?: never
 }
+
+type ColumnAccess<T extends Entity> =
+  | { key: Extract<keyof T, string>, accessor?: never }
+  | { key: string, accessor: (item: T) => Primitive | Primitive[] }
 
 export type CustomTableColumn = {
   header: () => ReactNode
@@ -27,7 +32,6 @@ export type CustomTableColumn = {
 
   name?: never
   accessor?: never
-  sortKey?: never
   presenter?: never
   className?: never
   headerClassName?: never
@@ -64,18 +68,32 @@ export type SelectionAction<T extends Entity> = {
   variant?: ButtonVariants
 }
 
-export type ServerTable = {
-  pagination?: Pagination
-  sort?: TableSort
+/* What narrows a collection down to the rows on screen, and the page it is on. Pages count from 1 */
+export type TableQueryState = {
+  page: number
+  perPage: number
   search: string
+  sort?: TableSort
+  filter: TableFilter
+}
+
+/*
+ * A 'server' query is applied by whoever fetches the collection: the Table shows the rows as they come.
+ * A 'local' one is applied by the Table itself, on a collection it holds in full
+ */
+export type TableQuery = TableQueryState & {
+  mode: 'local' | 'server'
   setPage: (page: number) => void
   setPerPage: (perPage: number) => void
   setSearch: (search: string) => void
   setSort: (sort: TableSort) => void
+  setFilter: (filter: TableFilter) => void
 }
 
-type BaseTableProps<T extends Entity> = ComponentProps<"div"> & {
+export type TableProps<T extends Entity> = ComponentProps<"div"> & {
   collection?: T[]
+  pagination?: Pagination
+  tableQuery?: TableQuery
   columns: TableColumn<T>[]
   loadingMessage?: string
   noEntriesMessage?: string
@@ -88,24 +106,5 @@ type BaseTableProps<T extends Entity> = ComponentProps<"div"> & {
   isLoading?: boolean
 }
 
-type ClientModeProps = {
-  server?: never
-  search?: string
-  filter?: TableFilter
-  sortBy?: TableSort
-  paginate?: number
-  page?: number
-}
-
-type ServerModeProps = {
-  server?: ServerTable
-  search?: never
-  filter?: never
-  sortBy?: never
-  paginate?: never
-  page?: never
-}
-
-export type TableProps<T extends Entity> = BaseTableProps<T> & (ClientModeProps | ServerModeProps)
-
-export type TableSort = { column: string, direction?: 'asc' | 'desc', key?: string }
+/* `column` is the sorted column's key */
+export type TableSort = { column: string, direction?: 'asc' | 'desc' }

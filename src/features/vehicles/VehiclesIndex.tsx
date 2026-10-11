@@ -5,16 +5,16 @@ import Table from '@/components/Table/Table'
 import { Pencil, Trash } from 'lucide-react'
 import IndexNavBar from '@/components/NavBar/IndexNavBar.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
-import useTableQuery from '@/components/Table/hooks/useTableQuery'
+import useTableQuery from '@/components/Table/hooks/useTableQuery.ts'
 import { batchDelete } from '@/components/Table/util.tsx'
 import VehicleForm from '@/features/vehicles/VehicleForm.tsx'
 
 const VehiclesIndex = () => {
-  const query = useTableQuery()
+  const query = useTableQuery({ mode: 'server' })
 
   const {
     collection: vehicles = [],
-    server,
+    pagination,
     formItem: formVehicle,
     isLoading,
     remove,
@@ -23,25 +23,24 @@ const VehiclesIndex = () => {
     [ 'Vehículo', 'm' ],
     useVehicles(query),
     useVehicleMutations(),
-    query
   )
 
-  // TODO: check the columns. `sortKey` is what the api calls the column
+  // TODO: check the columns. `key`, snake cased, is what the api calls the column
   const columns: TableColumn<Vehicle>[] = [
-    { name: 'Matrícula', accessor: 'plateNumber', sortKey: 'plate_number' },
-    { name: 'Marca', accessor: 'make', sortKey: 'make' },
-    { name: 'Modelo', accessor: 'model', sortKey: 'model' },
-    { name: 'Cilindrada', accessor: 'engineSize', sortKey: 'engine_size' },
-    { name: 'Variación', accessor: 'variation', sortKey: 'variation' },
-    { name: 'Tipo de variante', accessor: 'variantType', sortKey: 'variant_type' },
-    { name: 'Tipo de vehículo', accessor: 'vehicleType', sortKey: 'vehicle_type' },
-    { name: 'Plazas', accessor: 'seats', sortKey: 'seats' },
-    { name: 'Combustible', accessor: 'fuel', sortKey: 'fuel' },
-    { name: 'Puertas', accessor: 'doors', sortKey: 'doors' },
-    { name: 'Potencia', accessor: 'dynamicPower', sortKey: 'dynamic_power' },
-    { name: 'K-Type', accessor: 'kType', sortKey: 'k_type' },
-    { name: 'Precio orientativo', accessor: 'indicativePrice', sortKey: 'indicative_price' },
-    { name: 'Robado', accessor: 'stolen', sortKey: 'stolen' },
+    { name: 'Matrícula', key: 'plateNumber' },
+    { name: 'Marca', key: 'make' },
+    { name: 'Modelo', key: 'model' },
+    { name: 'Cilindrada', key: 'engineSize' },
+    { name: 'Variación', key: 'variation' },
+    { name: 'Tipo de variante', key: 'variantType' },
+    { name: 'Tipo de vehículo', key: 'vehicleType' },
+    { name: 'Plazas', key: 'seats' },
+    { name: 'Combustible', key: 'fuel' },
+    { name: 'Puertas', key: 'doors' },
+    { name: 'Potencia', key: 'dynamicPower' },
+    { name: 'K-Type', key: 'kType' },
+    { name: 'Precio orientativo', key: 'indicativePrice' },
+    { name: 'Robado', key: 'stolen' },
   ]
 
   return (
@@ -60,7 +59,8 @@ const VehiclesIndex = () => {
           <div className='lg:flex-1'>
             <Table
               collection={ vehicles }
-              server={ server }
+              tableQuery={ query }
+              pagination={ pagination }
               isLoading={ isLoading }
               columns={ columns }
               noEntriesMessage='No hay vehículos'

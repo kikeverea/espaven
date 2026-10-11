@@ -5,32 +5,27 @@ import Table from '@/components/Table/Table'
 import { Pencil, Trash } from 'lucide-react'
 import IndexNavBar from '@/components/NavBar/IndexNavBar.tsx'
 import { useCollection } from '@/components/Table/useCollection.tsx'
-import useTableQuery from '@/components/Table/hooks/useTableQuery'
 import { batchDelete } from '@/components/Table/util.tsx'
 import UserForm from '@/features/users/UserForm.tsx'
 
 const UsersIndex = () => {
-  const query = useTableQuery()
-
   const {
     collection: users = [],
-    server,
     formItem: formUser,
     isLoading,
     remove,
     removeAll
   } = useCollection(
     [ 'Usuario', 'm' ],
-    useUsers(query),
+    useUsers(),
     useUserMutations(),
-    query
   )
 
-  // TODO: check the columns. `sortKey` is what the api calls the column
+  // TODO: check the columns. `key`, snake cased, is what the api calls the column
   const columns: TableColumn<User>[] = [
-    { name: 'Nombre', accessor: 'fullName', sortKey: 'full_name' },
-    { name: 'Rol', accessor: 'role', sortKey: 'role' },
-    { name: 'Email', accessor: 'email', sortKey: 'email' },
+    { name: 'Nombre', key: 'fullName' },
+    { name: 'Rol', key: 'role' },
+    { name: 'Email', key: 'email' },
   ]
 
   return (
@@ -49,7 +44,6 @@ const UsersIndex = () => {
           <div className='lg:flex-1'>
             <Table
               collection={ users }
-              server={ server }
               isLoading={ isLoading }
               columns={ columns }
               noEntriesMessage='No hay usuarios'

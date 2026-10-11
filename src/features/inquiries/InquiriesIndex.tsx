@@ -21,14 +21,14 @@ const InquiriesIndex = () => {
 
   const columns: TableColumn<Inquiry>[] = [
     { name: 'Nombre',
-      accessor: inquiry => `${inquiry.contact.name} ${inquiry.contact.lastName}`,
+      key: 'contact', accessor: inquiry => `${inquiry.contact.name} ${inquiry.contact.lastName}`,
       blink: inquiry => !inquiry.lastActivityAt,
       onClick: id => selectedItem.set(selectedItem.id() === id ? null : id)
     },
-    { name: 'Servicio', accessor: 'service' },
-    { name: 'Estado', accessor: 'status', presenter: statusBadge },
-    { name: 'Última actividad', accessor: 'lastActivityAt', presenter: timeString },
-    { name: 'Registrado', accessor: 'createdAt', presenter: timeString },
+    { name: 'Servicio', key: 'service' },
+    { name: 'Estado', key: 'status', presenter: statusBadge },
+    { name: 'Última actividad', key: 'lastActivityAt', presenter: timeString },
+    { name: 'Registrado', key: 'createdAt', presenter: timeString },
   ]
 
   return (

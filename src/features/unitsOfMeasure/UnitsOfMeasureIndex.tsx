@@ -20,7 +20,7 @@ const UnitsOfMeasureIndex = () => {
   const [formUnitOfMeasure, setFormUnitOfMeasure] = useState<FormUnitOfMeasure | UnitOfMeasure | null>(null)
 
   const columns: TableColumn<UnitOfMeasure>[] = [
-    { name: 'Unidad', accessor: 'name', className: 'font-medium' },
+    { name: 'Unidad', key: 'name', className: 'font-medium' },
   ]
 
   const removeUnitOfMeasure = (id: UnitOfMeasure['id']) => {

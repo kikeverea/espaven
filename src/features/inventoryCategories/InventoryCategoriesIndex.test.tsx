@@ -10,8 +10,8 @@ describe('InventoryCategories table', () => {
   const { inventoryCategory } = createFactories()
 
   const columns: TableColumn<InventoryCategory>[] = [
-    { name: 'Nombre', accessor: 'name' },
-    { name: 'SIGAUS', accessor: 'appliesSigaus' },
+    { name: 'Nombre', key: 'name' },
+    { name: 'SIGAUS', key: 'appliesSigaus' },
   ]
 
   test('renders all categories', () => {

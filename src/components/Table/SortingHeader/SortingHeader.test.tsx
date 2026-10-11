@@ -7,9 +7,9 @@ import type { TableColumn } from '@/components/Table/types.ts'
 describe('SortingHeader', () => {
 
   const columns: TableColumn<TestData>[] = [
-    { name: 'Name', accessor: item => item.name },
-    { name: 'Family', accessor: item => item.family },
-    { name: 'Type', accessor: item => item.type },
+    { name: 'Name', key: 'name' },
+    { name: 'Family', key: 'family' },
+    { name: 'Type', key: 'type' },
   ]
 
   const setSortColumnMock = vi.fn()

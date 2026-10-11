@@ -11,20 +11,33 @@ import { useCollection } from '@/components/Table/useCollection.tsx'
 import MovementList from '@/features/inventory/movements/MovementList.tsx'
 import SideTray from '@/components/SideTray/SideTray.tsx'
 import { batchDelete } from '@/components/Table/util.tsx'
+import useTableQuery from '@/components/Table/hooks/useTableQuery.ts'
 
 const InventoryIndex = () => {
+  const query = useTableQuery({ mode: 'server' })
 
-  const { collection: inventory = [], formItem, selectedItem, remove, removeAll } =
-    useCollection('Artículo', useInventoryItems(), useInventoryItemMutations())
+  const {
+    collection: inventory = [],
+    pagination,
+    isLoading,
+    formItem,
+    selectedItem,
+    remove,
+    removeAll
+  } = useCollection(
+    'Artículo',
+    useInventoryItems({ query, staleTime: 3_000 }),
+    useInventoryItemMutations()
+  )
 
   const columns: TableColumn<InventoryItem>[] = [
     { name: 'Nombre',
-      accessor: 'name',
+      key: 'name',
       onClick: id => selectedItem.set(selectedItem.id() === id ? null : id)
     },
-    { name: 'Stock', accessor: 'stock' },
-    { name: 'Medida', accessor: item => item.unitOfMeasure.name },
-    { name: 'P. unidad', accessor: 'priceCents', presenter: cents => `${toDecimal(cents)}€` }
+    { name: 'Stock', key: 'stock' },
+    { name: 'Medida', key: 'unitOfMeasure', accessor: item => item.unitOfMeasure.name},
+    { name: 'P. unidad', key: 'priceCents', presenter: cents => `${toDecimal(cents)}€` }
   ]
 
   const selected = selectedItem.get()
@@ -47,7 +60,11 @@ const InventoryIndex = () => {
           <div className='py-3 flex-1'>
             <Table
               collection={ inventory }
+              tableQuery={ query }
+              pagination={ pagination }
               columns={ columns }
+              isLoading={ isLoading }
+              loadingMessage='Cargando articulos'
               noEntriesMessage='No hay artículos'
               selectable={ true }
               selectedId={ selectedItem.id() }

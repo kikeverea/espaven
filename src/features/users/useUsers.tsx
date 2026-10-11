@@ -2,16 +2,16 @@ import { type User, type FormUser, type Technician } from './types.ts'
 import api from '@/features/users/data/user.api.ts'
 import { resourceKeys, useMutations } from '@/lib/mutations.tsx'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import type { TableQuery } from '@/components/Table/hooks/useTableQuery'
+import type { CollectionQuery } from '@/api/apiClient.ts'
 
 const userKeys = resourceKeys('users')
 
 export const useUserMutations = () =>
   useMutations<User, FormUser>(userKeys, api, { batchDelete: true })
 
-export const useUsers = (query?: TableQuery, params?: Record<string, string>) =>
+export const useUsers = (query?: CollectionQuery, params?: Record<string, string>) =>
   useQuery({
-    queryKey: [...userKeys.all, query?.page ?? 1, query?.perPage ?? null, query?.search ?? '', query?.sort ?? null],
+    queryKey: userKeys.list(query, params),
     queryFn: () => api.getAll(query, params),
     placeholderData: keepPreviousData,      // keep the current page on screen while the next one loads
   })

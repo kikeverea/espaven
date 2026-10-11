@@ -25,12 +25,12 @@ const InventoryIndex = () => {
 
   const columns: TableColumn<ServiceTemplate>[] = [
     { name: 'Nombre',
-      accessor: 'name',
+      key: 'name',
       link: id => `service_templates/${id}`
     },
-    { name: 'Horas de trabajo', accessor: (template) => template.expectedMinutes / 60 },
-    { name: 'Precio Total', accessor: (template) => `${toDecimal(template.priceCents)}€` },
-    { name: 'Creada', accessor: 'createdAt', presenter: timeString },
+    { name: 'Horas de trabajo', key: 'expectedMinutes', accessor: (template) => template.expectedMinutes / 60},
+    { name: 'Precio Total', key: 'priceCents', accessor: (template) => `${toDecimal(template.priceCents)}€`},
+    { name: 'Creada', key: 'createdAt', presenter: timeString },
   ]
 
   return (
