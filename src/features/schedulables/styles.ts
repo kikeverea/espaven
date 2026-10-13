@@ -10,7 +10,7 @@ type SchedulableStyle = {
 
 export const SCHEDULABLE_STYLES: Partial<Record<SchedulableKind, SchedulableStyle>> = {
   workOrder: {
-    label: 'Órdenes de trabajo',
+    label: 'Órdenes de reparación',
     card: 'border-[#C9C5C0] border-l-4 border-l-sky-800 bg-white shadow-[0_1px_2px_rgba(28,25,23,.10)]',
     title: 'text-[#1C1917]',
     sub: 'text-[#78716C]',

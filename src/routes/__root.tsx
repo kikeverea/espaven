@@ -29,7 +29,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
                 { label: 'Clientes', path: '/clients', icon: <User />, subject: 'Contact' },
               ],
               Taller: [
-                { label: 'Órdenes de trabajo', path: '/work_orders', icon: <Wrench />, subject: 'WorkOrder' },
+                { label: 'Órdenes de reparación', path: '/work_orders', icon: <Wrench />, subject: 'WorkOrder' },
                 { label: 'Calendario', path: '/calendar', icon: <CalendarDays />, subject: 'WorkOrder' },
                 { label: 'Plantillas', path: '/service_templates', icon: <NotepadTextDashed />, subject: 'ServiceTemplate' },
               ],

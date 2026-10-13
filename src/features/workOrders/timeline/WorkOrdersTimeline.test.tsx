@@ -164,7 +164,7 @@ describe('WorkOrdersTimeline', () => {
     expect(card('Frenos')).toHaveClass('bg-white', 'border-l-sky-800')     // in progress
     expect(card('Luces')).toHaveClass('bg-white', 'border-l-sky-800')      // not started
     expect(card('Aceite')).toHaveClass('bg-[#E8F3EC]')    // completed
-    expect(screen.getAllByRole('listitem').map(item => item.textContent)).toEqual([ 'Órdenes de trabajo', 'Completadas' ])
+    expect(screen.getAllByRole('listitem').map(item => item.textContent)).toEqual([ 'Órdenes de reparación', 'Completadas' ])
   })
 
   test('draws the cards of orders waiting for a time or a technician as the blocks, and paused ones apart', async () => {

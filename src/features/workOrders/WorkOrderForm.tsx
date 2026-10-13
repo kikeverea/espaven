@@ -24,7 +24,7 @@ const WorkOrderForm = ({
     <CardForm
       name={ name }
       className={ className }
-      itemName={[ 'Orden de trabajo', 'f' ]}
+      itemName={[ 'Orden de reparación', 'f' ]}
       justify='fluid'
       config={ config }
       item={ workOrder }

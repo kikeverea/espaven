@@ -12,7 +12,7 @@ const WorkOrdersIndex = () => {
   const [ selected, setSelected ] = useState<WorkOrder | null>(null)
 
   const { formItem: formWorkOrder } = useCollection(
-    [ 'Orden de trabajo', 'f' ],
+    [ 'Orden de reparación', 'f' ],
     useWorkOrders(),
     mutations,
   )
@@ -32,7 +32,7 @@ const WorkOrdersIndex = () => {
   return (
     <div className='flex w-full h-full'>
       <div className='min-w-0 flex-1 px-5 pb-8'>
-        <IndexNavBar label='Órdenes de trabajo' createLabel='Crear orden de trabajo' form={ formWorkOrder } className='xl:hidden' />
+        <IndexNavBar label='Órdenes de reparación' createLabel='Crear orden de reparación' form={ formWorkOrder } className='xl:hidden' />
 
         <div className='mt-4'>
           <WorkOrdersTimeline
