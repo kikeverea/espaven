@@ -19,11 +19,9 @@ const pillStatus = (order: WorkOrder): PillStatus =>
     : order.status === 'archived' ? 'done'
     : blockStatus(order) ?? 'todo'
 
-/* The order's number and status, what it is, and the vehicle it is for */
+/* The order's number and status, and what it is */
 const DetailsHeader = ({ order, onClose }: { order: WorkOrder, onClose: () => void }) => {
   const status = pillStatus(order)
-  const vehicle = order.vehicle && [ order.vehicle.plateNumber, [ order.vehicle.make, order.vehicle.model ].filter(Boolean).join(' ') ]
-    .filter(Boolean).join(' · ')
 
   return (
     <header className='flex flex-col gap-1.5 border-b border-[#E3E0DC] px-5 pt-[18px] pb-4'>
@@ -39,7 +37,6 @@ const DetailsHeader = ({ order, onClose }: { order: WorkOrder, onClose: () => vo
       </div>
 
       <h2 className='text-xl font-semibold tracking-[-0.01em] text-pretty'>{ order.name }</h2>
-      { vehicle && <p className='text-[13px] text-[#57534E]'>{ vehicle }</p> }
     </header>
   )
 }

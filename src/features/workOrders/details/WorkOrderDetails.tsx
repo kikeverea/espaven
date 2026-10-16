@@ -11,6 +11,7 @@ import { FONT } from '@/features/workOrders/timeline/util/styles'
 import { cn } from '@/lib/utils'
 import DetailsHeader from '@/features/workOrders/details/DetailsHeader'
 import DetailsSchedule from '@/features/workOrders/details/DetailsSchedule'
+import DetailsVehicle from '@/features/workOrders/details/DetailsVehicle'
 import DetailsTechnicians from '@/features/workOrders/details/DetailsTechnicians'
 import DetailsServices from '@/features/workOrders/details/DetailsServices'
 
@@ -20,7 +21,7 @@ type WorkOrderDetailsProps = {
   onClose: () => void
 }
 
-/* An order in the side tray: when it is on, who works on it and what is left to do. Changes save as they are made */
+/* An order in the side tray: when it is on, the vehicle, who works on it and what is left to do. Changes save as they are made */
 const WorkOrderDetails = ({ order: selected, mutations, onClose }: WorkOrderDetailsProps) => {
   const { data: technicians = [] } = useTechnicians()
   const pending = usePendingSave(mutations, technicians)
@@ -46,6 +47,7 @@ const WorkOrderDetails = ({ order: selected, mutations, onClose }: WorkOrderDeta
     <div className={ cn(FONT, 'flex flex-col text-[#1C1917]') }>
       <DetailsHeader order={ order } onClose={ onClose } />
       <DetailsSchedule order={ order } />
+      <DetailsVehicle order={ order } />
       <DetailsTechnicians order={ order } candidates={ candidates } onChange={ assign } />
       <DetailsServices order={ order } />
     </div>

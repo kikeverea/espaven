@@ -79,16 +79,25 @@ describe('WorkOrderDetails', () => {
   const technicians = () => screen.getByRole('region', { name: 'Técnicos' })
   const servicesSection = () => screen.getByRole('region', { name: 'Servicios' })
 
-  test('heads with the number, status, title and vehicle, then when it is on and how long', async () => {
+  test('heads with the number, status and title, then when it is on and how long', async () => {
     serve(motor())
     render(<Details order={ motor() } />)
 
     expect(screen.getByText('OT-5')).toBeInTheDocument()
     expect(screen.getByText('En curso')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Motor' })).toBeInTheDocument()
-    expect(screen.getByText('4821 KLM · Seat Ibiza')).toBeInTheDocument()
     expect(screen.getByText('10:00 – 11:30')).toBeInTheDocument()
     expect(screen.getByText('1 h 30 min')).toBeInTheDocument()
+  })
+
+  test('shows the vehicle and its owner', async () => {
+    serve(motor())
+    render(<Details order={ motor() } />)
+
+    const section = screen.getByRole('region', { name: 'Vehículo' })
+    expect(within(section).getByText('4821 KLM')).toBeInTheDocument()
+    expect(within(section).getByText('Seat Ibiza')).toBeInTheDocument()
+    expect(within(section).getByText([ vehicle.client.name, vehicle.client.lastName ].filter(Boolean).join(' '))).toBeInTheDocument()
   })
 
   test('closes from its button', async () => {
