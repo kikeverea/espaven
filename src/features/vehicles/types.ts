@@ -6,6 +6,9 @@ export type Vehicle =
   {
     client: Contact
     plateNumber?: string
+    year?: number
+    kilometres?: number           // as of its last visit
+    vin?: string                  // the bastidor, 17 characters
     description?: string
     make?: string
     makeDescription?: string
@@ -27,4 +30,4 @@ export type Vehicle =
     stolen?: string
   }
 
-export type FormVehicle = Partial<Vehicle>
+export type FormVehicle = Partial<Vehicle> & { clientId?: Contact['id'] }

@@ -25,9 +25,9 @@ describe('WorkOrderDetails', () => {
     workOrder({ number: 'OT-5', name: 'Motor', technicians: [ ana ], scheduledAt: today(10), labourMinutes: 90, status: 'inProgress', vehicle, ...args })
 
   const services = [
-    { id: 1, name: 'Cambio de aceite', status: 'completed', expected_minutes: 30 },
-    { id: 2, name: 'Filtro de aire', status: 'not_started', expected_minutes: 60 },
-    { id: 3, name: 'Anulado', status: 'cancelled', expected_minutes: 15 },
+    { id: 1, name: 'Cambio de aceite', status: 'completed', labour_minutes: 30 },
+    { id: 2, name: 'Filtro de aire', status: 'not_started', labour_minutes: 60 },
+    { id: 3, name: 'Anulado', status: 'cancelled', labour_minutes: 15 },
   ]
 
   const json = (body: unknown) => new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } })

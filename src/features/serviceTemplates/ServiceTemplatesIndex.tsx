@@ -28,7 +28,7 @@ const InventoryIndex = () => {
       key: 'name',
       link: id => `service_templates/${id}`
     },
-    { name: 'Horas de trabajo', key: 'expectedMinutes', accessor: (template) => template.expectedMinutes / 60},
+    { name: 'Horas de trabajo', key: 'labourMinutes', accessor: (template) => template.labourMinutes / 60},
     { name: 'Precio Total', key: 'priceCents', accessor: (template) => `${toDecimal(template.priceCents)}€`},
     { name: 'Creada', key: 'createdAt', presenter: timeString },
   ]

@@ -1,21 +1,18 @@
 import { useEffect, useState } from 'react'
 import WorkOrdersTimeline from '@/features/workOrders/timeline/WorkOrdersTimeline'
 import WorkOrderDetails from '@/features/workOrders/details/WorkOrderDetails'
-import { useWorkOrders, useWorkOrderMutations } from '@/features/workOrders/useWorkOrders'
+import { Link } from '@tanstack/react-router'
+import { Plus } from 'lucide-react'
+import { useWorkOrderMutations } from '@/features/workOrders/useWorkOrders'
 import type { WorkOrder } from '@/features/workOrders/types'
-import IndexNavBar from '@/components/NavBar/IndexNavBar'
+import NavBar from '@/components/NavBar/NavBar'
 import SideTray from '@/components/SideTray/SideTray'
-import { useCollection } from '@/components/Table/useCollection'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 const WorkOrdersIndex = () => {
   const mutations = useWorkOrderMutations()
   const [ selected, setSelected ] = useState<WorkOrder | null>(null)
-
-  const { formItem: formWorkOrder } = useCollection(
-    [ 'Orden de reparación', 'f' ],
-    useWorkOrders(),
-    mutations,
-  )
 
   /* Esc closes the details */
   useEffect(() => {
@@ -32,7 +29,14 @@ const WorkOrdersIndex = () => {
   return (
     <div className='flex w-full h-full'>
       <div className='min-w-0 flex-1 px-5 pb-8'>
-        <IndexNavBar label='Órdenes de reparación' createLabel='Crear orden de reparación' form={ formWorkOrder } className='xl:hidden' />
+        <NavBar
+          label='Órdenes de reparación'
+          action={
+            <Link to='/work_orders/new' className={ cn(buttonVariants(), 'me-2 bg-amber-600 px-4 py-4 text-white hover:bg-amber-700') }>
+              <Plus className='size-4' /> Crear orden de reparación
+            </Link>
+          }
+        />
 
         <div className='mt-4'>
           <WorkOrdersTimeline

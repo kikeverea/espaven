@@ -9,7 +9,7 @@ const fields = {
     label: 'Nombre',
     schema: z.string().min(2, 'Mínimo 2 caracteres').max(148, 'Máximo 148 caracteres'),
   },
-  expectedHours: {
+  labourHours: {
     label: 'Horas de trabajo',
     schema: z.coerce.number().min(0, 'No puede ser menor de 0')
   },
@@ -22,12 +22,12 @@ const fields = {
 export const config = defineFormConfig({
   fields,
   toFormData: (template: ServiceTemplate): InferSchema<typeof fields> => {
-    const { priceCents, expectedMinutes, ...rest } = template
+    const { priceCents, labourMinutes, ...rest } = template
 
     return {
       ...rest,
       price: toDecimal(template.priceCents),
-      expectedHours: expectedMinutes / 60
+      labourHours: labourMinutes / 60
     }
   },
   toSubmitData: (template: ServiceTemplate, formData: InferSchema<typeof fields>) => {
@@ -35,7 +35,7 @@ export const config = defineFormConfig({
       ...template,
       ...formData,
       priceCents: toCents(formData.price),
-      expectedMinutes: formData.expectedHours * 60
+      labourMinutes: formData.labourHours * 60
     }
   }
 })

@@ -14,8 +14,8 @@ describe('serviceFormSchema', () => {
 
   it.each([
     'name',
-    'standardLaborTime',
-    'laborMinutes',
+    'standardLabourTime',
+    'labourMinutes',
   ])('rejects if %s not present', field => {
     const result = formSchema.safeParse(service({ [field]: null }))
     expect(result.success).toBe(false)
@@ -42,8 +42,8 @@ describe('serviceFormSchema', () => {
   })
 
   it.each([
-    [ 'standardLaborTime', 0 ],
-    [ 'laborMinutes', 0 ],
+    [ 'standardLabourTime', 0 ],
+    [ 'labourMinutes', 0 ],
   ])('rejects if %s is less than minimum, passes if not', (field, min) => {
     const valid = formSchema.safeParse(service({ [field]: min }))
     const invalid = formSchema.safeParse(service({ [field]: min - 1 }))
@@ -53,21 +53,21 @@ describe('serviceFormSchema', () => {
   })
 
   it.each([ 0.25, 1.5, 8 ])('accepts a standard labor time of %s h, in quarters of an hour', hours => {
-    expect(formSchema.safeParse(service({ standardLaborTime: hours })).success).toBe(true)
+    expect(formSchema.safeParse(service({ standardLabourTime: hours })).success).toBe(true)
   })
 
   it.each([ 0.3, 1.1 ])('rejects a standard labor time of %s h, not in quarters of an hour', hours => {
-    const result = formSchema.safeParse(service({ standardLaborTime: hours }))
+    const result = formSchema.safeParse(service({ standardLabourTime: hours }))
 
     expect(result.success).toBe(false)
     expect(result.error?.issues[0].message).toBe('Debe ser en intervalos de 0,25 h')
   })
 })
 
-describe('standardLaborTime feedback', () => {
+describe('standardLabourTime feedback', () => {
 
   /* 25.25 € a minute */
-  const { feedback } = config(25.25).fields.standardLaborTime
+  const { feedback } = config(25.25).fields.standardLabourTime
 
   it.each([
     [ '0.25', 15 * 25.25 ],
@@ -81,9 +81,9 @@ describe('standardLaborTime feedback', () => {
   })
 })
 
-describe('standardLaborTime and laborMinutes', () => {
+describe('standardLabourTime and labourMinutes', () => {
 
-  const { standardLaborTime, laborMinutes } = config(25.25).fields
+  const { standardLabourTime, labourMinutes } = config(25.25).fields
 
   it.each([
     [ '0.25', 15 ],
@@ -91,9 +91,9 @@ describe('standardLaborTime and laborMinutes', () => {
     [ '', '' ],
   ])('setting %s h sets the minutes to %s', (hours, minutes) => {
     const set = vi.fn()
-    standardLaborTime.onChange(hours, set)
+    standardLabourTime.onChange(hours, set)
 
-    expect(set).toHaveBeenCalledWith('laborMinutes', minutes)
+    expect(set).toHaveBeenCalledWith('labourMinutes', minutes)
   })
 
   it.each([
@@ -102,12 +102,12 @@ describe('standardLaborTime and laborMinutes', () => {
     [ '', '' ],
   ])('setting %s min sets the hours to %s, exactly', (minutes, hours) => {
     const set = vi.fn()
-    laborMinutes.onChange(minutes, set)
+    labourMinutes.onChange(minutes, set)
 
-    expect(set).toHaveBeenCalledWith('standardLaborTime', hours)
+    expect(set).toHaveBeenCalledWith('standardLabourTime', hours)
   })
 })
 
 const service = (customFields: Partial<z.infer<typeof formSchema>> = {}) => {
-  return { name: 'Service 1', standardLaborTime: 1, laborMinutes: 60, ...customFields }
+  return { name: 'Service 1', standardLabourTime: 1, labourMinutes: 60, ...customFields }
 }

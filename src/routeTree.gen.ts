@@ -17,6 +17,7 @@ import { Route as InventoryRouteRouteImport } from './routes/inventory/route'
 import { Route as Inventory_categoriesRouteRouteImport } from './routes/inventory_categories/route'
 import { Route as Inventory_itemsRouteRouteImport } from './routes/inventory_items/route'
 import { Route as Service_templatesRouteRouteImport } from './routes/service_templates/route'
+import { Route as SuppliersRouteRouteImport } from './routes/suppliers/route'
 import { Route as Units_of_measureRouteRouteImport } from './routes/units_of_measure/route'
 import { Route as Work_ordersRouteRouteImport } from './routes/work_orders/route'
 
@@ -31,6 +32,7 @@ const Inventory_itemsIndexLazyRouteImport =
 const Service_templatesIndexLazyRouteImport = createFileRoute(
   '/service_templates/',
 )()
+const SuppliersIndexLazyRouteImport = createFileRoute('/suppliers/')()
 const Units_of_measureIndexLazyRouteImport =
   createFileRoute('/units_of_measure/')()
 const UsersIndexLazyRouteImport = createFileRoute('/users/')()
@@ -41,6 +43,11 @@ const Service_templatesIdIndexLazyRouteImport = createFileRoute(
 )()
 const Service_templatesNewIndexLazyRouteImport = createFileRoute(
   '/service_templates/new/',
+)()
+const Work_ordersNewIndexLazyRouteImport =
+  createFileRoute('/work_orders/new/')()
+const Work_ordersIdServicesIndexLazyRouteImport = createFileRoute(
+  '/work_orders/$id/services/',
 )()
 
 const CalendarRouteRoute = CalendarRouteRouteImport.update({
@@ -72,6 +79,11 @@ const Inventory_itemsRouteRoute = Inventory_itemsRouteRouteImport.update({
 const Service_templatesRouteRoute = Service_templatesRouteRouteImport.update({
   id: '/service_templates',
   path: '/service_templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuppliersRouteRoute = SuppliersRouteRouteImport.update({
+  id: '/suppliers',
+  path: '/suppliers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Units_of_measureRouteRoute = Units_of_measureRouteRouteImport.update({
@@ -129,6 +141,13 @@ const Service_templatesIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/service_templates/index.lazy').then((d) => d.Route),
   )
+const SuppliersIndexLazyRoute = SuppliersIndexLazyRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SuppliersRouteRoute,
+} as any).lazy(() =>
+  import('./routes/suppliers/index.lazy').then((d) => d.Route),
+)
 const Units_of_measureIndexLazyRoute =
   Units_of_measureIndexLazyRouteImport.update({
     id: '/',
@@ -172,6 +191,21 @@ const Service_templatesNewIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/service_templates/new/index.lazy').then((d) => d.Route),
   )
+const Work_ordersNewIndexLazyRoute = Work_ordersNewIndexLazyRouteImport.update({
+  id: '/new/',
+  path: '/new/',
+  getParentRoute: () => Work_ordersRouteRoute,
+} as any).lazy(() =>
+  import('./routes/work_orders/new/index.lazy').then((d) => d.Route),
+)
+const Work_ordersIdServicesIndexLazyRoute =
+  Work_ordersIdServicesIndexLazyRouteImport.update({
+    id: '/$id/services/',
+    path: '/$id/services/',
+    getParentRoute: () => Work_ordersRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/work_orders/$id/services/index.lazy').then((d) => d.Route),
+  )
 
 export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRouteRouteWithChildren
@@ -180,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/inventory_categories': typeof Inventory_categoriesRouteRouteWithChildren
   '/inventory_items': typeof Inventory_itemsRouteRouteWithChildren
   '/service_templates': typeof Service_templatesRouteRouteWithChildren
+  '/suppliers': typeof SuppliersRouteRouteWithChildren
   '/units_of_measure': typeof Units_of_measureRouteRouteWithChildren
   '/work_orders': typeof Work_ordersRouteRouteWithChildren
   '/calendar/': typeof CalendarIndexLazyRoute
@@ -188,12 +223,15 @@ export interface FileRoutesByFullPath {
   '/inventory_categories/': typeof Inventory_categoriesIndexLazyRoute
   '/inventory_items/': typeof Inventory_itemsIndexLazyRoute
   '/service_templates/': typeof Service_templatesIndexLazyRoute
+  '/suppliers/': typeof SuppliersIndexLazyRoute
   '/units_of_measure/': typeof Units_of_measureIndexLazyRoute
   '/users/': typeof UsersIndexLazyRoute
   '/vehicles/': typeof VehiclesIndexLazyRoute
   '/work_orders/': typeof Work_ordersIndexLazyRoute
   '/service_templates/$id/': typeof Service_templatesIdIndexLazyRoute
   '/service_templates/new/': typeof Service_templatesNewIndexLazyRoute
+  '/work_orders/new/': typeof Work_ordersNewIndexLazyRoute
+  '/work_orders/$id/services/': typeof Work_ordersIdServicesIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/calendar': typeof CalendarIndexLazyRoute
@@ -202,12 +240,15 @@ export interface FileRoutesByTo {
   '/inventory_categories': typeof Inventory_categoriesIndexLazyRoute
   '/inventory_items': typeof Inventory_itemsIndexLazyRoute
   '/service_templates': typeof Service_templatesIndexLazyRoute
+  '/suppliers': typeof SuppliersIndexLazyRoute
   '/units_of_measure': typeof Units_of_measureIndexLazyRoute
   '/users': typeof UsersIndexLazyRoute
   '/vehicles': typeof VehiclesIndexLazyRoute
   '/work_orders': typeof Work_ordersIndexLazyRoute
   '/service_templates/$id': typeof Service_templatesIdIndexLazyRoute
   '/service_templates/new': typeof Service_templatesNewIndexLazyRoute
+  '/work_orders/new': typeof Work_ordersNewIndexLazyRoute
+  '/work_orders/$id/services': typeof Work_ordersIdServicesIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -217,6 +258,7 @@ export interface FileRoutesById {
   '/inventory_categories': typeof Inventory_categoriesRouteRouteWithChildren
   '/inventory_items': typeof Inventory_itemsRouteRouteWithChildren
   '/service_templates': typeof Service_templatesRouteRouteWithChildren
+  '/suppliers': typeof SuppliersRouteRouteWithChildren
   '/units_of_measure': typeof Units_of_measureRouteRouteWithChildren
   '/work_orders': typeof Work_ordersRouteRouteWithChildren
   '/calendar/': typeof CalendarIndexLazyRoute
@@ -225,12 +267,15 @@ export interface FileRoutesById {
   '/inventory_categories/': typeof Inventory_categoriesIndexLazyRoute
   '/inventory_items/': typeof Inventory_itemsIndexLazyRoute
   '/service_templates/': typeof Service_templatesIndexLazyRoute
+  '/suppliers/': typeof SuppliersIndexLazyRoute
   '/units_of_measure/': typeof Units_of_measureIndexLazyRoute
   '/users/': typeof UsersIndexLazyRoute
   '/vehicles/': typeof VehiclesIndexLazyRoute
   '/work_orders/': typeof Work_ordersIndexLazyRoute
   '/service_templates/$id/': typeof Service_templatesIdIndexLazyRoute
   '/service_templates/new/': typeof Service_templatesNewIndexLazyRoute
+  '/work_orders/new/': typeof Work_ordersNewIndexLazyRoute
+  '/work_orders/$id/services/': typeof Work_ordersIdServicesIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -241,6 +286,7 @@ export interface FileRouteTypes {
     | '/inventory_categories'
     | '/inventory_items'
     | '/service_templates'
+    | '/suppliers'
     | '/units_of_measure'
     | '/work_orders'
     | '/calendar/'
@@ -249,12 +295,15 @@ export interface FileRouteTypes {
     | '/inventory_categories/'
     | '/inventory_items/'
     | '/service_templates/'
+    | '/suppliers/'
     | '/units_of_measure/'
     | '/users/'
     | '/vehicles/'
     | '/work_orders/'
     | '/service_templates/$id/'
     | '/service_templates/new/'
+    | '/work_orders/new/'
+    | '/work_orders/$id/services/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/calendar'
@@ -263,12 +312,15 @@ export interface FileRouteTypes {
     | '/inventory_categories'
     | '/inventory_items'
     | '/service_templates'
+    | '/suppliers'
     | '/units_of_measure'
     | '/users'
     | '/vehicles'
     | '/work_orders'
     | '/service_templates/$id'
     | '/service_templates/new'
+    | '/work_orders/new'
+    | '/work_orders/$id/services'
   id:
     | '__root__'
     | '/calendar'
@@ -277,6 +329,7 @@ export interface FileRouteTypes {
     | '/inventory_categories'
     | '/inventory_items'
     | '/service_templates'
+    | '/suppliers'
     | '/units_of_measure'
     | '/work_orders'
     | '/calendar/'
@@ -285,12 +338,15 @@ export interface FileRouteTypes {
     | '/inventory_categories/'
     | '/inventory_items/'
     | '/service_templates/'
+    | '/suppliers/'
     | '/units_of_measure/'
     | '/users/'
     | '/vehicles/'
     | '/work_orders/'
     | '/service_templates/$id/'
     | '/service_templates/new/'
+    | '/work_orders/new/'
+    | '/work_orders/$id/services/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -300,6 +356,7 @@ export interface RootRouteChildren {
   Inventory_categoriesRouteRoute: typeof Inventory_categoriesRouteRouteWithChildren
   Inventory_itemsRouteRoute: typeof Inventory_itemsRouteRouteWithChildren
   Service_templatesRouteRoute: typeof Service_templatesRouteRouteWithChildren
+  SuppliersRouteRoute: typeof SuppliersRouteRouteWithChildren
   Units_of_measureRouteRoute: typeof Units_of_measureRouteRouteWithChildren
   Work_ordersRouteRoute: typeof Work_ordersRouteRouteWithChildren
   UsersIndexLazyRoute: typeof UsersIndexLazyRoute
@@ -348,6 +405,13 @@ declare module '@tanstack/react-router' {
       path: '/service_templates'
       fullPath: '/service_templates'
       preLoaderRoute: typeof Service_templatesRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suppliers': {
+      id: '/suppliers'
+      path: '/suppliers'
+      fullPath: '/suppliers'
+      preLoaderRoute: typeof SuppliersRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/units_of_measure': {
@@ -406,6 +470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Service_templatesIndexLazyRouteImport
       parentRoute: typeof Service_templatesRouteRoute
     }
+    '/suppliers/': {
+      id: '/suppliers/'
+      path: '/'
+      fullPath: '/suppliers/'
+      preLoaderRoute: typeof SuppliersIndexLazyRouteImport
+      parentRoute: typeof SuppliersRouteRoute
+    }
     '/units_of_measure/': {
       id: '/units_of_measure/'
       path: '/'
@@ -447,6 +518,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/service_templates/new/'
       preLoaderRoute: typeof Service_templatesNewIndexLazyRouteImport
       parentRoute: typeof Service_templatesRouteRoute
+    }
+    '/work_orders/new/': {
+      id: '/work_orders/new/'
+      path: '/new'
+      fullPath: '/work_orders/new/'
+      preLoaderRoute: typeof Work_ordersNewIndexLazyRouteImport
+      parentRoute: typeof Work_ordersRouteRoute
+    }
+    '/work_orders/$id/services/': {
+      id: '/work_orders/$id/services/'
+      path: '/$id/services'
+      fullPath: '/work_orders/$id/services/'
+      preLoaderRoute: typeof Work_ordersIdServicesIndexLazyRouteImport
+      parentRoute: typeof Work_ordersRouteRoute
     }
   }
 }
@@ -530,6 +615,18 @@ const Service_templatesRouteRouteWithChildren =
     Service_templatesRouteRouteChildren,
   )
 
+interface SuppliersRouteRouteChildren {
+  SuppliersIndexLazyRoute: typeof SuppliersIndexLazyRoute
+}
+
+const SuppliersRouteRouteChildren: SuppliersRouteRouteChildren = {
+  SuppliersIndexLazyRoute: SuppliersIndexLazyRoute,
+}
+
+const SuppliersRouteRouteWithChildren = SuppliersRouteRoute._addFileChildren(
+  SuppliersRouteRouteChildren,
+)
+
 interface Units_of_measureRouteRouteChildren {
   Units_of_measureIndexLazyRoute: typeof Units_of_measureIndexLazyRoute
 }
@@ -545,10 +642,14 @@ const Units_of_measureRouteRouteWithChildren =
 
 interface Work_ordersRouteRouteChildren {
   Work_ordersIndexLazyRoute: typeof Work_ordersIndexLazyRoute
+  Work_ordersNewIndexLazyRoute: typeof Work_ordersNewIndexLazyRoute
+  Work_ordersIdServicesIndexLazyRoute: typeof Work_ordersIdServicesIndexLazyRoute
 }
 
 const Work_ordersRouteRouteChildren: Work_ordersRouteRouteChildren = {
   Work_ordersIndexLazyRoute: Work_ordersIndexLazyRoute,
+  Work_ordersNewIndexLazyRoute: Work_ordersNewIndexLazyRoute,
+  Work_ordersIdServicesIndexLazyRoute: Work_ordersIdServicesIndexLazyRoute,
 }
 
 const Work_ordersRouteRouteWithChildren =
@@ -561,6 +662,7 @@ const rootRouteChildren: RootRouteChildren = {
   Inventory_categoriesRouteRoute: Inventory_categoriesRouteRouteWithChildren,
   Inventory_itemsRouteRoute: Inventory_itemsRouteRouteWithChildren,
   Service_templatesRouteRoute: Service_templatesRouteRouteWithChildren,
+  SuppliersRouteRoute: SuppliersRouteRouteWithChildren,
   Units_of_measureRouteRoute: Units_of_measureRouteRouteWithChildren,
   Work_ordersRouteRoute: Work_ordersRouteRouteWithChildren,
   UsersIndexLazyRoute: UsersIndexLazyRoute,

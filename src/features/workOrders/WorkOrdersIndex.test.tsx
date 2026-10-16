@@ -22,4 +22,10 @@ describe('WorkOrdersIndex', () => {
       expect(within(row).getByText(workOrders[ind].number)).toBeInTheDocument()
     })
   })
+
+  test('creates an order on its own page', () => {
+    render(<SidebarProvider><WorkOrdersIndex /></SidebarProvider>)
+
+    expect(screen.getByRole('link', { name: 'Crear orden de reparación' })).toHaveAttribute('href', '/work_orders/new')
+  })
 })

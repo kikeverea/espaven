@@ -1,4 +1,5 @@
 /* plop:imports */
+import type { Supplier } from '@/features/suppliers/types'
 import type { Vehicle } from '@/features/vehicles/types'
 import type { Technician, User } from '@/features/users/types'
 import type { WorkOrder } from '@/features/workOrders/types'
@@ -12,6 +13,7 @@ import type { InventoryCategory } from '@/features/inventoryCategories/types.ts'
 export const createFactories = () => {
   const ids = {
     /* plop:ids */
+    supplier: 1,
     vehicle: 1,
     workOrder: 1,
     user: 1,
@@ -27,6 +29,17 @@ export const createFactories = () => {
   const now = () => new Date().toISOString()
 
   /* plop:factories */
+
+  const supplier = (args: Partial<Supplier> = {}): Supplier => ({
+    id: ids.supplier++,
+    name: 'Test name',
+    city: 'Test city',
+    phone: 'Test phone',
+    email: 'Test email',
+    color: 'Test color',
+    createdAt: now(),
+    ...args,
+  })
 
   const vehicle = (args: Partial<Vehicle> = {}): Vehicle => ({
     id: ids.vehicle++,
@@ -139,7 +152,7 @@ export const createFactories = () => {
   const serviceTemplate = (args: Partial<ServiceTemplate> = {}): ServiceTemplate => ({
     id: ids.serviceTemplate++,
     name: 'Template 1',
-    expectedMinutes: 60,
+    labourMinutes: 60,
     priceCents: 2000,
     createdAt: now(),
     ...args
@@ -147,6 +160,7 @@ export const createFactories = () => {
 
   return {
     /* plop:exports */
+    supplier,
     vehicle,
     user,
     workOrder,

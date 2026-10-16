@@ -24,9 +24,11 @@ export const useServices = (target: 'active' | 'discarded') =>
   })
 
 /* A work order's services, top level only: their parts come within them */
-export const useWorkOrderServices = (workOrderId: WorkOrder['id']) =>
+export const useWorkOrderServices = (workOrderId?: WorkOrder['id']) =>
   useQuery({
     queryKey: [ ...serviceKeys.all, 'workOrder', workOrderId ],
     queryFn: () => api.getAll({}, { workOrderId }),
     select: data => data.collection,
+    enabled: workOrderId != null,         // an order yet to be created has none
   })
+

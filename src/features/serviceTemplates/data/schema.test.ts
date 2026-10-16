@@ -40,7 +40,7 @@ describe('serviceTemplateFormSchema', () => {
 
   it.each([
     ['price', 0],
-    ['expectedHours', 0],
+    ['labourHours', 0],
   ])('rejects if %s is less than minimum', (field, min) => {
     const valid = formSchema.safeParse(serviceTemplate({ [field]: min }))
     const invalid = formSchema.safeParse(serviceTemplate({ [field]: min - 1 }))
@@ -52,7 +52,7 @@ describe('serviceTemplateFormSchema', () => {
 
 const serviceTemplate = (args: Partial<ServiceTemplate> = {}) => ({
   name: 'Template 1',
-  expectedHours: 1,
+  labourHours: 1,
   price: 2,
   ...args
 })

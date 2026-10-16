@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 import type { WorkOrder } from '@/features/workOrders/types'
@@ -18,7 +19,7 @@ const DetailsServices = ({ order }: { order: WorkOrder }) => {
     .map(service => service.id === saving?.id ? { ...service, ...saving } as Service : service)
     .filter(service => service.status !== 'cancelled')
 
-  const total = services.reduce((minutes, service) => minutes + (service.expectedMinutes ?? 0), 0)
+  const total = services.reduce((minutes, service) => minutes + (service.labourMinutes ?? 0), 0)
 
   const toggle = (service: Service) =>
     update(
@@ -28,7 +29,17 @@ const DetailsServices = ({ order }: { order: WorkOrder }) => {
 
   return (
     <section aria-label='Servicios' className='flex flex-col px-5 pt-4 pb-6'>
-      <h3 className='text-sm font-semibold'>Servicios</h3>
+      <div className='flex items-center gap-2'>
+        <h3 className='text-sm font-semibold'>Servicios</h3>
+        <span className='flex-1' />
+        <Link
+          to='/work_orders/$id/services'
+          params={{ id: String(order.id) }}
+          className='grid h-7 place-content-center rounded-[7px] border border-[#D6D3CF] px-2.5 text-xs font-medium hover:bg-[#F5F5F4]'
+        >
+          + Añadir servicios
+        </Link>
+      </div>
 
       { services.length === 0 && <p className='pt-2.5 text-[13px] text-[#78716C]'>Sin servicios.</p> }
 
@@ -51,8 +62,8 @@ const DetailsServices = ({ order }: { order: WorkOrder }) => {
                   { checked && <Check className='size-[11px]' strokeWidth={ 3.5 } /> }
                 </span>
                 <span className={ cn('min-w-0 flex-1 text-sm', checked ? 'text-[#78716C]' : 'text-[#1C1917]') }>{ service.name }</span>
-                { service.expectedMinutes != null &&
-                  <span className={ cn(MONO, 'text-xs text-[#78716C]') }>{ duration(service.expectedMinutes) }</span>
+                { service.labourMinutes != null &&
+                  <span className={ cn(MONO, 'text-xs text-[#78716C]') }>{ duration(service.labourMinutes) }</span>
                 }
               </button>
             </li>

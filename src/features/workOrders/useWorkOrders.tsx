@@ -22,6 +22,14 @@ export const useScheduledWorkOrders = (day: Date) =>
     queryFn: () => api.getAll(),
   })
 
+/* One order, by its id alone. None for an order yet to be created */
+export const useWorkOrderById = (id?: WorkOrder['id']) =>
+  useQuery({
+    queryKey: [ ...workOrderKeys.all, 'one', id ],
+    queryFn: () => api.get(id!),
+    enabled: id != null,
+  })
+
 /* One order, as it is now. `known`, the order as it was last seen, shows while it loads */
 export const useWorkOrder = (known: WorkOrder) =>
   useQuery({

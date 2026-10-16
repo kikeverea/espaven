@@ -21,3 +21,11 @@ export const useServiceTemplates = (target: 'active' | 'discarded') =>
       ),
     }),
   })
+
+/* The templates to pick from: the top level ones, a group's children within it */
+export const useServiceCatalogue = () =>
+  useQuery({
+    queryKey: [ ...serviceTemplateKeys.all, 'catalogue' ],
+    queryFn: () => api.getAll({}, { roots: true }),
+    select: data => data.collection.filter(template => !template.discardedAt),
+  })

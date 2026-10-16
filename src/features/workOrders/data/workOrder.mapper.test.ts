@@ -45,4 +45,20 @@ describe('workOrder api', () => {
 
     expect(bodyOf(spy)).toEqual({ labour_minutes: 30 })
   })
+
+  test('sends the services to add and drop as services_attributes, their items as items_attributes', async () => {
+    const spy = respondWith({ id: 1, status: 'not_started' })
+
+    await api.update(1, { services: [
+      { serviceTemplateId: 3, name: 'Alineación', labourMinutes: 45, items: [ { inventoryItemId: 8, quantity: 2 } ] },
+      { name: 'Discos', labourMinutes: 60, items: [], saveAsTemplate: true, inventoryCategoryId: 4 },
+      { id: 12, remove: true },
+    ] })
+
+    expect(bodyOf(spy)).toEqual({ services_attributes: [
+      { service_template_id: 3, name: 'Alineación', labour_minutes: 45, items_attributes: [ { inventory_item_id: 8, quantity: 2 } ] },
+      { name: 'Discos', labour_minutes: 60, items_attributes: [], save_as_template: true, inventory_category_id: 4 },
+      { id: 12, _destroy: true },
+    ] })
+  })
 })

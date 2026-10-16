@@ -9,7 +9,7 @@ import { BlinkProvider } from '@/components/Blinker/BlinkContext.tsx'
 import { AbilityProvider } from '@casl/react'
 import { ability, type AppAbility } from '@/lib/ability.ts'
 import NewInquiriesBlinker from '@/features/inquiries/NewInquiriesBlinker.tsx'
-import { Inbox, User, CirclePile, Scale, NotepadTextDashed, Wrench, ChartBarStacked, Cog, CalendarDays } from 'lucide-react'
+import { Inbox, User, CirclePile, Scale, NotepadTextDashed, Wrench, ChartBarStacked, Cog, CalendarDays, Truck } from 'lucide-react'
 
 export type RouterContext = {
   queryClient: QueryClient
@@ -38,6 +38,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
                 { label: 'Categorías', path: '/inventory_categories', icon: <ChartBarStacked />, subject: 'InventoryCategory' },
                 { label: 'Partes y consumibles', path: '/inventory_items', icon: <Cog />, subject: 'InventoryItem' },
                 { label: 'Uds. de medida', path: '/units_of_measure', icon: <Scale />, subject: 'UnitOfMeasure' },
+                { label: 'Proveedores', path: '/suppliers', icon: <Truck />, subject: 'Supplier' },
               ],
             }}/>
             <SidebarInset>
