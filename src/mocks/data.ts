@@ -147,3 +147,23 @@ export const vehicles: Row[] = [
   vehicle(9406, '9032 MBC', 'Peugeot', '308 1.5 BlueHDi', 2022, 'Diésel', 21300, 'VF3LBYHZPNS123456', 9306, 60),
   vehicle(9407, '5520 KZR', 'Kia', 'Niro HEV', 2019, 'Híbrido', 77000, 'KNACC81CGK5123456', 9301, 200),
 ]
+
+const listing = (id: number, name: string, status: string, euros: number, plate_number: string, year: number, kilometres: number, fuel: string, gearbox: string, updated: number, more: Row | object = {}): Row => ({
+  id, name, status, price_cents: euros * 100, plate_number, year, kilometres, fuel, gearbox,
+  power: null, itv_until: null, doors: 5, emissions_tag: null, equipment: [], description: null, photos: [],
+  created_at: daysAgo(updated + 10), updated_at: daysAgo(updated),
+  ...more,
+})
+
+export const vehicleListings: Row[] = [
+  listing(9501, 'Peugeot 308 1.5 BlueHDi', 'published', 12900, '9032 MBC', 2019, 96400, 'diesel', 'manual', 1, {
+    power: 130, itv_until: '2027-05', emissions_tag: 'c',
+    equipment: [ 'Climatizador', 'Navegador', 'Cámara trasera', 'Control de crucero' ],
+    description: 'Revisado en nuestro taller, con mantenimiento al día y distribución cambiada a los 90.000 km.\n\nUn solo propietario. Garantía de 12 meses.',
+  }),
+  listing(9502, 'Seat Ibiza 1.0 TSI Style', 'published', 11500, '2290 LBM', 2020, 54200, 'petrol', 'manual', 3),
+  listing(9503, 'Renault Clio 1.5 dCi', 'reserved', 8400, '7713 JWS', 2018, 118900, 'diesel', 'manual', 2),
+  listing(9504, 'Volkswagen Golf 1.6 TDI', 'draft', 10200, '1184 HGT', 2017, 142300, 'diesel', 'manual', 0),
+  listing(9505, 'Toyota Yaris 1.5 Hybrid', 'published', 14700, '4521 KLM', 2021, 41700, 'hybrid', 'automatic', 5),
+  listing(9506, 'Citroën C4 Cactus PureTech', 'sold', 11900, '6411 LJD', 2019, 72800, 'petrol', 'automatic', 12),
+]

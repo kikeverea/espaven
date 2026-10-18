@@ -13,7 +13,7 @@ export type ApiMapper<TDomain extends Entity, TApiIn, TApiOut extends object & F
   fromApi?: (api: TApiIn) => TDomain
 }
 
-type ApiBody<T> = { body?: T }
+type ApiBody<T> = { body?: T | FormData }      // a FormData, files and all, goes as it is
 type ApiOptions<T> = Omit<RequestInit, 'body'> & ApiBody<T>
 
 /* What a collection is paged, searched, sorted and filtered with. A TableQuery is one */
@@ -137,9 +137,9 @@ function isEntityCollection(data: unknown): data is EntityCollection<Entity> {
 }
 
 function normalizeBody<T>(options: ApiOptions<T>, mapper: ((o: T) => unknown)): RequestInit {
-  const body = options.body
+  const body = options.body as T
 
-  return isObject(body)
+  return isObject(body) && !(body instanceof FormData)
     ? {
       ...options,
       body: JSON.stringify(mapper(body))
@@ -151,7 +151,8 @@ async function doFetch(path: string, options: RequestInit, headers: HeadersInit 
   const res = await fetch(path, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      // a FormData sets its own, with the boundary between its parts
+      ...(!(options.body instanceof FormData) && { 'Content-Type': 'application/json' }),
       Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
       ...headers
     },

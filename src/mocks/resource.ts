@@ -13,6 +13,7 @@ type MockResourceOptions = {
 export type MockResource = {
   handle: MockHandler
   insert: (row: Omit<Row, 'id'>) => Row
+  find: (id: number) => Row | undefined
 }
 
 /*
@@ -81,5 +82,5 @@ export const mockResource = (path: string, seed: Row[], options: MockResourceOpt
     }
   }
 
-  return { handle, insert }
+  return { handle, insert, find: id => rows.find(row => row.id === id) }
 }

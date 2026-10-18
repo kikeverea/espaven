@@ -1,6 +1,6 @@
 import { mockResource, type Row } from '@/mocks/resource'
 import type { MockHandler } from '@/mocks/server'
-import { categories, clients, items, serviceTemplates, suppliers, vehicles } from '@/mocks/data'
+import { categories, clients, items, serviceTemplates, suppliers, vehicleListings, vehicles } from '@/mocks/data'
 
 /*
  * Service templates with what the picker needs: categories, children and items. `roots=true`
@@ -94,7 +94,52 @@ const createVehicle: MockHandler = request => {
   return vehicleRows.insert({ ...body, client_name: clientName(body.client_id) })
 }
 
+/*
+ * Vehicles for sale, written as multipart forms. The photos sent are kept as object urls for as
+ * long as the page lives; those marked _destroy go
+ */
+const listingRows = mockResource('/vehicle_listings', vehicleListings, { searchIn: [ 'name', 'plate_number' ] })
+
+const NUMBERS = [ 'price_cents', 'year', 'kilometres', 'power', 'doors' ]
+let photoId = 9600
+
+const fromForm = (form: FormData, had: Row[]) => {
+  const row: Record<string, unknown> = {}
+  const photos: Record<string, Record<string, FormDataEntryValue>> = {}
+
+  for (const [ key, value ] of form.entries()) {
+    const [ , field, rest ] = key.match(/^vehicle_listing\[(\w+)\](.*)$/) ?? []
+
+    if (field === 'photos_attributes') {
+      const [ , index, attribute ] = rest.match(/^\[(\d+)\]\[(\w+)\]$/) ?? []
+      photos[index] = { ...photos[index], [attribute]: value }
+    }
+    else if (rest === '[]')
+      row[field] = [ ...(row[field] as unknown[] ?? []), value ].filter(Boolean)
+    else
+      row[field] = value === '' ? null : NUMBERS.includes(field) ? Number(value) : value
+  }
+
+  const dropped = Object.values(photos).filter(photo => photo._destroy).map(photo => Number(photo.id))
+  const added = Object.values(photos).filter(photo => photo.image instanceof File)
+    .map(photo => ({ id: photoId++, slot: photo.slot || null, url: URL.createObjectURL(photo.image as File) }))
+
+  return { ...row, photos: [ ...had.filter(({ id }) => !dropped.includes(id)), ...added ], updated_at: new Date().toISOString() }
+}
+
+const writeListing: MockHandler = request => {
+  const written = request.path.match(/^\/vehicle_listings(?:\/(\d+))?$/)
+  if (!written || !(request.body instanceof FormData) || ![ 'POST', 'PUT' ].includes(request.method))
+    return undefined
+
+  const [ , id ] = written
+  const had = id ? listingRows.find(Number(id))?.photos as Row[] ?? [] : []
+  return listingRows.handle({ ...request, body: fromForm(request.body, had) })
+}
+
 export const handlers: MockHandler[] = [
+  writeListing,
+  listingRows.handle,
   createVehicle,
   vehicleRows.handle,
   mockResource('/clients', clients, { searchIn: [ 'name', 'last_name' ] }).handle,

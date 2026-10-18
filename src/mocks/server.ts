@@ -8,7 +8,7 @@ export type MockRequest = {
   method: string
   path: string                      // after /api, without the query
   params: URLSearchParams
-  body: unknown
+  body: unknown                     // parsed from JSON, or the FormData as it was sent
   forward: (body: unknown) => Promise<Response>    // on to the api, with this body instead
 }
 
@@ -32,7 +32,7 @@ export const startMocks = (handlers: MockHandler[]) => {
         method: (init?.method ?? 'GET').toUpperCase(),
         path,
         params: url.searchParams,
-        body: init?.body ? JSON.parse(String(init.body)) : undefined,
+        body: init?.body instanceof FormData ? init.body : init?.body ? JSON.parse(String(init.body)) : undefined,
         forward: (body: unknown) => passThrough(input, { ...init, body: JSON.stringify(body) }),
       }
 

@@ -15,6 +15,7 @@ export type Subject =
   | 'InventoryItem'
   | 'UnitOfMeasure'
   | 'Supplier'
+  | 'VehicleListing'
 
 export type AppAbility = MongoAbility<[ Action, Subject ]>
 
@@ -30,7 +31,7 @@ export const rulesFor = (role: Role) => {
       can('manage', 'all')
       break
     case 'office':
-      can('manage', [ 'Inquiry', 'Contact', 'Service', 'WorkOrder', 'Inventory', 'Supplier' ])
+      can('manage', [ 'Inquiry', 'Contact', 'Service', 'WorkOrder', 'Inventory', 'Supplier', 'VehicleListing' ])
       break
     case 'technician':
       can('manage', [ 'Service', 'WorkOrder', 'Inventory' ])
